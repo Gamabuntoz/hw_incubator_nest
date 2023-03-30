@@ -26,7 +26,7 @@ export class PostsController {
   ) {
     const result = await this.postsService.findCommentsByPostId(id, query);
     if (!result) throw new NotFoundException();
-    return;
+    return result;
   }
 
   @HttpCode(HttpStatus.OK)
@@ -46,7 +46,7 @@ export class PostsController {
   async findPostById(@Param('id') id: string) {
     const result = await this.postsService.findPostById(id);
     if (!result) throw new NotFoundException();
-    return;
+    return result;
   }
 
   @HttpCode(HttpStatus.OK)

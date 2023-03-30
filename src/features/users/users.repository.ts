@@ -46,7 +46,6 @@ export class UsersRepository {
       ),
     );
   }
-
   async createUser(newUser: User) {
     const userInstance = new this.userModel(newUser);
     userInstance._id = newUser._id;

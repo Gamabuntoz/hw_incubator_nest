@@ -14,6 +14,8 @@ export class BlogsService {
   ) {}
 
   async findAllPostsByBlogId(id: string, term: QueryPostsDTO) {
+    const blogById = await this.findBlogById(id);
+    if (!blogById) return false;
     const queryData = new QueryPostsDTO(
       term.sortBy,
       term.sortDirection,
@@ -24,7 +26,7 @@ export class BlogsService {
   }
 
   async createPostByBlogId(id: string, inputData: InputPostDTO) {
-    const blogById = await this.findBlogById(id);
+    const blogById = await this.blogsRepository.findBlogById(id);
     if (!blogById) return false;
     const newPost = {
       _id: new Types.ObjectId(),
@@ -85,7 +87,16 @@ export class BlogsService {
   }
 
   async findBlogById(id: string) {
-    return this.blogsRepository.findBlogById(id);
+    const blogById = await this.blogsRepository.findBlogById(id);
+    if (!blogById) return false;
+    return new BlogInfoDTO(
+      blogById._id.toString(),
+      blogById.name,
+      blogById.description,
+      blogById.websiteUrl,
+      blogById.createdAt,
+      blogById.isMembership,
+    );
   }
 
   async updateBlog(id: string, inputBlogData: InputBlogDTO) {

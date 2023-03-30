@@ -3,24 +3,40 @@ import { PostsRepository } from './posts.repository';
 import { InputPostWithIdDTO, PostInfoDTO, QueryPostsDTO } from './posts.dto';
 import { Types } from 'mongoose';
 import { BlogsRepository } from '../blogs/blogs.repository';
+import { CommentsRepository } from '../comments/comments.repository';
 
 @Injectable()
 export class PostsService {
   constructor(
-    protected postRepository: PostsRepository,
-    protected blogRepository: BlogsRepository,
+    protected postsRepository: PostsRepository,
+    protected blogsRepository: BlogsRepository,
+    protected commentsRepository: CommentsRepository,
   ) {}
 
   async findCommentsByPostId(id: string, term: QueryPostsDTO) {
-    return this.postRepository.findCommentsByPostId(id, term);
+    const postById = await this.postsRepository.findPostById(id);
+    if (!postById) return false;
+    const queryData = new QueryPostsDTO(
+      term.sortBy,
+      term.sortDirection,
+      +(term.pageNumber ?? 1),
+      +(term.pageSize ?? 10),
+    );
+    return this.commentsRepository.findAllCommentsByPostId(id, queryData);
   }
 
   async findAllPosts(term: QueryPostsDTO) {
-    return this.postRepository.getAllPosts(term);
+    const queryData = new QueryPostsDTO(
+      term.sortBy,
+      term.sortDirection,
+      +(term.pageNumber ?? 1),
+      +(term.pageSize ?? 10),
+    );
+    return this.postsRepository.findAllPosts(queryData);
   }
 
   async createPost(inputData: InputPostWithIdDTO) {
-    const blogById = await this.blogRepository.findBlogById(inputData.blogId);
+    const blogById = await this.blogsRepository.findBlogById(inputData.blogId);
     if (!blogById) return false;
     const newPost = {
       _id: new Types.ObjectId(),
@@ -31,7 +47,7 @@ export class PostsService {
       blogName: blogById.name,
       createdAt: new Date().toISOString(),
     };
-    await this.postRepository.createPost(newPost);
+    await this.postsRepository.createPost(newPost);
     return new PostInfoDTO(
       newPost._id!.toString(),
       newPost.title,
@@ -50,14 +66,14 @@ export class PostsService {
   }
 
   async findPostById(id: string) {
-    return this.postRepository.findPostById(id);
+    return this.postsRepository.findPostById(id);
   }
 
   async updatePost(id: string, inputPostData: InputPostWithIdDTO) {
-    return this.postRepository.updatePost(id, inputPostData);
+    return this.postsRepository.updatePost(id, inputPostData);
   }
 
   async deletePost(id: string) {
-    return this.postRepository.deletePost(id);
+    return this.postsRepository.deletePost(id);
   }
 }

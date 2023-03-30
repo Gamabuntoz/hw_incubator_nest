@@ -24,7 +24,9 @@ export class PostsController {
     @Param('id') id: string,
     @Query() query: QueryPostsDTO,
   ) {
-    return this.postsService.findCommentsByPostId(id, query);
+    const result = await this.postsService.findCommentsByPostId(id, query);
+    if (!result) throw new NotFoundException();
+    return;
   }
 
   @HttpCode(HttpStatus.OK)
@@ -42,7 +44,9 @@ export class PostsController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findPostById(@Param('id') id: string) {
-    return this.postsService.findPostById(id);
+    const result = await this.postsService.findPostById(id);
+    if (!result) throw new NotFoundException();
+    return;
   }
 
   @HttpCode(HttpStatus.OK)
@@ -51,7 +55,9 @@ export class PostsController {
     @Param('id') id: string,
     @Body() inputData: InputPostWithIdDTO,
   ) {
-    return this.postsService.updatePost(id, inputData);
+    const result = await this.postsService.updatePost(id, inputData);
+    if (!result) throw new NotFoundException();
+    return;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

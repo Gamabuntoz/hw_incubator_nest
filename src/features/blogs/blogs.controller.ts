@@ -26,7 +26,9 @@ export class BlogsController {
     @Param('id') id: string,
     @Query() query: QueryPostsDTO,
   ) {
-    return this.blogsService.findAllPostsByBlogId(id, query);
+    const result = await this.blogsService.findAllPostsByBlogId(id, query);
+    if (!result) throw new NotFoundException();
+    return;
   }
 
   @HttpCode(HttpStatus.CREATED)
@@ -35,7 +37,9 @@ export class BlogsController {
     @Param('id') id: string,
     @Body() inputData: InputPostDTO,
   ) {
-    return this.blogsService.createPostByBlogId(id, inputData);
+    const result = await this.blogsService.createPostByBlogId(id, inputData);
+    if (!result) throw new NotFoundException();
+    return;
   }
 
   @HttpCode(HttpStatus.OK)
@@ -53,13 +57,16 @@ export class BlogsController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findBlogById(@Param('id') id: string) {
-    return this.blogsService.findBlogById(id);
+    const result = await this.blogsService.findBlogById(id);
+    if (!result) throw new NotFoundException();
+    return;
   }
 
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async updateBlog(@Param('id') id: string, @Body() inputData: InputBlogDTO) {
-    return this.blogsService.updateBlog(id, inputData);
+    const result = await this.blogsService.updateBlog(id, inputData);
+    if (!result) throw new NotFoundException();
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

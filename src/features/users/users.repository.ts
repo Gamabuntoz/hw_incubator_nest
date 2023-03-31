@@ -25,7 +25,7 @@ export class UsersRepository {
         ],
       };
     }
-    let sort = 'createdAt';
+    let sort = 'accountData.createdAt';
     if (sortBy) {
       sort = sortBy;
     }

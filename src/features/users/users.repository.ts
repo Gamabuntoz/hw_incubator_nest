@@ -27,7 +27,7 @@ export class UsersRepository {
     }
     let sort = 'accountData.createdAt';
     if (sortBy) {
-      sort = sortBy;
+      sort = `accountData.${sortBy}`;
     }
     const totalCount = await this.userModel.countDocuments(filter);
     const findAllUsers = await this.userModel

@@ -73,7 +73,7 @@ export class BlogsService {
       name: inputData.name,
       description: inputData.description,
       websiteUrl: inputData.websiteUrl,
-      isMembership: true,
+      isMembership: false,
     };
     await this.blogsRepository.createBlog(newBlog);
     return new BlogInfoDTO(

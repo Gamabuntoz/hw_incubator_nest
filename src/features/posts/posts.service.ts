@@ -4,6 +4,7 @@ import { InputPostWithIdDTO, PostInfoDTO, QueryPostsDTO } from './posts.dto';
 import { Types } from 'mongoose';
 import { BlogsRepository } from '../blogs/blogs.repository';
 import { CommentsRepository } from '../comments/comments.repository';
+import { BlogInfoDTO } from '../blogs/blogs.dto';
 
 @Injectable()
 export class PostsService {
@@ -66,7 +67,23 @@ export class PostsService {
   }
 
   async findPostById(id: string) {
-    return this.postsRepository.findPostById(id);
+    const postById = await this.postsRepository.findPostById(id);
+    if (!postById) return false;
+    return new PostInfoDTO(
+      postById._id.toString(),
+      postById.title,
+      postById.shortDescription,
+      postById.content,
+      postById.blogId,
+      postById.blogName,
+      postById.createdAt,
+      {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [],
+      },
+    );
   }
 
   async updatePost(id: string, inputPostData: InputPostWithIdDTO) {

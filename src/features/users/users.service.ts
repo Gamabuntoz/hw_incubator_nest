@@ -11,16 +11,20 @@ export class UsersService {
   constructor(protected usersRepository: UsersRepository) {}
 
   async findUsers(term: QueryUsersDTO) {
-    const queryData = new QueryUsersDTO(
-      term.sortBy,
-      term.sortDirection,
-      +(term.pageNumber ?? 1),
-      +(term.pageSize ?? 10),
-      term.searchLoginTerm,
-      term.searchEmailTerm,
+    const sortBy = term.sortBy;
+    const sortDirection = term.sortDirection;
+    const pageNumber = +(term.pageNumber ?? 1);
+    const pageSize = +(term.pageSize ?? 10);
+    const searchLoginTerm = term.searchLoginTerm;
+    const searchEmailTerm = term.searchEmailTerm;
+    return this.usersRepository.findUsers(
+      sortBy,
+      sortDirection,
+      pageNumber,
+      pageSize,
+      searchLoginTerm,
+      searchEmailTerm,
     );
-
-    return this.usersRepository.findUsers(queryData);
   }
 
   async createUser(inputData: InputUserDTO) {

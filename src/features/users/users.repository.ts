@@ -2,38 +2,45 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './users.schema';
 import { Model, Types } from 'mongoose';
-import { QueryUsersDTO, AllUsersInfoDTO, UserInfoDTO } from './users.dto';
+import { AllUsersInfoDTO, UserInfoDTO } from './users.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findUsers(queryData: QueryUsersDTO) {
+  async findUsers(
+    sortBy: string,
+    sortDirection: string,
+    pageNumber: number,
+    pageSize: number,
+    searchLoginTerm: string,
+    searchEmailTerm: string,
+  ) {
     let filter = {};
-    if (queryData.searchLoginTerm || queryData.searchEmailTerm) {
+    if (searchLoginTerm || searchEmailTerm) {
       filter = {
         $or: [
-          { login: { $regex: queryData.searchLoginTerm, $options: '$i' } },
-          { email: { $regex: queryData.searchEmailTerm, $options: '$i' } },
+          { login: { $regex: searchLoginTerm, $options: '$i' } },
+          { email: { $regex: searchEmailTerm, $options: '$i' } },
         ],
       };
     }
     let sort = 'createdAt';
-    if (queryData.sortBy) {
-      sort = queryData.sortBy;
+    if (sortBy) {
+      sort = sortBy;
     }
     const totalCount = await this.userModel.countDocuments(filter);
     const findAllUsers = await this.userModel
       .find(filter)
-      .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
-      .skip((queryData.pageNumber - 1) * queryData.pageSize)
-      .limit(queryData.pageSize)
+      .sort({ [sort]: sortDirection === 'asc' ? 1 : -1 })
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
       .lean();
 
     return new AllUsersInfoDTO(
-      Math.ceil(totalCount / queryData.pageSize),
-      queryData.pageNumber,
-      queryData.pageSize,
+      Math.ceil(totalCount / pageSize),
+      pageNumber,
+      pageSize,
       totalCount,
       findAllUsers.map(
         (u) =>

@@ -20,8 +20,8 @@ export class UsersRepository {
     if (searchLoginTerm || searchEmailTerm) {
       filter = {
         $or: [
-          { login: { $regex: searchLoginTerm, $options: '$i' } },
-          { email: { $regex: searchEmailTerm, $options: '$i' } },
+          { 'accountData.login': { $regex: searchLoginTerm, $options: '$i' } },
+          { 'accountData.email': { $regex: searchEmailTerm, $options: '$i' } },
         ],
       };
     }

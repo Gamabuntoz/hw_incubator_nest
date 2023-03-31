@@ -62,7 +62,7 @@ export class BlogsController {
     return result;
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   async updateBlog(@Param('id') id: string, @Body() inputData: InputBlogDTO) {
     const result = await this.blogsService.updateBlog(id, inputData);

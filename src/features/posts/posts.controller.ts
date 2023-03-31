@@ -49,7 +49,7 @@ export class PostsController {
     return result;
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   async updatePost(
     @Param('id') id: string,

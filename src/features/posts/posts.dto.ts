@@ -1,3 +1,5 @@
+import { IsString, Length } from 'class-validator';
+
 type newestLikesType = {
   addedAt: string;
   userId: string;
@@ -42,14 +44,27 @@ export class QueryPostsDTO {
 }
 
 export class InputPostWithIdDTO {
+  @Length(1, 30)
+  @IsString()
   title: string;
+  @Length(1, 100)
+  @IsString()
   shortDescription: string;
+  @Length(1, 1000)
+  @IsString()
   content: string;
+  @IsString()
   blogId: string;
 }
 
 export class InputPostDTO {
+  @Length(1, 30)
+  @IsString()
   title: string;
+  @Length(1, 100)
+  @IsString()
   shortDescription: string;
+  @Length(1, 1000)
+  @IsString()
   content: string;
 }

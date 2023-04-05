@@ -1,3 +1,5 @@
+import { IsString, Length } from 'class-validator';
+
 export class CommentInfoDTO {
   constructor(
     public id: string,
@@ -23,4 +25,10 @@ export class AllCommentsInfoDTO {
     public totalCount: number,
     public items: CommentInfoDTO[],
   ) {}
+}
+
+export class InputCommentDTO {
+  @Length(20, 300)
+  @IsString()
+  content: string;
 }

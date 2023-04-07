@@ -14,7 +14,17 @@ export class CommentsRepository {
   async findCommentById(id: string) {
     return this.commentModel.findOne({ _id: new Types.ObjectId(id) });
   }
-
+  async createComment(newComment: Comment) {
+    const commentInstance = new this.commentModel(newComment);
+    commentInstance._id = newComment._id;
+    commentInstance.postId = newComment.postId;
+    commentInstance.content = newComment.content;
+    commentInstance.userId = newComment.userId;
+    commentInstance.userLogin = newComment.userLogin;
+    commentInstance.createdAt = newComment.createdAt;
+    await commentInstance.save();
+    return newComment;
+  }
   async findAllCommentsByPostId(id: string, queryData: QueryPostsDTO) {
     let sort = 'createdAt';
     if (queryData.sortBy) {

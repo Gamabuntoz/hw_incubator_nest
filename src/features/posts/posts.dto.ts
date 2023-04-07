@@ -1,4 +1,4 @@
-import { IsString, Length } from 'class-validator';
+import { Contains, IsIn, IsString, Length } from 'class-validator';
 
 type newestLikesType = {
   addedAt: string;
@@ -67,4 +67,11 @@ export class InputPostDTO {
   @Length(1, 1000)
   @IsString()
   content: string;
+}
+
+const LikeStatus = ['None', 'Like', 'Dislike'];
+
+export class InputLikeStatusForPostDTO {
+  @IsIn(LikeStatus)
+  likeStatus: string;
 }

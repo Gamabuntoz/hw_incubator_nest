@@ -4,7 +4,8 @@ import { InputPostWithIdDTO, PostInfoDTO, QueryPostsDTO } from './posts.dto';
 import { Types } from 'mongoose';
 import { BlogsRepository } from '../blogs/blogs.repository';
 import { CommentsRepository } from '../comments/comments.repository';
-import { BlogInfoDTO } from '../blogs/blogs.dto';
+import { UsersRepository } from '../users/users.repository';
+import { CommentInfoDTO } from '../comments/comments.dto';
 
 @Injectable()
 export class PostsService {
@@ -12,6 +13,7 @@ export class PostsService {
     protected postsRepository: PostsRepository,
     protected blogsRepository: BlogsRepository,
     protected commentsRepository: CommentsRepository,
+    protected usersRepository: UsersRepository,
   ) {}
 
   async findCommentsByPostId(id: string, term: QueryPostsDTO) {
@@ -82,6 +84,57 @@ export class PostsService {
         dislikesCount: 0,
         myStatus: 'None',
         newestLikes: [],
+      },
+    );
+  }
+
+  async updatePostLike(postId: string, likeStatus: string, userId: string) {
+    const updateLike = await this.postsRepository.updatePostLike(
+      likeStatus,
+      postId,
+      userId,
+    );
+    if (!updateLike) return false;
+    return true;
+  }
+
+  async setPostLike(postId: string, likeStatus: string, userId: string) {
+    const postLike = {
+      _id: new Types.ObjectId(),
+      userId: userId,
+      postId: postId,
+      status: likeStatus,
+      addedAt: new Date(),
+    };
+    await this.postsRepository.setPostLike(postLike);
+    return true;
+  }
+
+  async createCommentByPostId(postId: string, content: string, userId: string) {
+    const user = await this.usersRepository.findUserById(userId);
+    const postById = await this.postsRepository.findPostById(postId);
+    if (!postById) return false;
+    const newComment = {
+      _id: new Types.ObjectId(),
+      postId: postId,
+      content: content,
+      userId: userId,
+      userLogin: user.accountData.login,
+      createdAt: new Date().toISOString(),
+    };
+    await this.commentsRepository.createComment(newComment);
+    return new CommentInfoDTO(
+      newComment._id.toString(),
+      newComment.content,
+      {
+        userId: newComment.userId,
+        userLogin: newComment.userLogin,
+      },
+      newComment.createdAt,
+      {
+        dislikesCount: 0,
+        likesCount: 0,
+        myStatus: 'None',
       },
     );
   }

@@ -63,6 +63,10 @@ export class UsersRepository {
     return newUser;
   }
 
+  async findUserById(id: string) {
+    return this.userModel.findOne({ _id: new Types.ObjectId(id) });
+  }
+
   async deleteUser(id: string) {
     const result = await this.userModel.deleteOne({
       _id: new Types.ObjectId(id),

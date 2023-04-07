@@ -10,6 +10,7 @@ import {
   QueryPostsDTO,
 } from './posts.dto';
 import { BlogInfoDTO } from '../blogs/blogs.dto';
+import { PostLike } from './posts-likes.schema';
 
 @Injectable()
 export class PostsRepository {
@@ -93,6 +94,19 @@ export class PostsRepository {
       _id: new Types.ObjectId(id),
     });
     return result.deletedCount === 1;
+  }
+
+  async updatePostLike(postId: string, likeStatus: string, userId: string) {
+    const result = await this.postModel.updateOne(
+      { postId: postId, userId: userId },
+      { $set: { status: likeStatus } },
+    );
+    return result.matchedCount === 1;
+  }
+
+  async setPostLike(newPostlike: PostLike) {
+    await this.postModel.create(newPostlike);
+    return newPostlike;
   }
 
   async findAllPostsByBlogId(id: string, queryData: QueryPostsDTO) {

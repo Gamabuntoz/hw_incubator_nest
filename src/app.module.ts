@@ -25,6 +25,12 @@ import { BlogsService } from './features/blogs/blogs.service';
 import { BlogsRepository } from './features/blogs/blogs.repository';
 import { CommentsService } from './features/comments/comments.service';
 import { CommentsRepository } from './features/comments/comments.repository';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './features/auth/constants';
+import { LocalStrategy } from './features/auth/strategies/local.strategy';
+import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
+import { BasicStrategy } from './features/auth/strategies/basic.strategy';
 
 @Module({
   imports: [
@@ -33,6 +39,11 @@ import { CommentsRepository } from './features/comments/comments.repository';
     // PostsModule,
     // CommentsModule,
     ConfigModule.forRoot(),
+    PassportModule,
+    JwtModule.register({
+      secret: jwtConstants.secretAccessKey,
+      signOptions: { expiresIn: '5m' },
+    }),
     MongooseModule.forRoot(process.env.MONGO_URL),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
@@ -59,6 +70,9 @@ import { CommentsRepository } from './features/comments/comments.repository';
     BlogsRepository,
     CommentsService,
     CommentsRepository,
+    LocalStrategy,
+    JwtStrategy,
+    BasicStrategy,
   ],
 })
 export class AppModule {}

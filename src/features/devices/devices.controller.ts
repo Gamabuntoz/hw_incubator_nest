@@ -1,40 +1,33 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
-  Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { DevicesService } from './devices.service';
+import { JwtRefreshStrategy } from '../auth/strategies/jwt-refresh.strategy';
+import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 
 @Controller('devices')
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
 
-  @Post()
-  create(@Body() createDeviceDto) {
-    return this.devicesService.create(createDeviceDto);
-  }
-
+  @UseGuards(JwtRefreshStrategy)
   @Get()
-  findAll() {
-    return this.devicesService.findAll();
+  findAllUserDevices(@CurrentUserId() currentUserId) {
+    return this.devicesService.findAllUserDevices(currentUserId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.devicesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDeviceDto) {
-    return this.devicesService.update(+id, updateDeviceDto);
+  @UseGuards(JwtRefreshStrategy)
+  @Delete()
+  deleteAllDevicesExceptCurrent(@CurrentUserId() currentUserId) {
+    return this.devicesService.deleteAllDevicesExceptCurrent();
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.devicesService.remove(+id);
+  deleteDevicesById(@Param('id') id: string) {
+    return this.devicesService.deleteDevicesById(id);
   }
 }

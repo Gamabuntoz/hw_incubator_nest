@@ -5,14 +5,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TestingController } from './features/testing/testing.controller';
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
-import { UsersModule } from './features/users/users.module';
-import { PostsModule } from './features/posts/posts.module';
-import { CommentsModule } from './features/comments/comments.module';
-import { BlogsModule } from './features/blogs/blogs.module';
-import { User, UserSchema } from './features/users/users.schema';
-import { Post, PostSchema } from './features/posts/posts.schema';
-import { Blog, BlogSchema } from './features/blogs/blogs.schema';
-import { Comment, CommentSchema } from './features/comments/comments.schema';
+import { UsersModule } from './features/users/applications/users.module';
+import { PostsModule } from './features/posts/applications/posts.module';
+import { CommentsModule } from './features/comments/applications/comments.module';
+import { BlogsModule } from './features/blogs/applications/blogs.module';
+import { User, UserSchema } from './features/users/applications/users.schema';
+import { Post, PostSchema } from './features/posts/applications/posts.schema';
+import { Blog, BlogSchema } from './features/blogs/applications/blogs.schema';
+import {
+  Comment,
+  CommentSchema,
+} from './features/comments/applications/comments.schema';
 import { UsersController } from './features/users/users.controller';
 import { PostsController } from './features/posts/posts.controller';
 import { BlogsController } from './features/blogs/blogs.controller';
@@ -27,10 +30,19 @@ import { CommentsService } from './features/comments/comments.service';
 import { CommentsRepository } from './features/comments/comments.repository';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './features/auth/constants';
+import { jwtConstants } from './features/auth/applications/constants';
 import { LocalStrategy } from './features/auth/strategies/local.strategy';
-import { JwtStrategy } from './features/auth/strategies/jwt.strategy';
+import { JwtAccessStrategy } from './features/auth/strategies/jwt-access.strategy';
 import { BasicStrategy } from './features/auth/strategies/basic.strategy';
+import {
+  CommentLike,
+  CommentLikeSchema,
+} from './features/comments/applications/comments-likes.schema';
+import {
+  PostLike,
+  PostLikeSchema,
+} from './features/posts/applications/posts-likes.schema';
+import { OptionalJwtAuthGuard } from './features/auth/guards/optionalJwtAuth.guard';
 
 @Module({
   imports: [
@@ -50,6 +62,8 @@ import { BasicStrategy } from './features/auth/strategies/basic.strategy';
       { name: Post.name, schema: PostSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: CommentLike.name, schema: CommentLikeSchema },
+      { name: PostLike.name, schema: PostLikeSchema },
     ]),
   ],
   controllers: [
@@ -71,8 +85,9 @@ import { BasicStrategy } from './features/auth/strategies/basic.strategy';
     CommentsService,
     CommentsRepository,
     LocalStrategy,
-    JwtStrategy,
+    JwtAccessStrategy,
     BasicStrategy,
+    OptionalJwtAuthGuard,
   ],
 })
 export class AppModule {}

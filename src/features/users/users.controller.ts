@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { InputUserDTO, QueryUsersDTO } from './users.dto';
+import { InputUserDTO, QueryUsersDTO } from './applications/users.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { tryObjectId } from '../../app.service';
 
@@ -38,7 +38,6 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
-    tryObjectId(id);
     const result = await this.userService.deleteUser(id);
     if (!result) throw new NotFoundException();
     return;

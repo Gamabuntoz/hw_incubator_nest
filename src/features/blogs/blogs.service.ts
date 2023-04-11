@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { QueryPostsDTO } from '../posts/posts.dto';
+import { QueryPostsDTO } from '../posts/applications/posts.dto';
 import { BlogsRepository } from './blogs.repository';
-import { BlogInfoDTO, InputBlogDTO, QueryBlogsDTO } from './blogs.dto';
+import {
+  BlogInfoDTO,
+  InputBlogDTO,
+  QueryBlogsDTO,
+} from './applications/blogs.dto';
 import { Types } from 'mongoose';
-import { InputPostDTO, PostInfoDTO } from '../posts/posts.dto';
+import { InputPostDTO, PostInfoDTO } from '../posts/applications/posts.dto';
 import { PostsRepository } from '../posts/posts.repository';
+import { tryObjectId } from '../../app.service';
 
 @Injectable()
 export class BlogsService {
@@ -14,6 +19,7 @@ export class BlogsService {
   ) {}
 
   async findAllPostsByBlogId(id: string, term: QueryPostsDTO) {
+    tryObjectId(id);
     const blogById = await this.findBlogById(id);
     if (!blogById) return false;
     const queryData = new QueryPostsDTO(
@@ -26,6 +32,7 @@ export class BlogsService {
   }
 
   async createPostByBlogId(id: string, inputData: InputPostDTO) {
+    tryObjectId(id);
     const blogById = await this.blogsRepository.findBlogById(id);
     if (!blogById) return false;
     const newPost = {
@@ -87,6 +94,7 @@ export class BlogsService {
   }
 
   async findBlogById(id: string) {
+    tryObjectId(id);
     const blogById = await this.blogsRepository.findBlogById(id);
     if (!blogById) return false;
     return new BlogInfoDTO(
@@ -100,10 +108,12 @@ export class BlogsService {
   }
 
   async updateBlog(id: string, inputBlogData: InputBlogDTO) {
+    tryObjectId(id);
     return this.blogsRepository.updateBlog(id, inputBlogData);
   }
 
   async deleteBlog(id: string) {
+    tryObjectId(id);
     return this.blogsRepository.deleteBlog(id);
   }
 }

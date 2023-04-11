@@ -10,11 +10,13 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { QueryPostsDTO } from '../posts/posts.dto';
+import { QueryPostsDTO } from '../posts/applications/posts.dto';
 import { BlogsService } from './blogs.service';
-import { InputBlogDTO, QueryBlogsDTO } from './blogs.dto';
-import { InputPostDTO } from '../posts/posts.dto';
+import { InputBlogDTO, QueryBlogsDTO } from './applications/blogs.dto';
+import { InputPostDTO } from '../posts/applications/posts.dto';
+import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -31,6 +33,7 @@ export class BlogsController {
     return result;
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post(':id/posts')
   async createPostByBlogId(
@@ -48,6 +51,7 @@ export class BlogsController {
     return this.blogsService.findAllBlogs(query);
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createBlog(@Body() inputData: InputBlogDTO) {
@@ -62,6 +66,7 @@ export class BlogsController {
     return result;
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   async updateBlog(@Param('id') id: string, @Body() inputData: InputBlogDTO) {
@@ -70,6 +75,7 @@ export class BlogsController {
     return;
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async deleteBlog(@Param('id') id: string) {

@@ -1,10 +1,13 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../users/users.schema';
+import { User, UserDocument } from '../users/applications/users.schema';
 import { Model } from 'mongoose';
-import { Post, PostDocument } from '../posts/posts.schema';
-import { Comment, CommentDocument } from '../comments/comments.schema';
-import { Blog, BlogDocument } from '../blogs/blogs.schema';
+import { Post, PostDocument } from '../posts/applications/posts.schema';
+import {
+  Comment,
+  CommentDocument,
+} from '../comments/applications/comments.schema';
+import { Blog, BlogDocument } from '../blogs/applications/blogs.schema';
 @Controller('testing')
 export class TestingController {
   constructor(

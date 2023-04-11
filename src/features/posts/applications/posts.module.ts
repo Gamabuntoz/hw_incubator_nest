@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { PostsController } from './posts.controller';
-import { PostsService } from './posts.service';
-import { PostsRepository } from './posts.repository';
+import { PostsController } from '../posts.controller';
+import { PostsService } from '../posts.service';
+import { PostsRepository } from '../posts.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from './posts.schema';
-import { BlogsModule } from '../blogs/blogs.module';
+import { BlogsModule } from '../../blogs/applications/blogs.module';
 
 @Module({
   imports: [

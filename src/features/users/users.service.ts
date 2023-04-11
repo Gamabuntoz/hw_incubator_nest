@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
-import { InputUserDTO, QueryUsersDTO, UserInfoDTO } from './users.dto';
+import {
+  InputUserDTO,
+  QueryUsersDTO,
+  UserInfoDTO,
+} from './applications/users.dto';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import add from 'date-fns/add';
 import { Types } from 'mongoose';
+import { tryObjectId } from '../../app.service';
 
 @Injectable()
 export class UsersService {
@@ -63,6 +68,7 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
+    tryObjectId(id);
     return await this.usersRepository.deleteUser(id);
   }
 

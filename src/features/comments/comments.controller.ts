@@ -1,16 +1,73 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Param,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { InputLikeStatusDTO } from '../posts/applications/posts.dto';
+import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
+import { InputCommentDTO } from './applications/comments.dto';
 
 @Controller('comments')
 export class CommentsController {
   constructor(protected commentsService: CommentsService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id/like-status')
+  async updateLikeStatusForCommentById(
+    @Param('id') id: string,
+    @Body() inputData: InputLikeStatusDTO,
+    @CurrentUserId() currentUserId,
+  ) {
+    const updateLike = await this.commentsService.updateCommentLike(
+      id,
+      inputData.likeStatus,
+      currentUserId,
+    );
+    if (updateLike) return;
+    const setLike = await this.commentsService.setCommentLike(
+      id,
+      inputData.likeStatus,
+      currentUserId,
+    );
+    if (!setLike) throw new NotFoundException();
+    return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id')
+  async updateComment(
+    @Param('id') id: string,
+    @Body() inputData: InputCommentDTO,
+    @CurrentUserId() currentUserId,
+  ) {
+    const result = await this.commentsService.updateComment(
+      id,
+      inputData,
+      currentUserId,
+    );
+    if (!result) throw new NotFoundException();
+    return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  async deleteComment(@Param('id') id: string, @CurrentUserId() currentUserId) {
+    const result = await this.commentsService.deleteComment(id, currentUserId);
+    if (!result) throw new NotFoundException();
+    return;
+  }
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')

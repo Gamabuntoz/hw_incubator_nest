@@ -14,14 +14,15 @@ import {
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import {
-  InputLikeStatusForPostDTO,
+  InputLikeStatusDTO,
   InputPostWithIdDTO,
   QueryPostsDTO,
-} from './posts.dto';
-import { InputCommentDTO } from '../comments/comments.dto';
+} from './applications/posts.dto';
+import { InputCommentDTO } from '../comments/applications/comments.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUserId } from '../auth/current-user.param.decorator';
+import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
+import { OptionalJwtAuthGuard } from '../auth/guards/optionalJwtAuth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -29,10 +30,10 @@ export class PostsController {
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Put(':id')
+  @Put(':id/like-status')
   async updateLikeStatusForPostById(
     @Param('id') id: string,
-    @Body() inputData: InputLikeStatusForPostDTO,
+    @Body() inputData: InputLikeStatusDTO,
     @CurrentUserId() currentUserId,
   ) {
     const updateLike = await this.postsService.updatePostLike(
@@ -50,13 +51,19 @@ export class PostsController {
     return;
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id/comments')
   async findCommentsByPostId(
     @Param('id') id: string,
     @Query() query: QueryPostsDTO,
+    @CurrentUserId() currentUserId,
   ) {
-    const result = await this.postsService.findCommentsByPostId(id, query);
+    const result = await this.postsService.findCommentsByPostId(
+      id,
+      query,
+      currentUserId,
+    );
     if (!result) throw new NotFoundException();
     return result;
   }
@@ -78,23 +85,30 @@ export class PostsController {
     return result;
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAllPosts(@Query() query: QueryPostsDTO) {
-    return this.postsService.findAllPosts(query);
+  async findAllPosts(
+    @Query() query: QueryPostsDTO,
+    @CurrentUserId() currentUserId,
+  ) {
+    return this.postsService.findAllPosts(query, currentUserId);
   }
 
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createPost(@Body() inputData: InputPostWithIdDTO) {
-    return this.postsService.createPost(inputData);
+    const result = await this.postsService.createPost(inputData);
+    if (!result) throw new NotFoundException();
+    return result;
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findPostById(@Param('id') id: string) {
-    const result = await this.postsService.findPostById(id);
+  async findPostById(@Param('id') id: string, @CurrentUserId() currentUserId) {
+    const result = await this.postsService.findPostById(id, currentUserId);
     if (!result) throw new NotFoundException();
     return result;
   }

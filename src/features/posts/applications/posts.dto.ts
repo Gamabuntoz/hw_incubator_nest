@@ -71,7 +71,7 @@ export class InputPostDTO {
 
 const LikeStatus = ['None', 'Like', 'Dislike'];
 
-export class InputLikeStatusForPostDTO {
+export class InputLikeStatusDTO {
   @IsIn(LikeStatus)
   likeStatus: string;
 }

@@ -24,7 +24,7 @@ export class PostsService {
     protected usersRepository: UsersRepository,
   ) {}
 
-  async findCommentsByPostId(id: string, term: QueryPostsDTO) {
+  async findCommentsByPostId(id: string, term: QueryPostsDTO, userId?: string) {
     tryObjectId(id);
     const postById = await this.postsRepository.findPostById(id);
     if (!postById) return false;

@@ -1,18 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtConstants } from '../applications/constants';
+import { Request } from 'express';
+import { DevicesRepository } from '../../devices/devices.repository';
+import { request } from 'express';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
+  constructor(protected devicesRepository: DevicesRepository) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtConstants.secretRefreshKey,
+      secretOrKey: jwtConstants.secretKey,
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => {
+          const data = req?.cookies['refreshToken'];
+          if (!data) return null;
+          return data;
+        },
+      ]),
     });
   }
   async validate(payload: any) {
-    return { id: payload.sub };
+    console.log(payload + ' refresh strategy');
+    const device = await this.devicesRepository.findDeviceByDateAndUserId(
+      payload.issueAt,
+      payload.userId,
+    );
+    if (!device) throw new UnauthorizedException();
+    request.user = {
+      userId: payload.userId,
+      deviceId: payload.deviceId,
+      issueAt: payload.issueAt,
+    };
+    return;
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DevicesRepository } from './devices.repository';
-import { authDeviceDTO } from './applications/devices.dto';
+import { AuthDeviceDTO } from './applications/devices.dto';
 import { tryObjectId } from '../../app.service';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class DevicesService {
     );
     return allUserDevices.map(
       (d) =>
-        new authDeviceDTO(
+        new AuthDeviceDTO(
           d.ipAddress,
           d.deviceName,
           new Date(d.issueAt).toISOString(),

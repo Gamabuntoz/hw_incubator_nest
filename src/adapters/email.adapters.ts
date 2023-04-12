@@ -13,7 +13,7 @@ const senderData = {
 };
 
 @Injectable()
-export class emailAdapter {
+export class EmailAdapter {
   async sendEmail(user: User) {
     const transporter = nodemailer.createTransport(
       new EmailSenderDTO('gmail', {

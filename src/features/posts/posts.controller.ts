@@ -20,15 +20,15 @@ import {
 } from './applications/posts.dto';
 import { InputCommentDTO } from '../comments/applications/comments.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
-import { OptionalJwtAuthGuard } from '../auth/guards/optionalJwtAuth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
 @Controller('posts')
 export class PostsController {
   constructor(protected postsService: PostsService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id/like-status')
   async updateLikeStatusForPostById(
@@ -68,7 +68,7 @@ export class PostsController {
     return result;
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post(':id/comments')
   async createCommentByPostId(

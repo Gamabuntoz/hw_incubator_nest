@@ -15,7 +15,7 @@ export class OptionalJwtAuthGuard implements CanActivate {
       const [type, token] = req.headers.authorization.split(' ');
       if (type === 'Bearer') {
         const payload = this.jwtService.verify(token, {
-          secret: jwtConstants.secretAccessKey,
+          secret: jwtConstants.secretKey,
         });
         req.user.id = payload.userId;
       }

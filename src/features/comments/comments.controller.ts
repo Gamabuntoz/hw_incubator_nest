@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { InputLikeStatusDTO } from '../posts/applications/posts.dto';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { InputCommentDTO } from './applications/comments.dto';
@@ -20,7 +20,7 @@ import { InputCommentDTO } from './applications/comments.dto';
 export class CommentsController {
   constructor(protected commentsService: CommentsService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id/like-status')
   async updateLikeStatusForCommentById(
@@ -43,7 +43,7 @@ export class CommentsController {
     return;
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   async updateComment(
@@ -60,7 +60,7 @@ export class CommentsController {
     return;
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async deleteComment(@Param('id') id: string, @CurrentUserId() currentUserId) {

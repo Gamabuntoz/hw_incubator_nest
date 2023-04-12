@@ -42,7 +42,15 @@ import {
   PostLike,
   PostLikeSchema,
 } from './features/posts/applications/posts-likes.schema';
-import { OptionalJwtAuthGuard } from './features/auth/guards/optionalJwtAuth.guard';
+import { OptionalJwtAuthGuard } from './features/auth/guards/optional-jwt-auth.guard';
+import { EmailAdapter } from './adapters/email.adapters';
+import { AuthController } from './features/auth/auth.controller';
+import { AuthService } from './features/auth/auth.service';
+import {
+  Device,
+  DeviceSchema,
+} from './features/devices/applications/devices.schema';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -50,10 +58,14 @@ import { OptionalJwtAuthGuard } from './features/auth/guards/optionalJwtAuth.gua
     // BlogsModule,
     // PostsModule,
     // CommentsModule,
+    ThrottlerModule.forRoot({
+      ttl: 10,
+      limit: 5,
+    }),
     ConfigModule.forRoot(),
     PassportModule,
     JwtModule.register({
-      secret: jwtConstants.secretAccessKey,
+      secret: jwtConstants.secretKey,
       signOptions: { expiresIn: '5m' },
     }),
     MongooseModule.forRoot(process.env.MONGO_URL),
@@ -64,6 +76,7 @@ import { OptionalJwtAuthGuard } from './features/auth/guards/optionalJwtAuth.gua
       { name: Comment.name, schema: CommentSchema },
       { name: CommentLike.name, schema: CommentLikeSchema },
       { name: PostLike.name, schema: PostLikeSchema },
+      { name: Device.name, schema: DeviceSchema },
     ]),
   ],
   controllers: [
@@ -73,8 +86,11 @@ import { OptionalJwtAuthGuard } from './features/auth/guards/optionalJwtAuth.gua
     PostsController,
     BlogsController,
     CommentsController,
+    AuthController,
   ],
   providers: [
+    EmailAdapter,
+    AuthService,
     AppService,
     UsersService,
     UsersRepository,

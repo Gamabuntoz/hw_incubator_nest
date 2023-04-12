@@ -1,4 +1,3 @@
-/*
 import {
   Body,
   Controller,
@@ -6,7 +5,12 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UnauthorizedException,
   UseGuards,
+  Ip,
+  Headers,
+  Res,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   InputConfirmationCodeDTO,
@@ -16,8 +20,14 @@ import {
   InputRegistrationDTO,
 } from './applications/auth.dto';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
 import { CurrentUserId } from './applications/current-user.param.decorator';
+import { Response } from 'express';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { RefreshTokenPayload } from './applications/get-refresh-token-payload.param.decorator';
+import { RefreshPayloadDTO } from '../devices/applications/devices.dto';
+import { SkipThrottle } from '@nestjs/throttler';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -35,22 +45,38 @@ export class AuthController {
     return this.authService.newPassword(inputData);
   }
 
+  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() inputData: InputLoginDTO) {
-    return this.authService.login(inputData);
+  async login(
+    @Body() inputData: InputLoginDTO,
+    @Ip() ip: string,
+    @Headers('user-agent') deviceName: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.login(inputData, ip, deviceName);
+    if (!result) throw new UnauthorizedException();
+    response.cookie('refreshToken', result.refreshToken, {
+      secure: true,
+      httpOnly: true,
+    });
+    return { accessToken: result.accessToken };
   }
 
+  @SkipThrottle()
+  @UseGuards(JwtRefreshStrategy)
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
-  async refreshTokens() {
-    return this.authService.refreshTokens();
+  async refreshTokens(@RefreshTokenPayload() tokenPayload: RefreshPayloadDTO) {
+    return this.authService.refreshTokens(tokenPayload);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-confirmation')
   async confirmEmail(@Body() inputData: InputConfirmationCodeDTO) {
-    return this.authService.confirmEmail(inputData);
+    const result = await this.authService.confirmEmail(inputData);
+    if (!result) throw new BadRequestException();
+    return;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -62,20 +88,24 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-email-resending')
   async resendEmail(@Body() inputData: InputEmailDTO) {
-    return this.authService.resendEmail(inputData);
+    const result = this.authService.resendEmail(inputData);
+    if (!result) throw new BadRequestException();
+    return;
   }
 
+  @UseGuards(JwtRefreshStrategy)
+  @SkipThrottle()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
-  async logout() {
-    return this.authService.logout();
+  async logout(@RefreshTokenPayload() tokenPayload: RefreshPayloadDTO) {
+    return this.authService.logout(tokenPayload);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @SkipThrottle()
+  @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('me')
   async getInfoAboutCurrentUser(@CurrentUserId() currentUserId) {
     return this.authService.getInfoAboutCurrentUser(currentUserId);
   }
 }
-*/

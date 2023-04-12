@@ -8,9 +8,9 @@ export class Device {
   @Prop({ required: true })
   _id: Types.ObjectId;
   @Prop({ required: true })
-  issueAt: string;
+  issueAt: number;
   @Prop({ required: true })
-  expiresAt: string;
+  expiresAt: number;
   @Prop({ required: true })
   ipAddress: string;
   @Prop({ required: true })

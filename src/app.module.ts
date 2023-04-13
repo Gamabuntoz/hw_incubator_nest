@@ -54,6 +54,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { DevicesRepository } from './features/devices/devices.repository';
 import { DevicesController } from './features/devices/devices.controller';
 import { DevicesService } from './features/devices/devices.service';
+import { BlogExistsRule } from './features/auth/applications/validate-blog-id.param.decorator';
 
 @Module({
   imports: [
@@ -93,6 +94,7 @@ import { DevicesService } from './features/devices/devices.service';
     DevicesController,
   ],
   providers: [
+    BlogExistsRule,
     EmailAdapter,
     AuthService,
     AppService,

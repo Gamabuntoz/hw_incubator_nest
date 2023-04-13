@@ -42,12 +42,22 @@ export class InputBlogDTO {
   @IsString()
   @Length(1, 15)
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   name: string;
   @IsString()
   @Length(1, 500)
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   description: string;
   @IsUrl()
   @Length(1, 100)

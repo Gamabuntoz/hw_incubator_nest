@@ -7,7 +7,7 @@ import {
   Validate,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { BlogExists } from '../../auth/applications/validate-blog-id.param.decorator';
+import { BlogExistsRule } from '../../auth/applications/validate-blog-id.param.decorator';
 
 type newestLikesType = {
   addedAt: string;
@@ -56,20 +56,35 @@ export class InputPostWithIdDTO {
   @Length(1, 30)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   title: string;
   @Length(1, 100)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   shortDescription: string;
   @Length(1, 1000)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   content: string;
   @IsString()
-  @Validate(BlogExists)
+  @Validate(BlogExistsRule)
   blogId: string;
 }
 
@@ -77,17 +92,32 @@ export class InputPostDTO {
   @Length(1, 30)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   title: string;
   @Length(1, 100)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   shortDescription: string;
   @Length(1, 1000)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   content: string;
 }
 

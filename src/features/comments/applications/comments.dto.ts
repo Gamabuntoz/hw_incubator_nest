@@ -32,6 +32,11 @@ export class InputCommentDTO {
   @Length(20, 300)
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   content: string;
 }

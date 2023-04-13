@@ -1,4 +1,5 @@
-import { IsEmail, Length, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UserInfoDTO {
   constructor(
@@ -33,9 +34,30 @@ export class QueryUsersDTO {
 export class InputUserDTO {
   @Length(3, 10)
   @Matches(/^[a-zA-Z0-9_-]*$/)
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   login: string;
   @Length(6, 20)
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   password: string;
   @IsEmail()
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
   email: string;
 }

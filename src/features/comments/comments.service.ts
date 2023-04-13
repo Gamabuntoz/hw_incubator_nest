@@ -16,6 +16,8 @@ export class CommentsService {
     userId: string,
   ) {
     tryObjectId(commentId);
+    const comment = await this.commentsRepository.findCommentById(commentId);
+    if (!comment) return false;
     const updateLike = await this.commentsRepository.updateCommentLike(
       likeStatus,
       commentId,
@@ -27,6 +29,8 @@ export class CommentsService {
 
   async setCommentLike(commentId: string, likeStatus: string, userId: string) {
     tryObjectId(commentId);
+    const comment = await this.commentsRepository.findCommentById(commentId);
+    if (!comment) return false;
     const commentLike = {
       _id: new Types.ObjectId(),
       userId: userId,

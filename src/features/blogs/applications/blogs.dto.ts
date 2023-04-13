@@ -46,6 +46,8 @@ export class InputBlogDTO {
   name: string;
   @IsString()
   @Length(1, 500)
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   description: string;
   @IsUrl()
   @Length(1, 100)

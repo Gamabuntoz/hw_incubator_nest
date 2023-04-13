@@ -1,4 +1,5 @@
-import { Contains, IsIn, IsString, Length } from 'class-validator';
+import { Contains, IsIn, IsNotEmpty, IsString, Length } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 type newestLikesType = {
   addedAt: string;
@@ -46,12 +47,18 @@ export class QueryPostsDTO {
 export class InputPostWithIdDTO {
   @Length(1, 30)
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   title: string;
   @Length(1, 100)
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   shortDescription: string;
   @Length(1, 1000)
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   content: string;
   @IsString()
   blogId: string;
@@ -60,12 +67,18 @@ export class InputPostWithIdDTO {
 export class InputPostDTO {
   @Length(1, 30)
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   title: string;
   @Length(1, 100)
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   shortDescription: string;
   @Length(1, 1000)
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   content: string;
 }
 

@@ -90,6 +90,10 @@ export class AuthService {
       inputData.email,
     );
     await this.usersService.createUser(inputData);
+    const user = await this.usersRepository.findUserByLoginOrEmail(
+      inputData.login,
+    );
+    await this.emailAdapter.sendEmail(user);
     return true;
   }
 

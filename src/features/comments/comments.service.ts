@@ -19,8 +19,8 @@ export class CommentsService {
     const comment = await this.commentsRepository.findCommentById(commentId);
     if (!comment) return false;
     const updateLike = await this.commentsRepository.updateCommentLike(
-      likeStatus,
       commentId,
+      likeStatus,
       userId,
     );
     if (!updateLike) return false;

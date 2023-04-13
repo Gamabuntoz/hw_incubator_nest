@@ -1,5 +1,13 @@
-import { Contains, IsIn, IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  Contains,
+  IsIn,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Validate,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
+import { BlogExists } from '../../auth/applications/validate-blog-id.param.decorator';
 
 type newestLikesType = {
   addedAt: string;
@@ -61,6 +69,7 @@ export class InputPostWithIdDTO {
   @Transform(({ value }) => value.trim())
   content: string;
   @IsString()
+  @Validate(BlogExists)
   blogId: string;
 }
 

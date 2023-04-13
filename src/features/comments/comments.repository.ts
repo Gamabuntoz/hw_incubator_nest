@@ -49,13 +49,13 @@ export class CommentsRepository {
     return result.matchedCount === 1;
   }
 
-  async setCommentLike(newCommentlike: CommentLike) {
-    const commentLikeInstance = new this.commentLikeModel(newCommentlike);
-    commentLikeInstance._id = newCommentlike._id;
-    commentLikeInstance.userId = newCommentlike.userId;
-    commentLikeInstance.commentId = newCommentlike.commentId;
-    commentLikeInstance.status = newCommentlike.status;
-    return newCommentlike;
+  async setCommentLike(newCommentLike: CommentLike) {
+    const commentLikeInstance = new this.commentLikeModel(newCommentLike);
+    commentLikeInstance._id = newCommentLike._id;
+    commentLikeInstance.userId = newCommentLike.userId;
+    commentLikeInstance.commentId = newCommentLike.commentId;
+    commentLikeInstance.status = newCommentLike.status;
+    return newCommentLike;
   }
 
   async countLikeStatusInfo(commentId: string, status: string) {

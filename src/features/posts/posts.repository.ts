@@ -91,7 +91,7 @@ export class PostsRepository {
   }
 
   async updatePostLike(postId: string, likeStatus: string, userId: string) {
-    const result = await this.postModel.updateOne(
+    const result = await this.postLikeModel.updateOne(
       { postId: postId, userId: userId },
       { $set: { status: likeStatus } },
     );

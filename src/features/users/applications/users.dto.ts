@@ -1,4 +1,4 @@
-import { IsAlphanumeric, IsEmail, Length } from 'class-validator';
+import { IsAlphanumeric, IsEmail, Length, Matches } from 'class-validator';
 
 export class UserInfoDTO {
   constructor(
@@ -32,7 +32,7 @@ export class QueryUsersDTO {
 
 export class InputUserDTO {
   @Length(3, 10)
-  @IsAlphanumeric()
+  @Matches(/^[a-zA-Z0-9_-]*$/)
   login: string;
   @Length(6, 20)
   password: string;

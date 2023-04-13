@@ -176,14 +176,16 @@ export class AuthService {
   }
 
   async resendEmail(inputData: InputEmailDTO) {
-    let user = await this.usersRepository.findUserByLoginOrEmail(
+    const user = await this.usersRepository.findUserByLoginOrEmail(
       inputData.email,
     );
     if (!user) return false;
     if (user.emailConfirmation.isConfirmed) return false;
     await this.usersRepository.setNewConfirmationCode(user);
-    user = await this.usersRepository.findUserByLoginOrEmail(inputData.email);
-    await this.emailAdapter.sendEmail(user);
+    const updatedUser = await this.usersRepository.findUserByLoginOrEmail(
+      inputData.email,
+    );
+    await this.emailAdapter.sendEmail(updatedUser);
     return true;
   }
 }

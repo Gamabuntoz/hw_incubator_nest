@@ -71,7 +71,7 @@ import { DevicesService } from './features/devices/devices.service';
       secret: jwtConstants.secretKey,
       signOptions: { expiresIn: '5m' },
     }),
-    MongooseModule.forRoot(process.env.MONGO_URL),
+    MongooseModule.forRoot(process.env.MONGO_URI),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Post.name, schema: PostSchema },

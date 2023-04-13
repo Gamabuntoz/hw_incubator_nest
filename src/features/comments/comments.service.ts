@@ -59,11 +59,11 @@ export class CommentsService {
     tryObjectId(id);
     const comment = await this.commentsRepository.findCommentById(id);
     if (!comment) return false;
-    const likesInfo = await this.commentsRepository.countLikeStatusInfo(
+    const likesCount = await this.commentsRepository.countLikeStatusInfo(
       id,
       'Like',
     );
-    const dislikesInfo = await this.commentsRepository.countLikeStatusInfo(
+    const dislikesCount = await this.commentsRepository.countLikeStatusInfo(
       id,
       'Dislike',
     );
@@ -77,8 +77,8 @@ export class CommentsService {
     }
     return this.createCommentViewInfo(
       comment,
-      likesInfo,
-      dislikesInfo,
+      likesCount,
+      dislikesCount,
       likeInfo,
     );
   }

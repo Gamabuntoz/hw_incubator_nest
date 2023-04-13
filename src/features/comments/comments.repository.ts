@@ -42,7 +42,7 @@ export class CommentsRepository {
     likeStatus: string,
     userId: string,
   ) {
-    const result = await this.commentModel.updateOne(
+    const result = await this.commentLikeModel.updateOne(
       { commentId: commentId, userId: userId },
       { $set: { status: likeStatus } },
     );
@@ -50,16 +50,12 @@ export class CommentsRepository {
   }
 
   async setCommentLike(newCommentLike: CommentLike) {
-    const commentLikeInstance = new this.commentLikeModel(newCommentLike);
-    commentLikeInstance._id = newCommentLike._id;
-    commentLikeInstance.userId = newCommentLike.userId;
-    commentLikeInstance.commentId = newCommentLike.commentId;
-    commentLikeInstance.status = newCommentLike.status;
+    await this.commentLikeModel.create(newCommentLike);
     return newCommentLike;
   }
 
   async countLikeStatusInfo(commentId: string, status: string) {
-    return this.commentModel.countDocuments({
+    return this.commentLikeModel.countDocuments({
       commentId: commentId,
       status: status,
     });
@@ -97,7 +93,7 @@ export class CommentsRepository {
 
   async findCommentLikeByCommentAndUserId(commentId: string, userId: string) {
     return this.commentLikeModel.findOne({
-      postId: commentId,
+      commentId: commentId,
       userId: userId,
     });
   }

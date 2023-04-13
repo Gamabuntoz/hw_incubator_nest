@@ -16,6 +16,7 @@ import { InputLikeStatusDTO } from '../posts/applications/posts.dto';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { InputCommentDTO } from './applications/comments.dto';
 import { SkipThrottle } from '@nestjs/throttler';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
 @SkipThrottle()
 @Controller('comments')
@@ -71,10 +72,17 @@ export class CommentsController {
     return;
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findCommentById(@Param('id') id: string) {
-    const result = await this.commentsService.findCommentById(id);
+  async findCommentById(
+    @Param('id') id: string,
+    @CurrentUserId() currentUserId,
+  ) {
+    const result = await this.commentsService.findCommentById(
+      id,
+      currentUserId,
+    );
     if (!result) throw new NotFoundException();
     return result;
   }

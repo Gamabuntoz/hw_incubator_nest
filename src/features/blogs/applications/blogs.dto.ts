@@ -1,4 +1,11 @@
-import { IsString, IsUrl, Length, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  Length,
+  MaxLength,
+} from 'class-validator';
 
 export class BlogInfoDTO {
   constructor(
@@ -34,6 +41,8 @@ export class QueryBlogsDTO {
 export class InputBlogDTO {
   @IsString()
   @Length(1, 15)
+  @IsNotEmpty()
+  @Transform(({ value }) => value.trim())
   name: string;
   @IsString()
   @Length(1, 500)

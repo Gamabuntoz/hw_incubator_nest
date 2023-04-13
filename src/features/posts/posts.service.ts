@@ -188,9 +188,11 @@ export class PostsService {
 
   async updatePostLike(postId: string, likeStatus: string, userId: string) {
     tryObjectId(postId);
+    const post = await this.postsRepository.findPostById(postId);
+    if (!post) return false;
     const updateLike = await this.postsRepository.updatePostLike(
-      likeStatus,
       postId,
+      likeStatus,
       userId,
     );
     if (!updateLike) return false;
@@ -199,6 +201,8 @@ export class PostsService {
 
   async setPostLike(postId: string, likeStatus: string, userId: string) {
     tryObjectId(postId);
+    const post = await this.postsRepository.findPostById(postId);
+    if (!post) return false;
     const postLike: PostLike = {
       _id: new Types.ObjectId(),
       userId: userId,

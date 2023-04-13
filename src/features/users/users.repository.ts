@@ -114,10 +114,15 @@ export class UsersRepository {
       hours: 1,
       minutes: 1,
     });
-    const userInstance = await this.userModel.findOne({ _id: user._id });
-    userInstance.emailConfirmation.confirmationCode = newCode;
-    userInstance.emailConfirmation.expirationDate = newDate;
-    await userInstance.save();
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          'emailConfirmation.confirmationCode': newCode,
+          'emailConfirmation.expirationDate': newDate,
+        },
+      },
+    );
     return true;
   }
 

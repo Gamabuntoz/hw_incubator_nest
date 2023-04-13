@@ -100,11 +100,12 @@ export class UsersRepository {
   }
 
   async updateConfirmation(id: string) {
-    const userInstance = await this.userModel.findOne({
-      _id: new Types.ObjectId(id),
-    });
-    userInstance.emailConfirmation.isConfirmed = true;
-    await userInstance.save();
+    await this.userModel.updateOne(
+      {
+        _id: new Types.ObjectId(id),
+      },
+      { $set: { 'emailConfirmation.isConfirmed': true } },
+    );
     return true;
   }
 

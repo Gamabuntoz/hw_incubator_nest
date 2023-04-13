@@ -75,7 +75,15 @@ export class AuthController {
   @Post('registration-confirmation')
   async confirmEmail(@Body() inputData: InputConfirmationCodeDTO) {
     const result = await this.authService.confirmEmail(inputData);
-    if (!result) throw new BadRequestException();
+    if (!result)
+      throw new BadRequestException({
+        errorsMessages: [
+          {
+            message: 'email already confirmed',
+            field: 'code',
+          },
+        ],
+      });
     return;
   }
 
@@ -91,7 +99,15 @@ export class AuthController {
   @Post('registration-email-resending')
   async resendEmail(@Body() inputData: InputEmailDTO) {
     const result = this.authService.resendEmail(inputData);
-    if (!result) throw new BadRequestException();
+    if (!result)
+      throw new BadRequestException({
+        errorsMessages: [
+          {
+            message: 'email already confirmed',
+            field: 'email',
+          },
+        ],
+      });
     return;
   }
 

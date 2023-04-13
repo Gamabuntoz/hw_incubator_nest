@@ -11,20 +11,24 @@ export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findUsers(
-    sortBy: string,
-    sortDirection: string,
-    pageNumber: number,
-    pageSize: number,
-    searchLoginTerm: string,
-    searchEmailTerm: string,
+    sortBy?: string,
+    sortDirection?: string,
+    pageNumber?: number,
+    pageSize?: number,
+    searchLoginTerm?: string,
+    searchEmailTerm?: string,
   ) {
-    let filter = {};
-    if (searchLoginTerm || searchEmailTerm) {
-      filter = {
-        $or: [
-          { 'accountData.login': { $regex: searchLoginTerm, $options: '$i' } },
-          { 'accountData.email': { $regex: searchEmailTerm, $options: '$i' } },
-        ],
+    const filter = {};
+    if (searchLoginTerm) {
+      filter['accountData.login'] = {
+        $regex: searchLoginTerm,
+        $options: 'i',
+      };
+    }
+    if (searchEmailTerm) {
+      filter['accountData.email'] = {
+        $regex: searchEmailTerm,
+        $options: 'i',
       };
     }
     let sort = 'accountData.createdAt';

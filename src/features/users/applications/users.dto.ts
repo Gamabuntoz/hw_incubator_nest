@@ -1,4 +1,4 @@
-import { IsAlphanumeric, IsEmail, Length, Matches } from 'class-validator';
+import { IsEmail, Length, Matches } from 'class-validator';
 
 export class UserInfoDTO {
   constructor(

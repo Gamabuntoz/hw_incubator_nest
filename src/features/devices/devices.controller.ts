@@ -4,7 +4,9 @@ import { CurrentUserId } from '../auth/applications/current-user.param.decorator
 import { RefreshTokenPayload } from '../auth/applications/get-refresh-token-payload.param.decorator';
 import { RefreshPayloadDTO } from './applications/devices.dto';
 import { JwtRefreshAuthGuard } from '../auth/guards/jwt-refresh-auth.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('devices')
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}

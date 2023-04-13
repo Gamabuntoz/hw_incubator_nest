@@ -93,7 +93,7 @@ export class AuthService {
     const user = await this.usersRepository.findUserByLoginOrEmail(
       inputData.login,
     );
-    this.emailAdapter.sendEmail(user);
+    await this.emailAdapter.sendEmail(user);
     return true;
   }
 
@@ -184,7 +184,7 @@ export class AuthService {
     await this.usersRepository.setNewConfirmationCode(user);
     user = await this.usersRepository.findUserByLoginOrEmail(inputData.email);
     console.log(user);
-    this.emailAdapter.sendEmail(user);
+    await this.emailAdapter.sendEmail(user);
     return true;
   }
 }

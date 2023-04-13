@@ -33,8 +33,7 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createUser(@Body() inputData: InputUserDTO) {
-    const result = await this.userService.createConfirmedUser(inputData);
-    if (!result) return result;
+    return this.userService.createConfirmedUser(inputData);
   }
 
   @UseGuards(BasicAuthGuard)

@@ -18,7 +18,7 @@ export class UsersRepository {
     searchLoginTerm?: string,
     searchEmailTerm?: string,
   ) {
-    const filter = { $or: [] };
+    let filter: any = { $or: [] };
     if (searchLoginTerm) {
       filter['$or'].push({
         'accountData.login': {
@@ -35,11 +35,13 @@ export class UsersRepository {
         },
       });
     }
+    if (!searchLoginTerm && !searchEmailTerm) {
+      filter = {};
+    }
     let sort = 'accountData.createdAt';
     if (sortBy) {
       sort = `accountData.${sortBy}`;
     }
-    console.log(filter);
     const totalCount = await this.userModel.countDocuments(filter);
     const findAllUsers = await this.userModel
       .find(filter)

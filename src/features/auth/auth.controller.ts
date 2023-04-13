@@ -98,7 +98,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-email-resending')
   async resendEmail(@Body() inputData: InputEmailDTO) {
-    const result = this.authService.resendEmail(inputData);
+    const result = await this.authService.resendEmail(inputData);
     if (!result)
       throw new BadRequestException({
         errorsMessages: [

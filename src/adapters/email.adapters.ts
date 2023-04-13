@@ -14,7 +14,7 @@ const senderData = {
 
 @Injectable()
 export class EmailAdapter {
-  async sendEmail(user: User) {
+  sendEmail(user: User) {
     const transporter = nodemailer.createTransport(
       new EmailSenderDTO('gmail', {
         user: process.env.EMAIL_USER || senderData.auth.user,
@@ -31,7 +31,7 @@ export class EmailAdapter {
             </p>`,
     });
   }
-  async sendEmailForPasswordRecovery(user: User) {
+  sendEmailForPasswordRecovery(user: User) {
     const transporter = nodemailer.createTransport(
       new EmailSenderDTO('gmail', {
         user: process.env.EMAIL_USER || senderData.auth.user,

@@ -36,6 +36,7 @@
     "cookie-parser": "^1.4.6",
     "date-fns": "^2.29.3",
     "mongoose": "^7.0.3",
+    "ngrok": "^4.3.3",
     "nodemailer": "^6.9.1",
     "passport": "^0.6.0",
     "passport-http": "^0.3.0",

@@ -61,10 +61,10 @@ import { DevicesService } from './features/devices/devices.service';
     // BlogsModule,
     // PostsModule,
     // CommentsModule,
-    ThrottlerModule.forRoot({
+    /*ThrottlerModule.forRoot({
       ttl: 10,
       limit: 5,
-    }),
+    }),*/
     ConfigModule.forRoot(),
     PassportModule,
     JwtModule.register({

@@ -17,18 +17,26 @@ import { BlogsService } from './blogs.service';
 import { InputBlogDTO, QueryBlogsDTO } from './applications/blogs.dto';
 import { InputPostDTO } from '../posts/applications/posts.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(protected blogsService: BlogsService) {}
 
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id/posts')
   async findAllPostsByBlogId(
     @Param('id') id: string,
     @Query() query: QueryPostsDTO,
+    @CurrentUserId() currentUserId,
   ) {
-    const result = await this.blogsService.findAllPostsByBlogId(id, query);
+    const result = await this.blogsService.findAllPostsByBlogId(
+      id,
+      query,
+      currentUserId,
+    );
     if (!result) throw new NotFoundException();
     return result;
   }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -14,7 +15,6 @@ import {
 import { UsersService } from './users.service';
 import { InputUserDTO, QueryUsersDTO } from './applications/users.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { tryObjectId } from '../../app.service';
 
 @Controller('users')
 export class UsersController {
@@ -31,7 +31,8 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createUser(@Body() inputData: InputUserDTO) {
-    return this.userService.createUser(inputData);
+    const result = await this.userService.createConfirmedUser(inputData);
+    if (!result) return result;
   }
 
   @UseGuards(BasicAuthGuard)

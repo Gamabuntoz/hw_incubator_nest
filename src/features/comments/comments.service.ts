@@ -1,8 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CommentsRepository } from './comments.repository';
 import { Types } from 'mongoose';
-import { InputCommentDTO } from './applications/comments.dto';
+import { CommentInfoDTO, InputCommentDTO } from './applications/comments.dto';
 import { tryObjectId } from '../../app.service';
+import { CommentLike } from './applications/comments-likes.schema';
+import { Comment } from './applications/comments.schema';
 
 @Injectable()
 export class CommentsService {
@@ -49,7 +51,7 @@ export class CommentsService {
     return this.commentsRepository.deleteComment(id);
   }
 
-  async findCommentById(id: string) {
+  async findCommentById(id: string, userId?: string) {
     tryObjectId(id);
     const comment = await this.commentsRepository.findCommentById(id);
     if (!comment) return false;
@@ -60,6 +62,42 @@ export class CommentsService {
     const dislikesInfo = await this.commentsRepository.countLikeStatusInfo(
       id,
       'Dislike',
+    );
+    let likeInfo;
+    if (userId) {
+      likeInfo =
+        await this.commentsRepository.findCommentLikeByCommentAndUserId(
+          id,
+          userId,
+        );
+    }
+    return this.createCommentViewInfo(
+      comment,
+      likesInfo,
+      dislikesInfo,
+      likeInfo,
+    );
+  }
+
+  async createCommentViewInfo(
+    comment: Comment,
+    likesInfo: number,
+    dislikesInfo: number,
+    likeStatusCurrentUser?: CommentLike,
+  ) {
+    return new CommentInfoDTO(
+      comment._id.toString(),
+      comment.content,
+      {
+        userId: comment.userId,
+        userLogin: comment.userLogin,
+      },
+      comment.createdAt,
+      {
+        dislikesCount: dislikesInfo,
+        likesCount: likesInfo,
+        myStatus: likeStatusCurrentUser ? likeStatusCurrentUser.status : 'None',
+      },
     );
   }
 }

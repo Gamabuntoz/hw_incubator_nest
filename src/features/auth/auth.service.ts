@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users/users.repository';
 import {
   CurrentUserInfo,
@@ -85,6 +85,10 @@ export class AuthService {
   }
 
   async registration(inputData: InputRegistrationDTO) {
+    await this.usersService.checkLoginAndEmail(
+      inputData.login,
+      inputData.email,
+    );
     await this.usersService.createUser(inputData);
     return true;
   }

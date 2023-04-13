@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { DevicesRepository } from './devices.repository';
-import { AuthDeviceDTO } from './applications/devices.dto';
+import { AuthDeviceDTO, RefreshPayloadDTO } from './applications/devices.dto';
 import { tryObjectId } from '../../app.service';
 
 @Injectable()
 export class DevicesService {
-  constructor(protected deviceRepository: DevicesRepository) {}
+  constructor(protected devicesRepository: DevicesRepository) {}
 
   async findAllUserDevices(currentUserId: string) {
-    const allUserDevices = await this.deviceRepository.findAllUserDevices(
+    const allUserDevices = await this.devicesRepository.findAllUserDevices(
       currentUserId,
     );
     return allUserDevices.map(
@@ -22,12 +22,18 @@ export class DevicesService {
     );
   }
 
-  async deleteAllDevicesExceptCurrent() {
-    return `This action returns all devices`;
+  async deleteAllDevicesExceptCurrent(tokenPayload: RefreshPayloadDTO) {
+    return this.devicesRepository.deleteAllDevicesExceptCurrent(
+      tokenPayload.issueAt,
+      tokenPayload.userId,
+    );
   }
 
-  async deleteDevicesById(id: string) {
+  async deleteDevicesById(id: string, tokenPayload: RefreshPayloadDTO) {
     tryObjectId(id);
-    return `This action returns a #${id} device`;
+    const device = await this.devicesRepository.findDeviceByDeviceId(id);
+    if (!device) return false;
+    if (device.userId !== tokenPayload.userId) throw new ForbiddenException();
+    return this.devicesRepository.deleteDeviceById(id);
   }
 }

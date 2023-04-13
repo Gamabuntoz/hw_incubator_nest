@@ -1,33 +1,34 @@
-import {
-  Controller,
-  Get,
-  Body,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Delete, UseGuards } from '@nestjs/common';
 import { DevicesService } from './devices.service';
-import { JwtRefreshStrategy } from '../auth/strategies/jwt-refresh.strategy';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
+import { RefreshTokenPayload } from '../auth/applications/get-refresh-token-payload.param.decorator';
+import { RefreshPayloadDTO } from './applications/devices.dto';
+import { JwtRefreshAuthGuard } from '../auth/guards/jwt-refresh-auth.guard';
 
 @Controller('devices')
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
 
-  @UseGuards(JwtRefreshStrategy)
+  @UseGuards(JwtRefreshAuthGuard)
   @Get()
   findAllUserDevices(@CurrentUserId() currentUserId) {
     return this.devicesService.findAllUserDevices(currentUserId);
   }
 
-  @UseGuards(JwtRefreshStrategy)
+  @UseGuards(JwtRefreshAuthGuard)
   @Delete()
-  deleteAllDevicesExceptCurrent(@CurrentUserId() currentUserId) {
-    return this.devicesService.deleteAllDevicesExceptCurrent();
+  deleteAllDevicesExceptCurrent(
+    @RefreshTokenPayload() tokenPayload: RefreshPayloadDTO,
+  ) {
+    return this.devicesService.deleteAllDevicesExceptCurrent(tokenPayload);
   }
 
+  @UseGuards(JwtRefreshAuthGuard)
   @Delete(':id')
-  deleteDevicesById(@Param('id') id: string) {
-    return this.devicesService.deleteDevicesById(id);
+  deleteDevicesById(
+    @Param('id') id: string,
+    @RefreshTokenPayload() tokenPayload: RefreshPayloadDTO,
+  ) {
+    return this.devicesService.deleteDevicesById(id, tokenPayload);
   }
 }

@@ -87,36 +87,29 @@ export class CommentsRepository {
     if (queryData.sortBy) {
       sort = queryData.sortBy;
     }
-    const totalCount = await this.commentModel.countDocuments({ postId: id });
-    const findAll = await this.commentModel
+    return this.commentModel
       .find({ postId: id })
       .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
       .skip((queryData.pageNumber - 1) * queryData.pageSize)
       .limit(queryData.pageSize)
       .lean();
+  }
 
-    return new AllCommentsInfoDTO(
-      Math.ceil(totalCount / queryData.pageSize),
-      queryData.pageNumber,
-      queryData.pageSize,
-      totalCount,
-      findAll.map(
-        (c) =>
-          new CommentInfoDTO(
-            c._id.toString(),
-            c.content,
-            {
-              userId: c.userId,
-              userLogin: c.userLogin,
-            },
-            c.createdAt,
-            {
-              likesCount: 0,
-              dislikesCount: 0,
-              myStatus: 'None',
-            },
-          ),
-      ),
-    );
+  async findCommentLikeByCommentAndUserId(commentId: string, userId: string) {
+    return this.commentLikeModel.findOne({
+      postId: commentId,
+      userId: userId,
+    });
+  }
+
+  async countLikeCommentStatusInfo(commentId: string, status: string) {
+    return this.commentLikeModel.countDocuments({
+      postId: commentId,
+      status: status,
+    });
+  }
+
+  async totalCountComments(filter?: string) {
+    return this.commentModel.countDocuments({ filter });
   }
 }

@@ -8,6 +8,15 @@ import {
   CommentDocument,
 } from '../comments/applications/comments.schema';
 import { Blog, BlogDocument } from '../blogs/applications/blogs.schema';
+import { Device, DeviceDocument } from '../devices/applications/devices.schema';
+import {
+  PostLike,
+  PostLikeDocument,
+} from '../posts/applications/posts-likes.schema';
+import {
+  CommentLike,
+  CommentLikeDocument,
+} from '../comments/applications/comments-likes.schema';
 @Controller('testing')
 export class TestingController {
   constructor(
@@ -15,6 +24,10 @@ export class TestingController {
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
     @InjectModel(Post.name) private postModel: Model<PostDocument>,
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    @InjectModel(Device.name) private deviceModel: Model<DeviceDocument>,
+    @InjectModel(PostLike.name) private postLikeModel: Model<PostLikeDocument>,
+    @InjectModel(CommentLike.name)
+    private commentLikeModel: Model<CommentLikeDocument>,
   ) {}
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('all-data')
@@ -25,6 +38,9 @@ export class TestingController {
     await this.commentModel.deleteMany({});
     await this.postModel.deleteMany({});
     await this.blogModel.deleteMany({});
+    await this.deviceModel.deleteMany({});
+    await this.postLikeModel.deleteMany({});
+    await this.commentLikeModel.deleteMany({});
     return;
   }
 }

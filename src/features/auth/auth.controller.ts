@@ -23,11 +23,11 @@ import { AuthService } from './auth.service';
 import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
 import { CurrentUserId } from './applications/current-user.param.decorator';
 import { Response } from 'express';
-import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { RefreshTokenPayload } from './applications/get-refresh-token-payload.param.decorator';
 import { RefreshPayloadDTO } from '../devices/applications/devices.dto';
 import { SkipThrottle } from '@nestjs/throttler';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -64,7 +64,7 @@ export class AuthController {
   }
 
   @SkipThrottle()
-  @UseGuards(JwtRefreshStrategy)
+  @UseGuards(JwtRefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
   async refreshTokens(@RefreshTokenPayload() tokenPayload: RefreshPayloadDTO) {
@@ -82,7 +82,9 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration')
   async registration(@Body() inputData: InputRegistrationDTO) {
-    return this.authService.registration(inputData);
+    const result = await this.authService.registration(inputData);
+    if (!result) throw new BadRequestException();
+    return result;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -93,7 +95,7 @@ export class AuthController {
     return;
   }
 
-  @UseGuards(JwtRefreshStrategy)
+  @UseGuards(JwtRefreshAuthGuard)
   @SkipThrottle()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')

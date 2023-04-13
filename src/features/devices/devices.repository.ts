@@ -14,6 +14,9 @@ export class DevicesRepository {
   async findDeviceByDateAndUserId(issueAt: number, userId: string) {
     return this.deviceModel.findOne({ issueAt: issueAt, userId: userId });
   }
+  async findDeviceByDeviceId(deviceId: string) {
+    return this.deviceModel.findOne({ deviceId: deviceId });
+  }
   async insertDeviceInfo(device: Device) {
     const deviceInstance = await this.deviceModel.create(device);
     deviceInstance._id = device._id;
@@ -41,11 +44,23 @@ export class DevicesRepository {
     return true;
   }
 
+  async deleteAllDevicesExceptCurrent(issueAt: number, userId: string) {
+    const result = await this.deviceModel.deleteMany({
+      issueAt: { $ne: issueAt },
+      userId: userId,
+    });
+    return result.deletedCount === 1;
+  }
+
   async deleteDevice(issueAt: number, userId: string) {
     const result = await this.deviceModel.deleteOne({
       issueAt: issueAt,
       userId: userId,
     });
+    return result.deletedCount === 1;
+  }
+  async deleteDeviceById(deviceId: string): Promise<boolean> {
+    const result = await this.deviceModel.deleteOne({ deviceId: deviceId });
     return result.deletedCount === 1;
   }
 }

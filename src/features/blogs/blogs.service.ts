@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { QueryPostsDTO } from '../posts/applications/posts.dto';
+import {
+  AllPostsInfoDTO,
+  QueryPostsDTO,
+} from '../posts/applications/posts.dto';
 import { BlogsRepository } from './blogs.repository';
 import {
   BlogInfoDTO,
@@ -10,15 +13,17 @@ import { Types } from 'mongoose';
 import { InputPostDTO, PostInfoDTO } from '../posts/applications/posts.dto';
 import { PostsRepository } from '../posts/posts.repository';
 import { tryObjectId } from '../../app.service';
+import { PostsService } from '../posts/posts.service';
 
 @Injectable()
 export class BlogsService {
   constructor(
     protected blogsRepository: BlogsRepository,
-    protected postRepository: PostsRepository,
+    protected postsRepository: PostsRepository,
+    protected postsService: PostsService,
   ) {}
 
-  async findAllPostsByBlogId(id: string, term: QueryPostsDTO) {
+  async findAllPostsByBlogId(id: string, term: QueryPostsDTO, userId?: string) {
     tryObjectId(id);
     const blogById = await this.findBlogById(id);
     if (!blogById) return false;
@@ -28,7 +33,47 @@ export class BlogsService {
       +(term.pageNumber ?? 1),
       +(term.pageSize ?? 10),
     );
-    return this.postRepository.findAllPostsByBlogId(id, queryData);
+    const totalCount = await this.postsRepository.totalCountPostsByBlogId(id);
+    const allPosts = await this.postsRepository.findAllPostsByBlogId(
+      id,
+      queryData,
+    );
+    return new AllPostsInfoDTO(
+      Math.ceil(totalCount / queryData.pageSize),
+      queryData.pageNumber,
+      queryData.pageSize,
+      totalCount,
+      await Promise.all(
+        allPosts.map(async (p) => {
+          let likeInfo;
+          if (userId) {
+            likeInfo = await this.postsRepository.findPostLikeByPostAndUserId(
+              p._id.toString(),
+              userId,
+            );
+          }
+          const likesInfo = await this.postsRepository.countLikePostStatusInfo(
+            p._id.toString(),
+            'Like',
+          );
+          const dislikesInfo =
+            await this.postsRepository.countLikePostStatusInfo(
+              p._id.toString(),
+              'Dislike',
+            );
+          const lastPostLikes = await this.postsRepository.findLastPostLikes(
+            p._id.toString(),
+          );
+          return this.postsService.createPostViewInfo(
+            p,
+            lastPostLikes,
+            likesInfo,
+            dislikesInfo,
+            likeInfo,
+          );
+        }),
+      ),
+    );
   }
 
   async createPostByBlogId(id: string, inputData: InputPostDTO) {
@@ -44,7 +89,7 @@ export class BlogsService {
       blogName: blogById.name,
       createdAt: new Date().toISOString(),
     };
-    await this.postRepository.createPost(newPost);
+    await this.postsRepository.createPost(newPost);
     return new PostInfoDTO(
       newPost._id!.toString(),
       newPost.title,

@@ -10,10 +10,14 @@ import { Types } from 'mongoose';
 import { BlogsRepository } from '../blogs/blogs.repository';
 import { CommentsRepository } from '../comments/comments.repository';
 import { UsersRepository } from '../users/users.repository';
-import { CommentInfoDTO } from '../comments/applications/comments.dto';
+import {
+  AllCommentsInfoDTO,
+  CommentInfoDTO,
+} from '../comments/applications/comments.dto';
 import { tryObjectId } from '../../app.service';
 import { Post } from './applications/posts.schema';
 import { PostLike } from './applications/posts-likes.schema';
+import { CommentsService } from '../comments/comments.service';
 
 @Injectable()
 export class PostsService {
@@ -22,6 +26,7 @@ export class PostsService {
     protected blogsRepository: BlogsRepository,
     protected commentsRepository: CommentsRepository,
     protected usersRepository: UsersRepository,
+    protected commentsService: CommentsService,
   ) {}
 
   async findCommentsByPostId(id: string, term: QueryPostsDTO, userId?: string) {
@@ -34,7 +39,45 @@ export class PostsService {
       +(term.pageNumber ?? 1),
       +(term.pageSize ?? 10),
     );
-    return this.commentsRepository.findAllCommentsByPostId(id, queryData);
+    const totalCount = await this.commentsRepository.totalCountComments(id);
+    const allComments = await this.commentsRepository.findAllCommentsByPostId(
+      id,
+      queryData,
+    );
+    new AllCommentsInfoDTO(
+      Math.ceil(totalCount / queryData.pageSize),
+      queryData.pageNumber,
+      queryData.pageSize,
+      totalCount,
+      await Promise.all(
+        allComments.map(async (c) => {
+          let likeInfo;
+          if (userId) {
+            likeInfo =
+              await this.commentsRepository.findCommentLikeByCommentAndUserId(
+                c._id.toString(),
+                userId,
+              );
+          }
+          const likesInfo =
+            await this.commentsRepository.countLikeCommentStatusInfo(
+              c._id.toString(),
+              'Like',
+            );
+          const dislikesInfo =
+            await this.commentsRepository.countLikeCommentStatusInfo(
+              c._id.toString(),
+              'Dislike',
+            );
+          return this.commentsService.createCommentViewInfo(
+            c,
+            likesInfo,
+            dislikesInfo,
+            likeInfo,
+          );
+        }),
+      ),
+    );
   }
 
   async findAllPosts(term: QueryPostsDTO, userId?: string) {
@@ -44,7 +87,7 @@ export class PostsService {
       +(term.pageNumber ?? 1),
       +(term.pageSize ?? 10),
     );
-    const totalCount = await this.postsRepository.totalCountPost();
+    const totalCount = await this.postsRepository.totalCountPosts();
     const allPosts = await this.postsRepository.findAllPosts(queryData);
     return new AllPostsInfoDTO(
       Math.ceil(totalCount / queryData.pageSize),
@@ -60,18 +103,19 @@ export class PostsService {
               userId,
             );
           }
-          const likesInfo = await this.postsRepository.countLikeStatusInfo(
+          const likesInfo = await this.postsRepository.countLikePostStatusInfo(
             p._id.toString(),
             'Like',
           );
-          const dislikesInfo = await this.postsRepository.countLikeStatusInfo(
-            p._id.toString(),
-            'Dislike',
-          );
+          const dislikesInfo =
+            await this.postsRepository.countLikePostStatusInfo(
+              p._id.toString(),
+              'Dislike',
+            );
           const lastPostLikes = await this.postsRepository.findLastPostLikes(
             p._id.toString(),
           );
-          return this.postViewInfo(
+          return this.createPostViewInfo(
             p,
             lastPostLikes,
             likesInfo,
@@ -117,11 +161,11 @@ export class PostsService {
     tryObjectId(id);
     const postById = await this.postsRepository.findPostById(id);
     if (!postById) return false;
-    const likesInfo = await this.postsRepository.countLikeStatusInfo(
+    const likesInfo = await this.postsRepository.countLikePostStatusInfo(
       id,
       'Like',
     );
-    const dislikesInfo = await this.postsRepository.countLikeStatusInfo(
+    const dislikesInfo = await this.postsRepository.countLikePostStatusInfo(
       id,
       'Dislike',
     );
@@ -133,7 +177,7 @@ export class PostsService {
       );
     }
     const lastPostLikes = await this.postsRepository.findLastPostLikes(id);
-    return this.postViewInfo(
+    return this.createPostViewInfo(
       postById,
       lastPostLikes,
       likesInfo,
@@ -155,7 +199,7 @@ export class PostsService {
 
   async setPostLike(postId: string, likeStatus: string, userId: string) {
     tryObjectId(postId);
-    const postLike = {
+    const postLike: PostLike = {
       _id: new Types.ObjectId(),
       userId: userId,
       postId: postId,
@@ -206,7 +250,7 @@ export class PostsService {
     return this.postsRepository.deletePost(id);
   }
 
-  async postViewInfo(
+  async createPostViewInfo(
     post: Post,
     lastPostLikes: PostLike[],
     likesInfo: number,

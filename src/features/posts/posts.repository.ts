@@ -2,12 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Post, PostDocument } from './applications/posts.schema';
-import {
-  AllPostsInfoDTO,
-  InputPostWithIdDTO,
-  PostInfoDTO,
-  QueryPostsDTO,
-} from './applications/posts.dto';
+import { InputPostWithIdDTO, QueryPostsDTO } from './applications/posts.dto';
 import { PostLike, PostLikeDocument } from './applications/posts-likes.schema';
 
 @Injectable()
@@ -22,7 +17,6 @@ export class PostsRepository {
     if (queryData.sortBy) {
       sort = queryData.sortBy;
     }
-    const totalCount = await this.postModel.countDocuments({});
     return this.postModel
       .find({})
       .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
@@ -31,8 +25,25 @@ export class PostsRepository {
       .lean();
   }
 
-  async totalCountPost() {
+  async findAllPostsByBlogId(id: string, queryData: QueryPostsDTO) {
+    let sort = 'createdAt';
+    if (queryData.sortBy) {
+      sort = queryData.sortBy;
+    }
+    return this.postModel
+      .find({ blogId: id })
+      .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
+      .skip((queryData.pageNumber - 1) * queryData.pageSize)
+      .limit(queryData.pageSize)
+      .lean();
+  }
+
+  async totalCountPosts() {
     return this.postModel.countDocuments({});
+  }
+
+  async totalCountPostsByBlogId(blogId: string) {
+    return this.postModel.countDocuments({ blogId: blogId });
   }
 
   async createPost(newPost: Post) {
@@ -72,7 +83,7 @@ export class PostsRepository {
     return result.deletedCount === 1;
   }
 
-  async countLikeStatusInfo(postId: string, status: string) {
+  async countLikePostStatusInfo(postId: string, status: string) {
     return this.postLikeModel.countDocuments({
       postId: postId,
       status: status,
@@ -87,9 +98,9 @@ export class PostsRepository {
     return result.matchedCount === 1;
   }
 
-  async setPostLike(newPostlike: PostLike) {
-    await this.postModel.create(newPostlike);
-    return newPostlike;
+  async setPostLike(newPostLike: PostLike) {
+    await this.postLikeModel.create(newPostLike);
+    return newPostLike;
   }
 
   async findLastPostLikes(postId: string) {
@@ -105,44 +116,5 @@ export class PostsRepository {
       postId: postId.toString(),
       userId: userId,
     });
-  }
-
-  async findAllPostsByBlogId(id: string, queryData: QueryPostsDTO) {
-    let sort = 'createdAt';
-    if (queryData.sortBy) {
-      sort = queryData.sortBy;
-    }
-    const totalCount = await this.postModel.countDocuments({ blogId: id });
-    const findAll = await this.postModel
-      .find({ blogId: id })
-      .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
-      .skip((queryData.pageNumber - 1) * queryData.pageSize)
-      .limit(queryData.pageSize)
-      .lean();
-
-    return new AllPostsInfoDTO(
-      Math.ceil(totalCount / queryData.pageSize),
-      queryData.pageNumber,
-      queryData.pageSize,
-      totalCount,
-      findAll.map(
-        (p) =>
-          new PostInfoDTO(
-            p._id.toString(),
-            p.title,
-            p.shortDescription,
-            p.content,
-            p.blogId,
-            p.blogName,
-            p.createdAt,
-            {
-              likesCount: 0,
-              dislikesCount: 0,
-              myStatus: 'None',
-              newestLikes: [],
-            },
-          ),
-      ),
-    );
   }
 }

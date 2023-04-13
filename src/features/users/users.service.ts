@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import {
   InputUserDTO,
@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import add from 'date-fns/add';
 import { Types } from 'mongoose';
 import { tryObjectId } from '../../app.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -65,6 +66,66 @@ export class UsersService {
       newUser.accountData.email,
       newUser.accountData.createdAt,
     );
+  }
+
+  async createConfirmedUser(inputData: InputUserDTO) {
+    await this.checkLoginAndEmail(inputData.login, inputData.email);
+    const passwordSalt = await bcrypt.genSalt(10);
+    const passwordHash = await this._generateHash(
+      inputData.password,
+      passwordSalt,
+    );
+    const newUser = {
+      _id: new Types.ObjectId(),
+      accountData: {
+        login: inputData.login,
+        email: inputData.email,
+        passwordHash: passwordHash,
+        createdAt: new Date().toISOString(),
+      },
+      emailConfirmation: {
+        confirmationCode: uuidv4(),
+        isConfirmed: true,
+        expirationDate: add(new Date(), {
+          hours: 1,
+        }),
+      },
+      passwordRecovery: {
+        code: 'string',
+        expirationDate: new Date(),
+      },
+    };
+    await this.usersRepository.createUser(newUser);
+    return new UserInfoDTO(
+      newUser._id.toString(),
+      newUser.accountData.login,
+      newUser.accountData.email,
+      newUser.accountData.createdAt,
+    );
+  }
+
+  async checkLoginAndEmail(login: string, email: string) {
+    const checkLogin = await this.usersRepository.findUserByLoginOrEmail(login);
+    if (checkLogin)
+      throw new BadRequestException({
+        errorsMessages: [
+          {
+            message: 'login already exist',
+            field: 'login',
+          },
+        ],
+      });
+    const checkEmail = await this.usersRepository.findUserByLoginOrEmail(email);
+    if (checkEmail)
+      throw new BadRequestException({
+        errorsMessages: [
+          {
+            message: 'email already exist',
+            field: 'email',
+          },
+        ],
+      });
+    return true;
   }
 
   async deleteUser(id: string) {

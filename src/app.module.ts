@@ -51,6 +51,9 @@ import {
   DeviceSchema,
 } from './features/devices/applications/devices.schema';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { DevicesRepository } from './features/devices/devices.repository';
+import { DevicesController } from './features/devices/devices.controller';
+import { DevicesService } from './features/devices/devices.service';
 
 @Module({
   imports: [
@@ -87,6 +90,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     BlogsController,
     CommentsController,
     AuthController,
+    DevicesController,
   ],
   providers: [
     EmailAdapter,
@@ -96,6 +100,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
     UsersRepository,
     PostsService,
     PostsRepository,
+    DevicesRepository,
+    DevicesService,
     BlogsService,
     BlogsRepository,
     CommentsService,

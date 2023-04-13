@@ -183,7 +183,6 @@ export class AuthService {
     if (user.emailConfirmation.isConfirmed) return false;
     await this.usersRepository.setNewConfirmationCode(user);
     user = await this.usersRepository.findUserByLoginOrEmail(inputData.email);
-    console.log(user);
     await this.emailAdapter.sendEmail(user);
     return true;
   }

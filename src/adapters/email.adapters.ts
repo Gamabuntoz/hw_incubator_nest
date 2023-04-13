@@ -1,20 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/features/users/applications/users.schema';
 import nodemailer from 'nodemailer';
+import { senderData } from '../features/auth/applications/constants';
 
-const senderData = {
-  service: 'gmail',
-  auth: {
-    user: 'bonypiper@gmail.com',
-    pass: 'zfzmivezoxwgectq',
-  },
-};
 const transporter = nodemailer.createTransport({
   port: 465,
   host: 'smtp.gmail.com',
   auth: {
-    user: senderData.auth.user,
-    pass: senderData.auth.pass,
+    user: senderData.user,
+    pass: senderData.pass,
   },
   secure: true,
 });

@@ -8,3 +8,8 @@ export const basicConstants = {
   adminName: 'admin',
   adminPass: 'qwerty',
 };
+
+export const senderData = {
+  user: 'bonypiper@gmail.com',
+  pass: 'zfzmivezoxwgectq',
+};

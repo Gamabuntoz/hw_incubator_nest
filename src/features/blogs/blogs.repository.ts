@@ -16,7 +16,7 @@ export class BlogsRepository {
   async findAllBlogs(queryData: QueryBlogsDTO) {
     let filter = {};
     if (queryData.searchNameTerm) {
-      filter = { name: { $regex: queryData.searchNameTerm, $options: '$i' } };
+      filter = { name: { $regex: queryData.searchNameTerm, $options: 'i' } };
     }
     let sort = 'createdAt';
     if (queryData.sortBy) {

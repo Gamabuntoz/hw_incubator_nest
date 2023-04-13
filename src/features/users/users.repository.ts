@@ -18,23 +18,28 @@ export class UsersRepository {
     searchLoginTerm?: string,
     searchEmailTerm?: string,
   ) {
-    const filter = {};
+    const filter = { $or: [] };
     if (searchLoginTerm) {
-      filter['accountData.login'] = {
-        $regex: searchLoginTerm,
-        $options: 'i',
-      };
+      filter['$or'].push({
+        'accountData.login': {
+          $regex: searchLoginTerm,
+          $options: 'i',
+        },
+      });
     }
     if (searchEmailTerm) {
-      filter['accountData.email'] = {
-        $regex: searchEmailTerm,
-        $options: 'i',
-      };
+      filter['$or'].push({
+        'accountData.email': {
+          $regex: searchEmailTerm,
+          $options: 'i',
+        },
+      });
     }
     let sort = 'accountData.createdAt';
     if (sortBy) {
       sort = `accountData.${sortBy}`;
     }
+    console.log(filter);
     const totalCount = await this.userModel.countDocuments(filter);
     const findAllUsers = await this.userModel
       .find(filter)

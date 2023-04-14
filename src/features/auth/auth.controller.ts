@@ -96,6 +96,7 @@ export class AuthController {
     return;
   }
 
+  @Throttle(5, 10)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration')
   async registration(@Body() inputData: InputRegistrationDTO) {

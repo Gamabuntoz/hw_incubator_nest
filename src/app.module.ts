@@ -59,10 +59,6 @@ import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
-    // UsersModule,
-    // BlogsModule,
-    // PostsModule,
-    // CommentsModule,
     ThrottlerModule.forRoot({
       ttl: 10,
       limit: 5,

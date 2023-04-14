@@ -44,6 +44,7 @@ export class CommentsService {
   async updateComment(id: string, inputData: InputCommentDTO, userId: string) {
     tryObjectId(id);
     const findComment = await this.commentsRepository.findCommentById(id);
+    if (!findComment) return false;
     if (findComment.userId !== userId) throw new ForbiddenException();
     return this.commentsRepository.updateComment(id, inputData);
   }

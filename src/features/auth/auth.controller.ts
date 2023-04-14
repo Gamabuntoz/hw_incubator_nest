@@ -25,7 +25,7 @@ import { CurrentUserId } from './applications/current-user.param.decorator';
 import { Response } from 'express';
 import { RefreshTokenPayload } from './applications/get-refresh-token-payload.param.decorator';
 import { RefreshPayloadDTO } from '../devices/applications/devices.dto';
-import { SkipThrottle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 
@@ -79,7 +79,7 @@ export class AuthController {
       throw new BadRequestException({
         errorsMessages: [
           {
-            message: 'email already confirmed',
+            message: 'Wrong confirmation code',
             field: 'code',
           },
         ],
@@ -103,7 +103,7 @@ export class AuthController {
       throw new BadRequestException({
         errorsMessages: [
           {
-            message: 'email already confirmed',
+            message: 'Wrong email for resend code',
             field: 'email',
           },
         ],

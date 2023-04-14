@@ -50,11 +50,12 @@ import {
   Device,
   DeviceSchema,
 } from './features/devices/applications/devices.schema';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DevicesRepository } from './features/devices/devices.repository';
 import { DevicesController } from './features/devices/devices.controller';
 import { DevicesService } from './features/devices/devices.service';
 import { BlogExistsRule } from './features/auth/applications/validate-blog-id.param.decorator';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -62,10 +63,10 @@ import { BlogExistsRule } from './features/auth/applications/validate-blog-id.pa
     // BlogsModule,
     // PostsModule,
     // CommentsModule,
-    /*ThrottlerModule.forRoot({
+    ThrottlerModule.forRoot({
       ttl: 10,
       limit: 5,
-    }),*/
+    }),
     ConfigModule.forRoot(),
     PassportModule,
     JwtModule.register({
@@ -94,6 +95,7 @@ import { BlogExistsRule } from './features/auth/applications/validate-blog-id.pa
     DevicesController,
   ],
   providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     BlogExistsRule,
     EmailAdapter,
     AuthService,

@@ -15,7 +15,7 @@ export class DevicesRepository {
     return this.deviceModel.findOne({ issueAt: issueAt, userId: userId });
   }
   async findDeviceByDeviceId(deviceId: string) {
-    return this.deviceModel.findOne({ _id: new Types.ObjectId(deviceId) });
+    return this.deviceModel.findOne({ deviceId: deviceId });
   }
   async insertDeviceInfo(device: Device) {
     await this.deviceModel.create(device);

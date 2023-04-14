@@ -30,7 +30,6 @@ export class DevicesService {
   }
 
   async deleteDevicesById(id: string, tokenPayload: RefreshPayloadDTO) {
-    tryObjectId(id);
     const device = await this.devicesRepository.findDeviceByDeviceId(id);
     if (!device) return false;
     if (device.userId !== tokenPayload.userId) throw new ForbiddenException();

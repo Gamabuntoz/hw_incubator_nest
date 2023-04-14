@@ -67,8 +67,17 @@ export class AuthController {
   @UseGuards(JwtRefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
-  async refreshTokens(@RefreshTokenPayload() tokenPayload: RefreshPayloadDTO) {
-    return this.authService.refreshTokens(tokenPayload);
+  async refreshTokens(
+    @RefreshTokenPayload() tokenPayload: RefreshPayloadDTO,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.refreshTokens(tokenPayload);
+    if (!result) throw new UnauthorizedException();
+    response.cookie('refreshToken', result.refreshToken, {
+      secure: true,
+      httpOnly: true,
+    });
+    return { accessToken: result.accessToken };
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

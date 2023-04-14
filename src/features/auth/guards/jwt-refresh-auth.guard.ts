@@ -18,10 +18,15 @@ export class JwtRefreshAuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const refreshToken = req.cookies['refreshToken'];
     if (!refreshToken) throw new UnauthorizedException();
-    const payload = this.jwtService.verify(refreshToken, {
-      ignoreExpiration: false,
-      secret: jwtConstants.secretKey,
-    });
+    let payload;
+    try {
+      payload = this.jwtService.verify(refreshToken, {
+        ignoreExpiration: false,
+        secret: jwtConstants.secretKey,
+      });
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
     if (!payload) throw new UnauthorizedException();
     const device = await this.devicesRepository.findDeviceByDateAndUserId(
       payload.issueAt,

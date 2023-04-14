@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Device, DeviceDocument } from './applications/devices.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class DevicesRepository {
@@ -15,7 +15,7 @@ export class DevicesRepository {
     return this.deviceModel.findOne({ issueAt: issueAt, userId: userId });
   }
   async findDeviceByDeviceId(deviceId: string) {
-    return this.deviceModel.findOne({ deviceId: deviceId });
+    return this.deviceModel.findOne({ _id: new Types.ObjectId(deviceId) });
   }
   async insertDeviceInfo(device: Device) {
     await this.deviceModel.create(device);

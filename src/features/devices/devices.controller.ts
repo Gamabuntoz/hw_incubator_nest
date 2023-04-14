@@ -1,4 +1,13 @@
-import { Controller, Get, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Delete,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { RefreshTokenPayload } from '../auth/applications/get-refresh-token-payload.param.decorator';
@@ -11,26 +20,34 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshAuthGuard)
   @Get()
-  findAllUserDevices(@CurrentUserId() currentUserId) {
+  async findAllUserDevices(@CurrentUserId() currentUserId) {
     return this.devicesService.findAllUserDevices(currentUserId);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
   @Delete()
-  deleteAllDevicesExceptCurrent(
+  async deleteAllDevicesExceptCurrent(
     @RefreshTokenPayload() tokenPayload: RefreshPayloadDTO,
   ) {
     return this.devicesService.deleteAllDevicesExceptCurrent(tokenPayload);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
   @Delete(':id')
-  deleteDevicesById(
+  async deleteDevicesById(
     @Param('id') id: string,
     @RefreshTokenPayload() tokenPayload: RefreshPayloadDTO,
   ) {
-    return this.devicesService.deleteDevicesById(id, tokenPayload);
+    const result = await this.devicesService.deleteDevicesById(
+      id,
+      tokenPayload,
+    );
+    if (!result) throw new NotFoundException();
+    return result;
   }
 }

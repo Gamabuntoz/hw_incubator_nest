@@ -18,15 +18,7 @@ export class DevicesRepository {
     return this.deviceModel.findOne({ deviceId: deviceId });
   }
   async insertDeviceInfo(device: Device) {
-    const deviceInstance = await this.deviceModel.create(device);
-    deviceInstance._id = device._id;
-    deviceInstance.issueAt = device.issueAt;
-    deviceInstance.expiresAt = device.expiresAt;
-    deviceInstance.ipAddress = device.ipAddress;
-    deviceInstance.deviceName = device.deviceName;
-    deviceInstance.userId = device.userId;
-    deviceInstance.deviceId = device.deviceId;
-    await deviceInstance.save();
+    await this.deviceModel.create(device);
     return device;
   }
 

@@ -51,6 +51,7 @@ export class CommentsService {
   async deleteComment(id: string, userId: string) {
     tryObjectId(id);
     const findComment = await this.commentsRepository.findCommentById(id);
+    if (!findComment) return false;
     if (findComment.userId !== userId) throw new ForbiddenException();
     return this.commentsRepository.deleteComment(id);
   }

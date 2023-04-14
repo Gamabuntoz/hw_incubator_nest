@@ -44,7 +44,7 @@ export class PostsService {
       id,
       queryData,
     );
-    new AllCommentsInfoDTO(
+    return new AllCommentsInfoDTO(
       Math.ceil(totalCount / queryData.pageSize),
       queryData.pageNumber,
       queryData.pageSize,
@@ -59,20 +59,20 @@ export class PostsService {
                 userId,
               );
           }
-          const likesInfo =
+          const likesCount =
             await this.commentsRepository.countLikeCommentStatusInfo(
               c._id.toString(),
               'Like',
             );
-          const dislikesInfo =
+          const dislikesCount =
             await this.commentsRepository.countLikeCommentStatusInfo(
               c._id.toString(),
               'Dislike',
             );
           return this.commentsService.createCommentViewInfo(
             c,
-            likesInfo,
-            dislikesInfo,
+            likesCount,
+            dislikesCount,
             likeInfo,
           );
         }),

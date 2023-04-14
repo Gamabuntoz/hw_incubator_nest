@@ -100,12 +100,12 @@ export class CommentsRepository {
 
   async countLikeCommentStatusInfo(commentId: string, status: string) {
     return this.commentLikeModel.countDocuments({
-      postId: commentId,
+      commentId: commentId,
       status: status,
     });
   }
 
-  async totalCountComments(filter?: string) {
-    return this.commentModel.countDocuments({ filter });
+  async totalCountComments(id: string) {
+    return this.commentModel.countDocuments({ postId: id });
   }
 }

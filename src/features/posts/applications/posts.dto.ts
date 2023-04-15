@@ -1,11 +1,4 @@
-import {
-  Contains,
-  IsIn,
-  IsNotEmpty,
-  IsString,
-  Length,
-  Validate,
-} from 'class-validator';
+import { IsIn, IsNotEmpty, IsString, Length, Validate } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { BlogExistsRule } from '../../auth/applications/validate-blog-id.param.decorator';
 

@@ -12,13 +12,8 @@ export class BlogExistsRule implements ValidatorConstraintInterface {
   constructor(private blogsRepository: BlogsRepository) {}
 
   async validate(value: string) {
-    try {
-      const blog = await this.blogsRepository.findBlogById(value);
-      return blog ? true : false;
-    } catch (e) {
-      return false;
-    }
-    return true;
+    const blog = await this.blogsRepository.findBlogById(value);
+    return blog ? true : false;
   }
   defaultMessage(args: ValidationArguments) {
     return `Blog doesn't exist`;

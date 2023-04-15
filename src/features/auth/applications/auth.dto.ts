@@ -1,11 +1,13 @@
 import {
-  IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
   IsString,
   Length,
+  Matches,
+  Validate,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { LoginOrEmailExistRule } from './validate-email-and-login.param.decorator';
 
 export class InputEmailDTO {
   @IsEmail()
@@ -21,7 +23,7 @@ export class InputEmailDTO {
 
 export class InputRegistrationDTO {
   @Length(3, 10)
-  @IsAlphanumeric()
+  @Matches(/^[a-zA-Z0-9_-]*$/)
   @IsNotEmpty()
   @Transform(({ value }) => {
     if (typeof value === 'number') {
@@ -29,6 +31,7 @@ export class InputRegistrationDTO {
     }
     return value?.trim();
   })
+  //@Validate(LoginOrEmailExistRule)
   login: string;
   @IsString()
   @Length(6, 20)
@@ -48,6 +51,7 @@ export class InputRegistrationDTO {
     }
     return value?.trim();
   })
+  //@Validate(LoginOrEmailExistRule)
   email: string;
 }
 

@@ -12,8 +12,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { InputUserDTO, QueryUsersDTO } from './applications/users.dto';
+import { QueryUsersDTO } from './applications/users.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+import { InputRegistrationDTO } from '../auth/applications/auth.dto';
 
 @Controller('users')
 export class UsersController {
@@ -29,7 +30,7 @@ export class UsersController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createUser(@Body() inputData: InputUserDTO) {
+  async createUser(@Body() inputData: InputRegistrationDTO) {
     return this.userService.createConfirmedUser(inputData);
   }
 

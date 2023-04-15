@@ -56,6 +56,7 @@ import { DevicesController } from './features/devices/devices.controller';
 import { DevicesService } from './features/devices/devices.service';
 import { BlogExistsRule } from './features/auth/applications/validate-blog-id.param.decorator';
 import { APP_GUARD } from '@nestjs/core';
+import { LoginOrEmailExistRule } from './features/auth/applications/validate-email-and-login.param.decorator';
 
 @Module({
   imports: [
@@ -91,7 +92,7 @@ import { APP_GUARD } from '@nestjs/core';
     DevicesController,
   ],
   providers: [
-    //{ provide: APP_GUARD, useClass: ThrottlerGuard },
+    //LoginOrEmailExistRule,
     BlogExistsRule,
     EmailAdapter,
     AuthService,

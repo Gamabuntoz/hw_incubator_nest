@@ -1,16 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
-import {
-  InputUserDTO,
-  QueryUsersDTO,
-  UserInfoDTO,
-} from './applications/users.dto';
+import { QueryUsersDTO, UserInfoDTO } from './applications/users.dto';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import add from 'date-fns/add';
 import { Types } from 'mongoose';
 import { tryObjectId } from '../../app.service';
-import { AuthService } from '../auth/auth.service';
+import { InputRegistrationDTO } from '../auth/applications/auth.dto';
 
 @Injectable()
 export class UsersService {
@@ -33,7 +29,7 @@ export class UsersService {
     );
   }
 
-  async createUser(inputData: InputUserDTO) {
+  async createUser(inputData: InputRegistrationDTO) {
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this._generateHash(
       inputData.password,
@@ -68,7 +64,7 @@ export class UsersService {
     );
   }
 
-  async createConfirmedUser(inputData: InputUserDTO) {
+  async createConfirmedUser(inputData: InputRegistrationDTO) {
     await this.checkLoginAndEmail(inputData.login, inputData.email);
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this._generateHash(

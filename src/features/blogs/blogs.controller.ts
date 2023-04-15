@@ -21,7 +21,6 @@ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { SkipThrottle } from '@nestjs/throttler';
 
-@SkipThrottle()
 @Controller('blogs')
 export class BlogsController {
   constructor(protected blogsService: BlogsService) {}

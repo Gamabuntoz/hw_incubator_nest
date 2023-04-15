@@ -25,7 +25,7 @@ import { CurrentUserId } from './applications/current-user.param.decorator';
 import { Response } from 'express';
 import { RefreshTokenPayload } from './applications/get-refresh-token-payload.param.decorator';
 import { RefreshPayloadDTO } from '../devices/applications/devices.dto';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 
@@ -33,18 +33,21 @@ import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 export class AuthController {
   constructor(protected authService: AuthService) {}
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('password-recovery')
   async passwordRecovery(@Body() inputData: InputEmailDTO) {
     return this.authService.passwordRecovery(inputData);
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('new-password')
   async newPassword(@Body() inputData: InputNewPassDTO) {
     return this.authService.newPassword(inputData);
   }
 
+  @UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -63,7 +66,6 @@ export class AuthController {
     return { accessToken: result.accessToken };
   }
 
-  @SkipThrottle()
   @UseGuards(JwtRefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
@@ -80,6 +82,7 @@ export class AuthController {
     return { accessToken: result.accessToken };
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-confirmation')
   async confirmEmail(@Body() inputData: InputConfirmationCodeDTO) {
@@ -96,7 +99,7 @@ export class AuthController {
     return;
   }
 
-  @Throttle(5, 10)
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration')
   async registration(@Body() inputData: InputRegistrationDTO) {
@@ -105,6 +108,7 @@ export class AuthController {
     return result;
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-email-resending')
   async resendEmail(@Body() inputData: InputEmailDTO) {
@@ -122,14 +126,12 @@ export class AuthController {
   }
 
   @UseGuards(JwtRefreshAuthGuard)
-  @SkipThrottle()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
   async logout(@RefreshTokenPayload() tokenPayload: RefreshPayloadDTO) {
     return this.authService.logout(tokenPayload);
   }
 
-  @SkipThrottle()
   @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('me')

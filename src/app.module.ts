@@ -91,7 +91,7 @@ import { APP_GUARD } from '@nestjs/core';
     DevicesController,
   ],
   providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    //{ provide: APP_GUARD, useClass: ThrottlerGuard },
     BlogExistsRule,
     EmailAdapter,
     AuthService,

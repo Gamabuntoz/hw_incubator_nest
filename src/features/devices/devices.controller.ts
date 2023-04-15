@@ -15,7 +15,6 @@ import { RefreshPayloadDTO } from './applications/devices.dto';
 import { JwtRefreshAuthGuard } from '../auth/guards/jwt-refresh-auth.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 
-@SkipThrottle()
 @Controller('security/devices')
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}

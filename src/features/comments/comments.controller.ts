@@ -18,7 +18,6 @@ import { InputCommentDTO } from './applications/comments.dto';
 import { SkipThrottle } from '@nestjs/throttler';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
-@SkipThrottle()
 @Controller('comments')
 export class CommentsController {
   constructor(protected commentsService: CommentsService) {}

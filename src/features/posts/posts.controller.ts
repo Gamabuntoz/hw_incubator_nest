@@ -23,7 +23,6 @@ import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
-import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('posts')
 export class PostsController {

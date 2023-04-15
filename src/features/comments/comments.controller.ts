@@ -15,7 +15,6 @@ import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { InputLikeStatusDTO } from '../posts/applications/posts.dto';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { InputCommentDTO } from './applications/comments.dto';
-import { SkipThrottle } from '@nestjs/throttler';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
 @Controller('comments')

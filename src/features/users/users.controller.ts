@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -15,7 +14,6 @@ import {
 import { UsersService } from './users.service';
 import { InputUserDTO, QueryUsersDTO } from './applications/users.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UsersController {

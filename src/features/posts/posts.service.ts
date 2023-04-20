@@ -127,36 +127,6 @@ export class PostsService {
     );
   }
 
-  async createPost(inputData: InputPostWithIdDTO) {
-    const blogById = await this.blogsRepository.findBlogById(inputData.blogId);
-    if (!blogById) return false;
-    const newPost = {
-      _id: new Types.ObjectId(),
-      title: inputData.title,
-      shortDescription: inputData.shortDescription,
-      content: inputData.content,
-      blogId: blogById._id.toString(),
-      blogName: blogById.name,
-      createdAt: new Date().toISOString(),
-    };
-    await this.postsRepository.createPost(newPost);
-    return new PostInfoDTO(
-      newPost._id!.toString(),
-      newPost.title,
-      newPost.shortDescription,
-      newPost.content,
-      newPost.blogId,
-      newPost.blogName,
-      newPost.createdAt,
-      {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: 'None',
-        newestLikes: [],
-      },
-    );
-  }
-
   async findPostById(id: string, userId?: string) {
     tryObjectId(id);
     const postById = await this.postsRepository.findPostById(id);
@@ -279,7 +249,7 @@ export class PostsService {
             return {
               addedAt: l.addedAt.toISOString(),
               userId: l.userId,
-              login: user!.accountData.login,
+              login: user?.accountData.login,
             };
           }),
         ),

@@ -24,7 +24,6 @@ import { UsersService } from './features/users/users.service';
 import { UsersRepository } from './features/users/users.repository';
 import { PostsService } from './features/posts/posts.service';
 import { PostsRepository } from './features/posts/posts.repository';
-import { BlogsService } from './features/blogs/blogs.service';
 import { BlogsRepository } from './features/blogs/blogs.repository';
 import { CommentsService } from './features/comments/comments.service';
 import { CommentsRepository } from './features/comments/comments.repository';
@@ -57,6 +56,55 @@ import { DevicesService } from './features/devices/devices.service';
 import { BlogExistsRule } from './features/auth/applications/validate-blog-id.param.decorator';
 import { APP_GUARD } from '@nestjs/core';
 import { LoginOrEmailExistRule } from './features/auth/applications/validate-email-and-login.param.decorator';
+import { BlogsService } from './features/blogs/blogs.service';
+import { CreatePostWithBlogIdUseCases } from './features/blogs/use-cases/create-post-whith-blog-id-use-cases';
+import { CreateBlogUseCases } from './features/blogs/use-cases/create-blog-use-cases';
+import { DeleteBlogUseCases } from './features/blogs/use-cases/delete-blog-use-cases';
+import { UpdateBlogUseCases } from './features/blogs/use-cases/update-blog-use-cases';
+
+const useCases = [
+  CreatePostWithBlogIdUseCases,
+  CreateBlogUseCases,
+  DeleteBlogUseCases,
+  UpdateBlogUseCases,
+];
+const strategies = [
+  LocalStrategy,
+  JwtAccessStrategy,
+  BasicStrategy,
+  OptionalJwtAuthGuard,
+];
+const decorators = [
+  BlogExistsRule,
+  //LoginOrEmailExistRule
+];
+const repositories = [
+  UsersRepository,
+  PostsRepository,
+  DevicesRepository,
+  BlogsRepository,
+  CommentsRepository,
+];
+const services = [
+  AuthService,
+  AppService,
+  UsersService,
+  PostsService,
+  DevicesService,
+  BlogsService,
+  CommentsService,
+];
+const adapters = [EmailAdapter];
+const controllers = [
+  AppController,
+  TestingController,
+  UsersController,
+  PostsController,
+  BlogsController,
+  CommentsController,
+  AuthController,
+  DevicesController,
+];
 
 @Module({
   imports: [
@@ -81,36 +129,14 @@ import { LoginOrEmailExistRule } from './features/auth/applications/validate-ema
       { name: Device.name, schema: DeviceSchema },
     ]),
   ],
-  controllers: [
-    AppController,
-    TestingController,
-    UsersController,
-    PostsController,
-    BlogsController,
-    CommentsController,
-    AuthController,
-    DevicesController,
-  ],
+  controllers: [...controllers],
   providers: [
-    //LoginOrEmailExistRule,
-    BlogExistsRule,
-    EmailAdapter,
-    AuthService,
-    AppService,
-    UsersService,
-    UsersRepository,
-    PostsService,
-    PostsRepository,
-    DevicesRepository,
-    DevicesService,
-    BlogsService,
-    BlogsRepository,
-    CommentsService,
-    CommentsRepository,
-    LocalStrategy,
-    JwtAccessStrategy,
-    BasicStrategy,
-    OptionalJwtAuthGuard,
+    ...services,
+    ...repositories,
+    ...useCases,
+    ...strategies,
+    ...decorators,
+    ...adapters,
   ],
 })
 export class AppModule {}

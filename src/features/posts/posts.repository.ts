@@ -47,15 +47,7 @@ export class PostsRepository {
   }
 
   async createPost(newPost: Post) {
-    const postInstance = new this.postModel(newPost);
-    postInstance._id = newPost._id;
-    postInstance.title = newPost.title;
-    postInstance.shortDescription = newPost.shortDescription;
-    postInstance.content = newPost.content;
-    postInstance.blogId = newPost.blogId;
-    postInstance.blogName = newPost.blogName;
-    postInstance.createdAt = newPost.createdAt;
-    await postInstance.save();
+    await this.postModel.create(newPost);
     return newPost;
   }
 

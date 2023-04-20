@@ -1,19 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { BlogsRepository } from './blogs.repository';
+import { PostsRepository } from '../posts/posts.repository';
+import { PostsService } from '../posts/posts.service';
 import {
   AllPostsInfoDTO,
   QueryPostsDTO,
 } from '../posts/applications/posts.dto';
-import { BlogsRepository } from './blogs.repository';
+import { Types } from 'mongoose';
 import {
+  AllBlogsInfoDTO,
   BlogInfoDTO,
-  InputBlogDTO,
   QueryBlogsDTO,
 } from './applications/blogs.dto';
-import { Types } from 'mongoose';
-import { InputPostDTO, PostInfoDTO } from '../posts/applications/posts.dto';
-import { PostsRepository } from '../posts/posts.repository';
-import { tryObjectId } from '../../app.service';
-import { PostsService } from '../posts/posts.service';
 
 @Injectable()
 export class BlogsService {
@@ -23,8 +21,11 @@ export class BlogsService {
     protected postsService: PostsService,
   ) {}
 
-  async findAllPostsByBlogId(id: string, term: QueryPostsDTO, userId?: string) {
-    tryObjectId(id);
+  async findAllPostsByBlogId(
+    id: Types.ObjectId,
+    term: QueryPostsDTO,
+    userId?: string,
+  ) {
     const blogById = await this.findBlogById(id);
     if (!blogById) return false;
     const queryData = new QueryPostsDTO(
@@ -33,9 +34,11 @@ export class BlogsService {
       +(term.pageNumber ?? 1),
       +(term.pageSize ?? 10),
     );
-    const totalCount = await this.postsRepository.totalCountPostsByBlogId(id);
+    const totalCount = await this.postsRepository.totalCountPostsByBlogId(
+      id.toString(),
+    );
     const allPosts = await this.postsRepository.findAllPostsByBlogId(
-      id,
+      id.toString(),
       queryData,
     );
     return new AllPostsInfoDTO(
@@ -76,70 +79,42 @@ export class BlogsService {
     );
   }
 
-  async createPostByBlogId(id: string, inputData: InputPostDTO) {
-    tryObjectId(id);
-    const blogById = await this.blogsRepository.findBlogById(id);
-    if (!blogById) return false;
-    const newPost = {
-      _id: new Types.ObjectId(),
-      title: inputData.title,
-      shortDescription: inputData.shortDescription,
-      content: inputData.content,
-      blogId: blogById._id.toString(),
-      blogName: blogById.name,
-      createdAt: new Date().toISOString(),
-    };
-    await this.postsRepository.createPost(newPost);
-    return new PostInfoDTO(
-      newPost._id!.toString(),
-      newPost.title,
-      newPost.shortDescription,
-      newPost.content,
-      newPost.blogId,
-      newPost.blogName,
-      newPost.createdAt,
-      {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: 'None',
-        newestLikes: [],
-      },
+  async findAllBlogs(queryData: QueryBlogsDTO) {
+    let filter = {};
+    if (queryData.searchNameTerm) {
+      filter = { name: { $regex: queryData.searchNameTerm, $options: 'i' } };
+    }
+    let sort = 'createdAt';
+    if (queryData.sortBy) {
+      sort = queryData.sortBy;
+    }
+    const totalCount = await this.blogsRepository.totalCountBlogs(filter);
+    const allBlogs = await this.blogsRepository.findAllBlogs(
+      filter,
+      sort,
+      queryData,
+    );
+
+    return new AllBlogsInfoDTO(
+      Math.ceil(totalCount / queryData.pageSize),
+      queryData.pageNumber,
+      queryData.pageSize,
+      totalCount,
+      allBlogs.map(
+        (b) =>
+          new BlogInfoDTO(
+            b._id.toString(),
+            b.name,
+            b.description,
+            b.websiteUrl,
+            b.createdAt,
+            b.isMembership,
+          ),
+      ),
     );
   }
 
-  async findAllBlogs(term: QueryBlogsDTO) {
-    const queryData = new QueryBlogsDTO(
-      term.searchNameTerm,
-      term.sortBy,
-      term.sortDirection,
-      +(term.pageNumber ?? 1),
-      +(term.pageSize ?? 10),
-    );
-    return this.blogsRepository.findAllBlogs(queryData);
-  }
-
-  async createBlog(inputData: InputBlogDTO) {
-    const newBlog = {
-      _id: new Types.ObjectId(),
-      createdAt: new Date().toISOString(),
-      name: inputData.name,
-      description: inputData.description,
-      websiteUrl: inputData.websiteUrl,
-      isMembership: false,
-    };
-    await this.blogsRepository.createBlog(newBlog);
-    return new BlogInfoDTO(
-      newBlog._id.toString(),
-      newBlog.name,
-      newBlog.description,
-      newBlog.websiteUrl,
-      newBlog.createdAt,
-      newBlog.isMembership,
-    );
-  }
-
-  async findBlogById(id: string) {
-    tryObjectId(id);
+  async findBlogById(id: Types.ObjectId) {
     const blogById = await this.blogsRepository.findBlogById(id);
     if (!blogById) return false;
     return new BlogInfoDTO(
@@ -150,15 +125,5 @@ export class BlogsService {
       blogById.createdAt,
       blogById.isMembership,
     );
-  }
-
-  async updateBlog(id: string, inputBlogData: InputBlogDTO) {
-    tryObjectId(id);
-    return this.blogsRepository.updateBlog(id, inputBlogData);
-  }
-
-  async deleteBlog(id: string) {
-    tryObjectId(id);
-    return this.blogsRepository.deleteBlog(id);
   }
 }

@@ -7,7 +7,6 @@ import {
   QueryPostsDTO,
 } from './applications/posts.dto';
 import { Types } from 'mongoose';
-import { BlogsRepository } from '../blogs/blogs.repository';
 import { CommentsRepository } from '../comments/comments.repository';
 import { UsersRepository } from '../users/users.repository';
 import {
@@ -23,7 +22,6 @@ import { CommentsService } from '../comments/comments.service';
 export class PostsService {
   constructor(
     protected postsRepository: PostsRepository,
-    protected blogsRepository: BlogsRepository,
     protected commentsRepository: CommentsRepository,
     protected usersRepository: UsersRepository,
     protected commentsService: CommentsService,

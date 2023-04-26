@@ -12,6 +12,7 @@ import {
   CommentLike,
   CommentLikeDocument,
 } from './applications/comments-likes.schema';
+import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
 
 @Injectable()
 export class CommentsRepository {
@@ -21,8 +22,8 @@ export class CommentsRepository {
     private commentLikeModel: Model<CommentLikeDocument>,
   ) {}
 
-  async findCommentById(id: string) {
-    return this.commentModel.findOne({ _id: new Types.ObjectId(id) });
+  async findCommentById(id: Types.ObjectId) {
+    return this.commentModel.findOne({ _id: id });
   }
 
   async createComment(newComment: Comment) {
@@ -61,7 +62,7 @@ export class CommentsRepository {
     });
   }
 
-  async updateComment(id: string, inputData: InputCommentDTO) {
+  async updateComment(id: Types.ObjectId, inputData: InputCommentDTO) {
     const commentInstance = await this.commentModel.findOne({
       _id: new Types.ObjectId(id),
     });
@@ -71,9 +72,9 @@ export class CommentsRepository {
     return true;
   }
 
-  async deleteComment(id: string) {
+  async deleteComment(id: Types.ObjectId) {
     const result = await this.commentModel.deleteOne({
-      _id: new Types.ObjectId(id),
+      _id: id,
     });
     return result.deletedCount === 1;
   }

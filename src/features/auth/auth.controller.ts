@@ -33,7 +33,23 @@ import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(protected authService: AuthService) {}
-
+  //
+  //
+  // Query controller
+  //
+  //
+  @SkipThrottle()
+  @UseGuards(JwtAccessAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('me')
+  async getInfoAboutCurrentUser(@CurrentUserId() currentUserId) {
+    return this.authService.getInfoAboutCurrentUser(currentUserId);
+  }
+  //
+  //
+  // Command controller
+  //
+  //
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('password-recovery')
   async passwordRecovery(@Body() inputData: InputEmailDTO) {
@@ -127,13 +143,5 @@ export class AuthController {
   @Post('logout')
   async logout(@RefreshTokenPayload() tokenPayload: RefreshPayloadDTO) {
     return this.authService.logout(tokenPayload);
-  }
-
-  @SkipThrottle()
-  @UseGuards(JwtAccessAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get('me')
-  async getInfoAboutCurrentUser(@CurrentUserId() currentUserId) {
-    return this.authService.getInfoAboutCurrentUser(currentUserId);
   }
 }

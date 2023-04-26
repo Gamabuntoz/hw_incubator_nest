@@ -61,12 +61,19 @@ import { CreatePostWithBlogIdUseCases } from './features/blogs/use-cases/create-
 import { CreateBlogUseCases } from './features/blogs/use-cases/create-blog-use-cases';
 import { DeleteBlogUseCases } from './features/blogs/use-cases/delete-blog-use-cases';
 import { UpdateBlogUseCases } from './features/blogs/use-cases/update-blog-use-cases';
+import { CqrsModule } from '@nestjs/cqrs';
+import { UpdateCommentUseCases } from './features/comments/use-cases/update-comment-use-cases';
+import { UpdateCommentLikeStatusUseCases } from './features/comments/use-cases/update-comment-like-status-use-cases';
+import { DeleteCommentUseCases } from './features/comments/use-cases/delete-comment-use-cases';
 
 const useCases = [
   CreatePostWithBlogIdUseCases,
   CreateBlogUseCases,
   DeleteBlogUseCases,
   UpdateBlogUseCases,
+  UpdateCommentUseCases,
+  UpdateCommentLikeStatusUseCases,
+  DeleteCommentUseCases,
 ];
 const strategies = [
   LocalStrategy,
@@ -108,6 +115,7 @@ const controllers = [
 
 @Module({
   imports: [
+    CqrsModule,
     ThrottlerModule.forRoot({
       ttl: 10,
       limit: 5,

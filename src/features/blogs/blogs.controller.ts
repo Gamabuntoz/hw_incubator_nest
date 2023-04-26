@@ -20,23 +20,23 @@ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
 import { BlogsService } from './blogs.service';
-import { CreateBlogUseCases } from './use-cases/create-blog-use-cases';
-import { CreatePostWithBlogIdUseCases } from './use-cases/create-post-whith-blog-id-use-cases';
+import { CreateBlogCommand } from './use-cases/create-blog-use-cases';
+import { CreatePostWithBlogIdCommand } from './use-cases/create-post-whith-blog-id-use-cases';
 import { Types } from 'mongoose';
-import { UpdateBlogUseCases } from './use-cases/update-blog-use-cases';
-import { DeleteBlogUseCases } from './use-cases/delete-blog-use-cases';
+import { UpdateBlogCommand } from './use-cases/update-blog-use-cases';
+import { DeleteBlogCommand } from './use-cases/delete-blog-use-cases';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
+    private commandBus: CommandBus,
     protected blogsService: BlogsService,
-    protected createBlogUseCases: CreateBlogUseCases,
-    protected createPostByBlogIdUseCases: CreatePostWithBlogIdUseCases,
-    protected updateBlogUseCase: UpdateBlogUseCases,
-    protected deleteBlogUseCase: DeleteBlogUseCases,
   ) {}
   //
+  //
   // Query controller
+  //
   //
   @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -69,7 +69,9 @@ export class BlogsController {
     return result;
   }
   //
+  //
   // Command controller
+  //
   //
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
@@ -78,7 +80,9 @@ export class BlogsController {
     @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
     @Body() inputData: InputPostDTO,
   ) {
-    const result = await this.createPostByBlogIdUseCases.execute(id, inputData);
+    const result = await this.commandBus.execute(
+      new CreatePostWithBlogIdCommand(id, inputData),
+    );
     if (!result) throw new NotFoundException();
     return result;
   }
@@ -87,7 +91,7 @@ export class BlogsController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createBlog(@Body() inputData: InputBlogDTO) {
-    return this.createBlogUseCases.execute(inputData);
+    return this.commandBus.execute(new CreateBlogCommand(inputData));
   }
 
   @UseGuards(BasicAuthGuard)
@@ -97,7 +101,9 @@ export class BlogsController {
     @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
     @Body() inputData: InputBlogDTO,
   ) {
-    const result: boolean = await this.updateBlogUseCase.execute(id, inputData);
+    const result: boolean = await this.commandBus.execute(
+      new UpdateBlogCommand(id, inputData),
+    );
     if (!result) throw new NotFoundException();
     return;
   }
@@ -106,7 +112,9 @@ export class BlogsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async deleteBlog(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
-    const result: boolean = await this.deleteBlogUseCase.execute(id);
+    const result: boolean = await this.commandBus.execute(
+      new DeleteBlogCommand(id),
+    );
     if (!result) throw new NotFoundException();
     return;
   }

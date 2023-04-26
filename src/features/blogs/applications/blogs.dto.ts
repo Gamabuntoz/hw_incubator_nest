@@ -1,11 +1,5 @@
 import { Transform } from 'class-transformer';
-import {
-  IsNotEmpty,
-  IsString,
-  IsUrl,
-  Length,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl, Length } from 'class-validator';
 
 export class BlogInfoDTO {
   constructor(

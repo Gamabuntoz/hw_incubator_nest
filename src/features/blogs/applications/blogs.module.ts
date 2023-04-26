@@ -3,7 +3,7 @@ import { BlogsController } from '../blogs.controller';
 import { BlogsRepository } from '../blogs.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs.schema';
-import { BlogsService } from '../use-cases/create-blog-use-cases';
+import { BlogsService } from '../blogs.service';
 
 @Module({
   imports: [

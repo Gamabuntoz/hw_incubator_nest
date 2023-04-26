@@ -16,65 +16,29 @@ import { InputLikeStatusDTO } from '../posts/applications/posts.dto';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { InputCommentDTO } from './applications/comments.dto';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { UpdateCommentLikeStatusCommand } from './use-cases/update-comment-like-status-use-cases';
+import { CommandBus } from '@nestjs/cqrs';
+import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
+import { Types } from 'mongoose';
+import { UpdateCommentCommand } from './use-cases/update-comment-use-cases';
+import { DeleteCommentCommand } from './use-cases/delete-comment-use-cases';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(protected commentsService: CommentsService) {}
-
-  @UseGuards(JwtAccessAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Put(':id/like-status')
-  async updateLikeStatusForCommentById(
-    @Param('id') id: string,
-    @Body() inputData: InputLikeStatusDTO,
-    @CurrentUserId() currentUserId,
-  ) {
-    const updateLike = await this.commentsService.updateCommentLike(
-      id,
-      inputData.likeStatus,
-      currentUserId,
-    );
-    if (updateLike) return;
-    const setLike = await this.commentsService.setCommentLike(
-      id,
-      inputData.likeStatus,
-      currentUserId,
-    );
-    if (!setLike) throw new NotFoundException();
-    return;
-  }
-
-  @UseGuards(JwtAccessAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Put(':id')
-  async updateComment(
-    @Param('id') id: string,
-    @Body() inputData: InputCommentDTO,
-    @CurrentUserId() currentUserId,
-  ) {
-    const result = await this.commentsService.updateComment(
-      id,
-      inputData,
-      currentUserId,
-    );
-    if (!result) throw new NotFoundException();
-    return;
-  }
-
-  @UseGuards(JwtAccessAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete(':id')
-  async deleteComment(@Param('id') id: string, @CurrentUserId() currentUserId) {
-    const result = await this.commentsService.deleteComment(id, currentUserId);
-    if (!result) throw new NotFoundException();
-    return;
-  }
-
+  constructor(
+    protected commentsService: CommentsService,
+    private commandBus: CommandBus,
+  ) {}
+  //
+  //
+  // Query controller
+  //
+  //
   @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findCommentById(
-    @Param('id') id: string,
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
     @CurrentUserId() currentUserId,
   ) {
     const result = await this.commentsService.findCommentById(
@@ -83,5 +47,53 @@ export class CommentsController {
     );
     if (!result) throw new NotFoundException();
     return result;
+  }
+  //
+  //
+  // Command controller
+  //
+  //
+  @UseGuards(JwtAccessAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id/like-status')
+  async updateLikeStatusForCommentById(
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
+    @Body() inputData: InputLikeStatusDTO,
+    @CurrentUserId() currentUserId: string,
+  ) {
+    const result: boolean = await this.commandBus.execute(
+      new UpdateCommentLikeStatusCommand(id, inputData, currentUserId),
+    );
+    if (!result) throw new NotFoundException();
+    return;
+  }
+
+  @UseGuards(JwtAccessAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id')
+  async updateComment(
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
+    @Body() inputData: InputCommentDTO,
+    @CurrentUserId() currentUserId,
+  ) {
+    const result = await this.commandBus.execute(
+      new UpdateCommentCommand(id, inputData, currentUserId),
+    );
+    if (!result) throw new NotFoundException();
+    return;
+  }
+
+  @UseGuards(JwtAccessAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  async deleteComment(
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
+    @CurrentUserId() currentUserId,
+  ) {
+    const result = await this.commandBus.execute(
+      new DeleteCommentCommand(id, currentUserId),
+    );
+    if (!result) throw new NotFoundException();
+    return;
   }
 }

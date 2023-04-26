@@ -79,7 +79,14 @@ export class BlogsService {
     );
   }
 
-  async findAllBlogs(queryData: QueryBlogsDTO) {
+  async findAllBlogs(term: QueryBlogsDTO) {
+    const queryData = new QueryBlogsDTO(
+      term.searchNameTerm,
+      term.sortBy,
+      term.sortDirection,
+      +(term.pageNumber ?? 1),
+      +(term.pageSize ?? 10),
+    );
     let filter = {};
     if (queryData.searchNameTerm) {
       filter = { name: { $regex: queryData.searchNameTerm, $options: 'i' } };

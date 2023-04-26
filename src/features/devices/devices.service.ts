@@ -1,7 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { DevicesRepository } from './devices.repository';
 import { AuthDeviceDTO, RefreshPayloadDTO } from './applications/devices.dto';
-import { tryObjectId } from '../../app.service';
 
 @Injectable()
 export class DevicesService {

@@ -23,13 +23,18 @@ import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
-import { CreatePostWithBlogIdUseCases } from '../blogs/use-cases/create-post-whith-blog-id-use-cases';
+import {
+  CreatePostWithBlogIdCommand,
+  CreatePostWithBlogIdUseCases,
+} from '../blogs/use-cases/create-post-whith-blog-id-use-cases';
 import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
 import { Types } from 'mongoose';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('posts')
 export class PostsController {
   constructor(
+    private commandBus: CommandBus,
     protected postsService: PostsService,
     protected createPostWithBlogIdUseCases: CreatePostWithBlogIdUseCases,
   ) {}
@@ -108,9 +113,8 @@ export class PostsController {
     @Body() inputData: InputPostWithIdDTO,
     @Body('blogId', new TryObjectIdPipe()) id: Types.ObjectId,
   ) {
-    const result = await this.createPostWithBlogIdUseCases.execute(
-      id,
-      inputData,
+    const result = await this.commandBus.execute(
+      new CreatePostWithBlogIdCommand(id, inputData),
     );
     if (!result) throw new NotFoundException();
     return result;

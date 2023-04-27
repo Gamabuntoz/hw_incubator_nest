@@ -1,6 +1,6 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DevicesRepository } from './devices.repository';
-import { AuthDeviceDTO, RefreshPayloadDTO } from './applications/devices.dto';
+import { AuthDeviceDTO } from './applications/devices.dto';
 
 @Injectable()
 export class DevicesService {
@@ -19,19 +19,5 @@ export class DevicesService {
           d.deviceId,
         ),
     );
-  }
-
-  async deleteAllDevicesExceptCurrent(tokenPayload: RefreshPayloadDTO) {
-    return this.devicesRepository.deleteAllDevicesExceptCurrent(
-      tokenPayload.issueAt,
-      tokenPayload.userId,
-    );
-  }
-
-  async deleteDevicesById(id: string, tokenPayload: RefreshPayloadDTO) {
-    const device = await this.devicesRepository.findDeviceByDeviceId(id);
-    if (!device) return false;
-    if (device.userId !== tokenPayload.userId) throw new ForbiddenException();
-    return this.devicesRepository.deleteDeviceById(id);
   }
 }

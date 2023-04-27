@@ -151,9 +151,9 @@ export class UsersRepository {
     return true;
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(id: Types.ObjectId) {
     const result = await this.userModel.deleteOne({
-      _id: new Types.ObjectId(id),
+      _id: id,
     });
     return result.deletedCount === 1;
   }

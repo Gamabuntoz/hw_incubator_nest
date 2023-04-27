@@ -51,13 +51,13 @@ export class PostsRepository {
     return newPost;
   }
 
-  async findPostById(id: string) {
-    return this.postModel.findOne({ _id: new Types.ObjectId(id) });
+  async findPostById(id: Types.ObjectId) {
+    return this.postModel.findOne({ _id: id });
   }
 
-  async updatePost(id: string, inputPostData: InputPostWithIdDTO) {
+  async updatePost(id: Types.ObjectId, inputPostData: InputPostWithIdDTO) {
     const postInstance = await this.postModel.findOne({
-      _id: new Types.ObjectId(id),
+      _id: id,
     });
     if (!postInstance) return false;
     postInstance.title = inputPostData.title;
@@ -68,9 +68,9 @@ export class PostsRepository {
     return true;
   }
 
-  async deletePost(id: string) {
+  async deletePost(id: Types.ObjectId) {
     const result = await this.postModel.deleteOne({
-      _id: new Types.ObjectId(id),
+      _id: id,
     });
     return result.deletedCount === 1;
   }
@@ -105,7 +105,7 @@ export class PostsRepository {
 
   async findPostLikeByPostAndUserId(postId: string, userId: string) {
     return this.postLikeModel.findOne({
-      postId: postId.toString(),
+      postId: postId,
       userId: userId,
     });
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PostsRepository } from './posts.repository';
 import {
   AllPostsInfoDTO,
@@ -10,10 +10,10 @@ import { Types } from 'mongoose';
 import { CommentsRepository } from '../comments/comments.repository';
 import { UsersRepository } from '../users/users.repository';
 import {
-  AllCommentsInfoDTO,
   CommentInfoDTO,
+  Paginated,
+  Result,
 } from '../comments/applications/comments.dto';
-import { tryObjectId } from '../../app.service';
 import { Post } from './applications/posts.schema';
 import { PostLike } from './applications/posts-likes.schema';
 import { CommentsService } from '../comments/comments.service';
@@ -27,27 +27,30 @@ export class PostsService {
     protected commentsService: CommentsService,
   ) {}
 
-  async findCommentsByPostId(id: string, term: QueryPostsDTO, userId?: string) {
-    tryObjectId(id);
+  async findCommentsByPostId(
+    id: Types.ObjectId,
+    queryData: QueryPostsDTO,
+    userId?: string,
+  ): Promise<Result<Paginated<CommentInfoDTO[]>>> {
     const postById = await this.postsRepository.findPostById(id);
-    if (!postById) return false;
-    const queryData = new QueryPostsDTO(
-      term.sortBy,
-      term.sortDirection,
-      +(term.pageNumber ?? 1),
-      +(term.pageSize ?? 10),
+    if (!postById)
+      return new Result<Paginated<CommentInfoDTO[]>>(
+        HttpStatus.NOT_FOUND,
+        null,
+        'Post not found',
+      );
+    const totalCount = await this.commentsRepository.totalCountComments(
+      id.toString(),
     );
-    const totalCount = await this.commentsRepository.totalCountComments(id);
     const allComments = await this.commentsRepository.findAllCommentsByPostId(
-      id,
+      id.toString(),
       queryData,
     );
-    return new AllCommentsInfoDTO(
-      Math.ceil(totalCount / queryData.pageSize),
-      queryData.pageNumber,
-      queryData.pageSize,
+    const paginatedComments = await Paginated.getPaginated<CommentInfoDTO[]>({
       totalCount,
-      await Promise.all(
+      pageNumber: queryData.pageNumber,
+      pageSize: queryData.pageSize,
+      items: await Promise.all(
         allComments.map(async (c) => {
           let likeInfo;
           if (userId) {
@@ -75,6 +78,12 @@ export class PostsService {
           );
         }),
       ),
+    });
+
+    return new Result<Paginated<CommentInfoDTO[]>>(
+      HttpStatus.OK,
+      paginatedComments,
+      null,
     );
   }
 
@@ -125,26 +134,27 @@ export class PostsService {
     );
   }
 
-  async findPostById(id: string, userId?: string) {
-    tryObjectId(id);
+  async findPostById(id: Types.ObjectId, userId?: string) {
     const postById = await this.postsRepository.findPostById(id);
     if (!postById) return false;
     const likesInfo = await this.postsRepository.countLikePostStatusInfo(
-      id,
+      id.toString(),
       'Like',
     );
     const dislikesInfo = await this.postsRepository.countLikePostStatusInfo(
-      id,
+      id.toString(),
       'Dislike',
     );
     let likeInfo;
     if (userId) {
       likeInfo = await this.postsRepository.findPostLikeByPostAndUserId(
-        id,
+        id.toString(),
         userId,
       );
     }
-    const lastPostLikes = await this.postsRepository.findLastPostLikes(id);
+    const lastPostLikes = await this.postsRepository.findLastPostLikes(
+      id.toString(),
+    );
     return this.createPostViewInfo(
       postById,
       lastPostLikes,
@@ -154,12 +164,15 @@ export class PostsService {
     );
   }
 
-  async updatePostLike(postId: string, likeStatus: string, userId: string) {
-    tryObjectId(postId);
+  async updatePostLike(
+    postId: Types.ObjectId,
+    likeStatus: string,
+    userId: string,
+  ) {
     const post = await this.postsRepository.findPostById(postId);
     if (!post) return false;
     const updateLike = await this.postsRepository.updatePostLike(
-      postId,
+      postId.toString(),
       likeStatus,
       userId,
     );
@@ -167,14 +180,17 @@ export class PostsService {
     return true;
   }
 
-  async setPostLike(postId: string, likeStatus: string, userId: string) {
-    tryObjectId(postId);
+  async setPostLike(
+    postId: Types.ObjectId,
+    likeStatus: string,
+    userId: string,
+  ) {
     const post = await this.postsRepository.findPostById(postId);
     if (!post) return false;
     const postLike: PostLike = {
       _id: new Types.ObjectId(),
       userId: userId,
-      postId: postId,
+      postId: postId.toString(),
       status: likeStatus,
       addedAt: new Date(),
     };
@@ -182,14 +198,17 @@ export class PostsService {
     return true;
   }
 
-  async createCommentByPostId(postId: string, content: string, userId: string) {
-    tryObjectId(postId);
+  async createCommentByPostId(
+    postId: Types.ObjectId,
+    content: string,
+    userId: string,
+  ) {
     const user = await this.usersRepository.findUserById(userId);
     const postById = await this.postsRepository.findPostById(postId);
     if (!postById) return false;
     const newComment = {
       _id: new Types.ObjectId(),
-      postId: postId,
+      postId: postId.toString(),
       content: content,
       userId: userId,
       userLogin: user.accountData.login,
@@ -212,13 +231,11 @@ export class PostsService {
     );
   }
 
-  async updatePost(id: string, inputPostData: InputPostWithIdDTO) {
-    tryObjectId(id);
+  async updatePost(id: Types.ObjectId, inputPostData: InputPostWithIdDTO) {
     return this.postsRepository.updatePost(id, inputPostData);
   }
 
-  async deletePost(id: string) {
-    tryObjectId(id);
+  async deletePost(id: Types.ObjectId) {
     return this.postsRepository.deletePost(id);
   }
 

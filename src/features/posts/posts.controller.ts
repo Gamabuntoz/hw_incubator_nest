@@ -38,12 +38,90 @@ export class PostsController {
     protected postsService: PostsService,
     protected createPostWithBlogIdUseCases: CreatePostWithBlogIdUseCases,
   ) {}
+  //
+  //
+  // Query controller
+  //
+  //
+  @UseGuards(OptionalJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get(':id/comments')
+  async findCommentsByPostId(
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
+    @Query() query: QueryPostsDTO,
+    @CurrentUserId() currentUserId,
+  ) {
+    const result = await this.postsService.findCommentsByPostId(
+      id,
+      query,
+      currentUserId,
+    );
+    if (result.code === HttpStatus.NOT_FOUND) throw new NotFoundException();
+    return result.data;
+  }
+
+  @UseGuards(OptionalJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async findAllPosts(
+    @Query() query: QueryPostsDTO,
+    @CurrentUserId() currentUserId,
+  ) {
+    return this.postsService.findAllPosts(query, currentUserId);
+  }
+
+  @UseGuards(OptionalJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async findPostById(
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
+    @CurrentUserId() currentUserId,
+  ) {
+    const result = await this.postsService.findPostById(id, currentUserId);
+    if (!result) throw new NotFoundException();
+    return result;
+  }
+  //
+  //
+  // Command controller
+  //
+  //
+  @UseGuards(JwtAccessAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @Post(':id/comments')
+  async createCommentByPostId(
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
+    @Body() inputData: InputCommentDTO,
+    @CurrentUserId() currentUserId,
+  ) {
+    const result = await this.postsService.createCommentByPostId(
+      id,
+      inputData.content,
+      currentUserId,
+    );
+    if (!result) throw new NotFoundException();
+    return result;
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async createPost(
+    @Body() inputData: InputPostWithIdDTO,
+    @Body('blogId', new TryObjectIdPipe()) id: Types.ObjectId,
+  ) {
+    const result = await this.commandBus.execute(
+      new CreatePostWithBlogIdCommand(id, inputData),
+    );
+    if (!result) throw new NotFoundException();
+    return result;
+  }
 
   @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id/like-status')
   async updateLikeStatusForPostById(
-    @Param('id') id: string,
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
     @Body() inputData: InputLikeStatusDTO,
     @CurrentUserId() currentUserId,
   ) {
@@ -62,78 +140,11 @@ export class PostsController {
     return;
   }
 
-  @UseGuards(OptionalJwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get(':id/comments')
-  async findCommentsByPostId(
-    @Param('id') id: string,
-    @Query() query: QueryPostsDTO,
-    @CurrentUserId() currentUserId,
-  ) {
-    const result = await this.postsService.findCommentsByPostId(
-      id,
-      query,
-      currentUserId,
-    );
-    if (!result) throw new NotFoundException();
-    return result;
-  }
-
-  @UseGuards(JwtAccessAuthGuard)
-  @HttpCode(HttpStatus.CREATED)
-  @Post(':id/comments')
-  async createCommentByPostId(
-    @Param('id') id: string,
-    @Body() inputData: InputCommentDTO,
-    @CurrentUserId() currentUserId,
-  ) {
-    const result = await this.postsService.createCommentByPostId(
-      id,
-      inputData.content,
-      currentUserId,
-    );
-    if (!result) throw new NotFoundException();
-    return result;
-  }
-
-  @UseGuards(OptionalJwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get()
-  async findAllPosts(
-    @Query() query: QueryPostsDTO,
-    @CurrentUserId() currentUserId,
-  ) {
-    return this.postsService.findAllPosts(query, currentUserId);
-  }
-
-  @UseGuards(BasicAuthGuard)
-  @HttpCode(HttpStatus.CREATED)
-  @Post()
-  async createPost(
-    @Body() inputData: InputPostWithIdDTO,
-    @Body('blogId', new TryObjectIdPipe()) id: Types.ObjectId,
-  ) {
-    const result = await this.commandBus.execute(
-      new CreatePostWithBlogIdCommand(id, inputData),
-    );
-    if (!result) throw new NotFoundException();
-    return result;
-  }
-
-  @UseGuards(OptionalJwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get(':id')
-  async findPostById(@Param('id') id: string, @CurrentUserId() currentUserId) {
-    const result = await this.postsService.findPostById(id, currentUserId);
-    if (!result) throw new NotFoundException();
-    return result;
-  }
-
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':id')
   async updatePost(
-    @Param('id') id: string,
+    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
     @Body() inputData: InputPostWithIdDTO,
   ) {
     const result = await this.postsService.updatePost(id, inputData);
@@ -144,7 +155,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
-  async deletePost(@Param('id') id: string) {
+  async deletePost(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
     const result = await this.postsService.deletePost(id);
     if (!result) throw new NotFoundException();
     return;

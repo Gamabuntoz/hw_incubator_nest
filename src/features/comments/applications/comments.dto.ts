@@ -1,5 +1,12 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
+import { HttpStatus } from '@nestjs/common/enums/http-status.enum';
 
 export class CommentInfoDTO {
   constructor(
@@ -16,6 +23,30 @@ export class CommentInfoDTO {
       myStatus: string;
     },
   ) {}
+}
+export class Paginated<T> {
+  @IsNumber()
+  @IsOptional()
+  public pagesCount = 10;
+  public page: number;
+  public pageSize = 1;
+  public totalCount: number;
+  public items: T;
+
+  static getPaginated<T>(data: {
+    pageNumber: number;
+    pageSize: number;
+    totalCount: number;
+    items: T;
+  }): Paginated<T> {
+    return {
+      totalCount: data.totalCount,
+      items: data.items,
+      page: data.pageNumber,
+      pagesCount: Math.ceil(data.totalCount / data.pageSize),
+      pageSize: data.pageSize,
+    };
+  }
 }
 
 export class AllCommentsInfoDTO {
@@ -39,4 +70,12 @@ export class InputCommentDTO {
     return value?.trim();
   })
   content: string;
+}
+
+export class Result<T> {
+  constructor(
+    public code: HttpStatus,
+    public data: T | null,
+    public errorMessage: string | null,
+  ) {}
 }

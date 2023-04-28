@@ -17,6 +17,10 @@ export class Comment {
   userLogin: string;
   @Prop({ required: true })
   createdAt: string;
+  @Prop({ required: true })
+  likeCount: number;
+  @Prop({ required: true })
+  dislikeCount: number;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

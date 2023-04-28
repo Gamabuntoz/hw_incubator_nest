@@ -21,7 +21,7 @@ import { CurrentUserId } from '../auth/applications/current-user.param.decorator
 import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
 import { BlogsService } from './blogs.service';
 import { CreateBlogCommand } from './use-cases/create-blog-use-cases';
-import { CreatePostWithBlogIdCommand } from './use-cases/create-post-whith-blog-id-use-cases';
+import { CreatePostWithBlogIdCommand } from '../posts/use-cases/create-post-whith-blog-id-use-cases';
 import { Types } from 'mongoose';
 import { UpdateBlogCommand } from './use-cases/update-blog-use-cases';
 import { DeleteBlogCommand } from './use-cases/delete-blog-use-cases';

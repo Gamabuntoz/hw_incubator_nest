@@ -47,19 +47,33 @@ export class CommentsRepository {
       { commentId: commentId, userId: userId },
       { $set: { status: likeStatus } },
     );
+    await this.changeCountCommentLike(commentId);
     return result.matchedCount === 1;
   }
 
   async setCommentLike(newCommentLike: CommentLike) {
     await this.commentLikeModel.create(newCommentLike);
+    await this.changeCountCommentLike(newCommentLike._id.toString());
     return newCommentLike;
   }
 
-  async countLikeStatusInfo(commentId: string, status: string) {
+  async countLikeCommentStatusInfo(commentId: string, status: string) {
     return this.commentLikeModel.countDocuments({
       commentId: commentId,
       status: status,
     });
+  }
+
+  async changeCountCommentLike(commentId: string) {
+    const likeCount = await this.countLikeCommentStatusInfo(commentId, 'Like');
+    const dislikeCount = await this.countLikeCommentStatusInfo(
+      commentId,
+      'Dislike',
+    );
+    await this.commentModel.updateOne(
+      { _id: new Types.ObjectId(commentId) },
+      { $set: { likeCount, dislikeCount } },
+    );
   }
 
   async updateComment(id: Types.ObjectId, inputData: InputCommentDTO) {
@@ -96,13 +110,6 @@ export class CommentsRepository {
     return this.commentLikeModel.findOne({
       commentId: commentId,
       userId: userId,
-    });
-  }
-
-  async countLikeCommentStatusInfo(commentId: string, status: string) {
-    return this.commentLikeModel.countDocuments({
-      commentId: commentId,
-      status: status,
     });
   }
 

@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
-import { BlogsRepository } from '../blogs.repository';
-import { InputPostDTO, PostInfoDTO } from '../../posts/applications/posts.dto';
-import { PostsRepository } from '../../posts/posts.repository';
+import { BlogsRepository } from '../../blogs/blogs.repository';
+import { InputPostDTO, PostInfoDTO } from '../applications/posts.dto';
+import { PostsRepository } from '../posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class CreatePostWithBlogIdCommand {
@@ -28,6 +28,8 @@ export class CreatePostWithBlogIdUseCases
       blogId: blogById._id.toString(),
       blogName: blogById.name,
       createdAt: new Date().toISOString(),
+      likeCount: 0,
+      dislikeCount: 0,
     };
     await this.postsRepository.createPost(newPost);
     return new PostInfoDTO(

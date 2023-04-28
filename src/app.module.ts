@@ -57,7 +57,7 @@ import { BlogExistsRule } from './features/auth/applications/validate-blog-id.pa
 import { APP_GUARD } from '@nestjs/core';
 import { LoginOrEmailExistRule } from './features/auth/applications/validate-email-and-login.param.decorator';
 import { BlogsService } from './features/blogs/blogs.service';
-import { CreatePostWithBlogIdUseCases } from './features/blogs/use-cases/create-post-whith-blog-id-use-cases';
+import { CreatePostWithBlogIdUseCases } from './features/posts/use-cases/create-post-whith-blog-id-use-cases';
 import { CreateBlogUseCases } from './features/blogs/use-cases/create-blog-use-cases';
 import { DeleteBlogUseCases } from './features/blogs/use-cases/delete-blog-use-cases';
 import { UpdateBlogUseCases } from './features/blogs/use-cases/update-blog-use-cases';
@@ -65,6 +65,23 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { UpdateCommentUseCases } from './features/comments/use-cases/update-comment-use-cases';
 import { UpdateCommentLikeStatusUseCases } from './features/comments/use-cases/update-comment-like-status-use-cases';
 import { DeleteCommentUseCases } from './features/comments/use-cases/delete-comment-use-cases';
+import { ConfirmEmailUseCases } from './features/auth/use-cases/confirm-email-for-registration-use-cases';
+import { LoginUserUseCases } from './features/auth/use-cases/login-user-use-cases';
+import { NewPasswordUseCases } from './features/auth/use-cases/new-user-password-use-cases';
+import { PasswordRecoveryUseCases } from './features/auth/use-cases/recovery-user-password-use-cases';
+import { RefreshTokensUseCases } from './features/auth/use-cases/refresh-user-tokens-user-use-cases';
+import { RegistrationUserUseCases } from './features/auth/use-cases/registration-user-use-cases';
+import { ResendEmailUseCases } from './features/auth/use-cases/resend-email-for-registration-use-cases';
+import { VerifyTokenUseCases } from './features/auth/use-cases/verify-token-use-cases';
+import { CreateCommentWithPostIdUseCases } from './features/comments/use-cases/create-comment-whith-post-id-use-cases';
+import { LogoutUserUseCases } from './features/auth/use-cases/logout-user-use-cases';
+import { DeleteAllDeviceSessionsUseCases } from './features/devices/use-cases/delete-all-device-sessions-use-cases';
+import { DeleteDeviceSessionUseCases } from './features/devices/use-cases/delete-device-session-use-cases';
+import { DeletePostUseCases } from './features/posts/use-cases/delete-post-use-cases';
+import { UpdatePostUseCases } from './features/posts/use-cases/update-post-use-cases';
+import { UpdatePostLikeStatusUseCases } from './features/posts/use-cases/update-post-like-status-use-cases';
+import { CreateConfirmedUseCases } from './features/users/use-cases/create-confirmed-user-use-cases';
+import { DeleteUserUseCases } from './features/users/use-cases/delete-user-use-cases';
 
 const useCases = [
   CreatePostWithBlogIdUseCases,
@@ -74,6 +91,23 @@ const useCases = [
   UpdateCommentUseCases,
   UpdateCommentLikeStatusUseCases,
   DeleteCommentUseCases,
+  ConfirmEmailUseCases,
+  LoginUserUseCases,
+  LogoutUserUseCases,
+  NewPasswordUseCases,
+  PasswordRecoveryUseCases,
+  RefreshTokensUseCases,
+  RegistrationUserUseCases,
+  ResendEmailUseCases,
+  VerifyTokenUseCases,
+  CreateCommentWithPostIdUseCases,
+  DeleteAllDeviceSessionsUseCases,
+  DeleteDeviceSessionUseCases,
+  DeletePostUseCases,
+  UpdatePostLikeStatusUseCases,
+  UpdatePostUseCases,
+  CreateConfirmedUseCases,
+  DeleteUserUseCases,
 ];
 const strategies = [
   LocalStrategy,
@@ -81,10 +115,7 @@ const strategies = [
   BasicStrategy,
   OptionalJwtAuthGuard,
 ];
-const decorators = [
-  BlogExistsRule,
-  //LoginOrEmailExistRule
-];
+const decorators = [BlogExistsRule, LoginOrEmailExistRule];
 const repositories = [
   UsersRepository,
   PostsRepository,

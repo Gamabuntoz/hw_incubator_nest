@@ -48,31 +48,21 @@ export class BlogsService {
       totalCount,
       await Promise.all(
         allPosts.map(async (p) => {
-          let likeInfo;
+          let likeStatusCurrentUser;
           if (userId) {
-            likeInfo = await this.postsRepository.findPostLikeByPostAndUserId(
-              p._id.toString(),
-              userId,
-            );
+            likeStatusCurrentUser =
+              await this.postsRepository.findPostLikeByPostAndUserId(
+                p._id.toString(),
+                userId,
+              );
           }
-          const likesInfo = await this.postsRepository.countLikePostStatusInfo(
-            p._id.toString(),
-            'Like',
-          );
-          const dislikesInfo =
-            await this.postsRepository.countLikePostStatusInfo(
-              p._id.toString(),
-              'Dislike',
-            );
           const lastPostLikes = await this.postsRepository.findLastPostLikes(
             p._id.toString(),
           );
           return this.postsService.createPostViewInfo(
             p,
             lastPostLikes,
-            likesInfo,
-            dislikesInfo,
-            likeInfo,
+            likeStatusCurrentUser,
           );
         }),
       ),

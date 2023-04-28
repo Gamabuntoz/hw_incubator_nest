@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -18,7 +20,11 @@ import {
   InputPostWithIdDTO,
   QueryPostsDTO,
 } from './applications/posts.dto';
-import { InputCommentDTO } from '../comments/applications/comments.dto';
+import {
+  InputCommentDTO,
+  Result,
+  ResultCode,
+} from '../comments/applications/comments.dto';
 import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
 import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
 import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
@@ -26,17 +32,20 @@ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import {
   CreatePostWithBlogIdCommand,
   CreatePostWithBlogIdUseCases,
-} from '../blogs/use-cases/create-post-whith-blog-id-use-cases';
+} from './use-cases/create-post-whith-blog-id-use-cases';
 import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
 import { Types } from 'mongoose';
 import { CommandBus } from '@nestjs/cqrs';
+import { DeletePostCommand } from './use-cases/delete-post-use-cases';
+import { UpdatePostCommand } from './use-cases/update-post-use-cases';
+import { UpdatePostLikeStatusCommand } from './use-cases/update-post-like-status-use-cases';
+import { CreateCommentWithPostIdCommand } from '../comments/use-cases/create-comment-whith-post-id-use-cases';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private commandBus: CommandBus,
     protected postsService: PostsService,
-    protected createPostWithBlogIdUseCases: CreatePostWithBlogIdUseCases,
   ) {}
   //
   //
@@ -56,7 +65,9 @@ export class PostsController {
       query,
       currentUserId,
     );
-    if (result.code === HttpStatus.NOT_FOUND) throw new NotFoundException();
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
     return result.data;
   }
 
@@ -94,10 +105,8 @@ export class PostsController {
     @Body() inputData: InputCommentDTO,
     @CurrentUserId() currentUserId,
   ) {
-    const result = await this.postsService.createCommentByPostId(
-      id,
-      inputData.content,
-      currentUserId,
+    const result = await this.commandBus.execute(
+      new CreateCommentWithPostIdCommand(id, inputData.content, currentUserId),
     );
     if (!result) throw new NotFoundException();
     return result;
@@ -125,18 +134,10 @@ export class PostsController {
     @Body() inputData: InputLikeStatusDTO,
     @CurrentUserId() currentUserId,
   ) {
-    const updateLike = await this.postsService.updatePostLike(
-      id,
-      inputData.likeStatus,
-      currentUserId,
+    const result: boolean = await this.commandBus.execute(
+      new UpdatePostLikeStatusCommand(id, inputData, currentUserId),
     );
-    if (updateLike) return;
-    const setLike = await this.postsService.setPostLike(
-      id,
-      inputData.likeStatus,
-      currentUserId,
-    );
-    if (!setLike) throw new NotFoundException();
+    if (!result) throw new NotFoundException();
     return;
   }
 
@@ -147,7 +148,9 @@ export class PostsController {
     @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
     @Body() inputData: InputPostWithIdDTO,
   ) {
-    const result = await this.postsService.updatePost(id, inputData);
+    const result = await this.commandBus.execute(
+      new UpdatePostCommand(id, inputData),
+    );
     if (!result) throw new NotFoundException();
     return;
   }
@@ -156,7 +159,7 @@ export class PostsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async deletePost(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
-    const result = await this.postsService.deletePost(id);
+    const result = await this.commandBus.execute(new DeletePostCommand(id));
     if (!result) throw new NotFoundException();
     return;
   }

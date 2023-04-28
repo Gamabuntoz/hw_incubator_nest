@@ -8,7 +8,7 @@ export class RefreshTokensCommand {
 }
 
 @CommandHandler(RefreshTokensCommand)
-export class LogoutUserUseCases
+export class RefreshTokensUseCases
   implements ICommandHandler<RefreshTokensCommand>
 {
   constructor(

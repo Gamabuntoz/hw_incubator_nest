@@ -87,11 +87,13 @@ export class PostsRepository {
       { postId: postId, userId: userId },
       { $set: { status: likeStatus } },
     );
+    await this.changeCountPostLike(postId);
     return result.matchedCount === 1;
   }
 
   async setPostLike(newPostLike: PostLike) {
     await this.postLikeModel.create(newPostLike);
+    await this.changeCountPostLike(newPostLike._id.toString());
     return newPostLike;
   }
 
@@ -108,5 +110,14 @@ export class PostsRepository {
       postId: postId,
       userId: userId,
     });
+  }
+
+  async changeCountPostLike(postId: string) {
+    const likeCount = await this.countLikePostStatusInfo(postId, 'Like');
+    const dislikeCount = await this.countLikePostStatusInfo(postId, 'Dislike');
+    await this.postModel.updateOne(
+      { _id: new Types.ObjectId(postId) },
+      { $set: { likeCount, dislikeCount } },
+    );
   }
 }

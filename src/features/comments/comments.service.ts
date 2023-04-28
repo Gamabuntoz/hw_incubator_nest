@@ -12,34 +12,19 @@ export class CommentsService {
   async findCommentById(id: Types.ObjectId, userId?: string) {
     const comment = await this.commentsRepository.findCommentById(id);
     if (!comment) return false;
-    const likesCount = await this.commentsRepository.countLikeStatusInfo(
-      id.toString(),
-      'Like',
-    );
-    const dislikesCount = await this.commentsRepository.countLikeStatusInfo(
-      id.toString(),
-      'Dislike',
-    );
-    let likeInfo;
+    let likeStatusCurrentUser;
     if (userId) {
-      likeInfo =
+      likeStatusCurrentUser =
         await this.commentsRepository.findCommentLikeByCommentAndUserId(
           id.toString(),
           userId,
         );
     }
-    return this.createCommentViewInfo(
-      comment,
-      likesCount,
-      dislikesCount,
-      likeInfo,
-    );
+    return this.createCommentViewInfo(comment, likeStatusCurrentUser);
   }
 
   async createCommentViewInfo(
     comment: Comment,
-    likesInfo: number,
-    dislikesInfo: number,
     likeStatusCurrentUser?: CommentLike,
   ) {
     return new CommentInfoDTO(
@@ -51,8 +36,8 @@ export class CommentsService {
       },
       comment.createdAt,
       {
-        dislikesCount: dislikesInfo,
-        likesCount: likesInfo,
+        dislikesCount: comment.dislikeCount,
+        likesCount: comment.likeCount,
         myStatus: likeStatusCurrentUser ? likeStatusCurrentUser.status : 'None',
       },
     );

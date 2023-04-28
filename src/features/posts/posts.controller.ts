@@ -25,21 +25,21 @@ import {
   Result,
   ResultCode,
 } from '../comments/applications/comments.dto';
-import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
-import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
-import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { BasicAuthGuard } from '../../security/guards/basic-auth.guard';
+import { JwtAccessAuthGuard } from '../../security/guards/jwt-access-auth.guard';
+import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';
+import { OptionalJwtAuthGuard } from '../../security/guards/optional-jwt-auth.guard';
 import {
   CreatePostWithBlogIdCommand,
   CreatePostWithBlogIdUseCases,
-} from './use-cases/create-post-whith-blog-id-use-cases';
-import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
+} from './applications/use-cases/create-post-whith-blog-id-use-cases';
+import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeletePostCommand } from './use-cases/delete-post-use-cases';
-import { UpdatePostCommand } from './use-cases/update-post-use-cases';
-import { UpdatePostLikeStatusCommand } from './use-cases/update-post-like-status-use-cases';
-import { CreateCommentWithPostIdCommand } from '../comments/use-cases/create-comment-whith-post-id-use-cases';
+import { DeletePostCommand } from './applications/use-cases/delete-post-use-cases';
+import { UpdatePostCommand } from './applications/use-cases/update-post-use-cases';
+import { UpdatePostLikeStatusCommand } from './applications/use-cases/update-post-like-status-use-cases';
+import { CreateCommentWithPostIdCommand } from '../comments/applications/use-cases/create-comment-whith-post-id-use-cases';
 
 @Controller('posts')
 export class PostsController {

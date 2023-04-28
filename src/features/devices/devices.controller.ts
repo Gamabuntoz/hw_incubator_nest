@@ -9,14 +9,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DevicesService } from './devices.service';
-import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
-import { RefreshTokenPayload } from '../auth/applications/get-refresh-token-payload.param.decorator';
+import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';
+import { RefreshTokenPayload } from '../../helpers/decorators/get-refresh-token-payload.param.decorator';
 import { RefreshPayloadDTO } from './applications/devices.dto';
-import { JwtRefreshAuthGuard } from '../auth/guards/jwt-refresh-auth.guard';
+import { JwtRefreshAuthGuard } from '../../security/guards/jwt-refresh-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeleteDeviceSessionCommand } from './use-cases/delete-device-session-use-cases';
-import { DeleteAllDeviceSessionsCommand } from './use-cases/delete-all-device-sessions-use-cases';
-import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
+import { DeleteDeviceSessionCommand } from './applications/use-cases/delete-device-session-use-cases';
+import { DeleteAllDeviceSessionsCommand } from './applications/use-cases/delete-all-device-sessions-use-cases';
+import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
 
 @Controller('security/devices')

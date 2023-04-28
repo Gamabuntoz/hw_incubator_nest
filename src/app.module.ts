@@ -29,10 +29,10 @@ import { CommentsService } from './features/comments/comments.service';
 import { CommentsRepository } from './features/comments/comments.repository';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './features/auth/applications/constants';
-import { LocalStrategy } from './features/auth/strategies/local.strategy';
-import { JwtAccessStrategy } from './features/auth/strategies/jwt-access.strategy';
-import { BasicStrategy } from './features/auth/strategies/basic.strategy';
+import { jwtConstants } from './helpers/constants';
+import { LocalStrategy } from './security/strategies/local.strategy';
+import { JwtAccessStrategy } from './security/strategies/jwt-access.strategy';
+import { BasicStrategy } from './security/strategies/basic.strategy';
 import {
   CommentLike,
   CommentLikeSchema,
@@ -41,8 +41,8 @@ import {
   PostLike,
   PostLikeSchema,
 } from './features/posts/applications/posts-likes.schema';
-import { OptionalJwtAuthGuard } from './features/auth/guards/optional-jwt-auth.guard';
-import { EmailAdapter } from './adapters/email.adapters';
+import { OptionalJwtAuthGuard } from './security/guards/optional-jwt-auth.guard';
+import { EmailAdapter } from './adapters/email-adapter/email.adapter';
 import { AuthController } from './features/auth/auth.controller';
 import { AuthService } from './features/auth/auth.service';
 import {
@@ -53,35 +53,35 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DevicesRepository } from './features/devices/devices.repository';
 import { DevicesController } from './features/devices/devices.controller';
 import { DevicesService } from './features/devices/devices.service';
-import { BlogExistsRule } from './features/auth/applications/validate-blog-id.param.decorator';
+import { BlogExistsRule } from './helpers/decorators/validate-blog-id.param.decorator';
 import { APP_GUARD } from '@nestjs/core';
-import { LoginOrEmailExistRule } from './features/auth/applications/validate-email-and-login.param.decorator';
+import { LoginOrEmailExistRule } from './helpers/decorators/validate-email-and-login.param.decorator';
 import { BlogsService } from './features/blogs/blogs.service';
-import { CreatePostWithBlogIdUseCases } from './features/posts/use-cases/create-post-whith-blog-id-use-cases';
-import { CreateBlogUseCases } from './features/blogs/use-cases/create-blog-use-cases';
-import { DeleteBlogUseCases } from './features/blogs/use-cases/delete-blog-use-cases';
-import { UpdateBlogUseCases } from './features/blogs/use-cases/update-blog-use-cases';
+import { CreatePostWithBlogIdUseCases } from './features/posts/applications/use-cases/create-post-whith-blog-id-use-cases';
+import { CreateBlogUseCases } from './features/blogs/applications/use-cases/create-blog-use-cases';
+import { DeleteBlogUseCases } from './features/blogs/applications/use-cases/delete-blog-use-cases';
+import { UpdateBlogUseCases } from './features/blogs/applications/use-cases/update-blog-use-cases';
 import { CqrsModule } from '@nestjs/cqrs';
-import { UpdateCommentUseCases } from './features/comments/use-cases/update-comment-use-cases';
-import { UpdateCommentLikeStatusUseCases } from './features/comments/use-cases/update-comment-like-status-use-cases';
-import { DeleteCommentUseCases } from './features/comments/use-cases/delete-comment-use-cases';
-import { ConfirmEmailUseCases } from './features/auth/use-cases/confirm-email-for-registration-use-cases';
-import { LoginUserUseCases } from './features/auth/use-cases/login-user-use-cases';
-import { NewPasswordUseCases } from './features/auth/use-cases/new-user-password-use-cases';
-import { PasswordRecoveryUseCases } from './features/auth/use-cases/recovery-user-password-use-cases';
-import { RefreshTokensUseCases } from './features/auth/use-cases/refresh-user-tokens-user-use-cases';
-import { RegistrationUserUseCases } from './features/auth/use-cases/registration-user-use-cases';
-import { ResendEmailUseCases } from './features/auth/use-cases/resend-email-for-registration-use-cases';
-import { VerifyTokenUseCases } from './features/auth/use-cases/verify-token-use-cases';
-import { CreateCommentWithPostIdUseCases } from './features/comments/use-cases/create-comment-whith-post-id-use-cases';
-import { LogoutUserUseCases } from './features/auth/use-cases/logout-user-use-cases';
-import { DeleteAllDeviceSessionsUseCases } from './features/devices/use-cases/delete-all-device-sessions-use-cases';
-import { DeleteDeviceSessionUseCases } from './features/devices/use-cases/delete-device-session-use-cases';
-import { DeletePostUseCases } from './features/posts/use-cases/delete-post-use-cases';
-import { UpdatePostUseCases } from './features/posts/use-cases/update-post-use-cases';
-import { UpdatePostLikeStatusUseCases } from './features/posts/use-cases/update-post-like-status-use-cases';
-import { CreateConfirmedUseCases } from './features/users/use-cases/create-confirmed-user-use-cases';
-import { DeleteUserUseCases } from './features/users/use-cases/delete-user-use-cases';
+import { UpdateCommentUseCases } from './features/comments/applications/use-cases/update-comment-use-cases';
+import { UpdateCommentLikeStatusUseCases } from './features/comments/applications/use-cases/update-comment-like-status-use-cases';
+import { DeleteCommentUseCases } from './features/comments/applications/use-cases/delete-comment-use-cases';
+import { ConfirmEmailUseCases } from './features/auth/applications/use-cases/confirm-email-for-registration-use-cases';
+import { LoginUserUseCases } from './features/auth/applications/use-cases/login-user-use-cases';
+import { NewPasswordUseCases } from './features/auth/applications/use-cases/new-user-password-use-cases';
+import { PasswordRecoveryUseCases } from './features/auth/applications/use-cases/recovery-user-password-use-cases';
+import { RefreshTokensUseCases } from './features/auth/applications/use-cases/refresh-user-tokens-user-use-cases';
+import { RegistrationUserUseCases } from './features/auth/applications/use-cases/registration-user-use-cases';
+import { ResendEmailUseCases } from './features/auth/applications/use-cases/resend-email-for-registration-use-cases';
+import { VerifyTokenUseCases } from './features/auth/applications/use-cases/verify-token-use-cases';
+import { CreateCommentWithPostIdUseCases } from './features/comments/applications/use-cases/create-comment-whith-post-id-use-cases';
+import { LogoutUserUseCases } from './features/auth/applications/use-cases/logout-user-use-cases';
+import { DeleteAllDeviceSessionsUseCases } from './features/devices/applications/use-cases/delete-all-device-sessions-use-cases';
+import { DeleteDeviceSessionUseCases } from './features/devices/applications/use-cases/delete-device-session-use-cases';
+import { DeletePostUseCases } from './features/posts/applications/use-cases/delete-post-use-cases';
+import { UpdatePostUseCases } from './features/posts/applications/use-cases/update-post-use-cases';
+import { UpdatePostLikeStatusUseCases } from './features/posts/applications/use-cases/update-post-like-status-use-cases';
+import { CreateConfirmedUseCases } from './features/users/applications/use-cases/create-confirmed-user-use-cases';
+import { DeleteUserUseCases } from './features/users/applications/use-cases/delete-user-use-cases';
 
 const useCases = [
   CreatePostWithBlogIdUseCases,

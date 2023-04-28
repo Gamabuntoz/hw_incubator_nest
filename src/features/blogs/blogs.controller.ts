@@ -15,16 +15,16 @@ import {
 import { QueryPostsDTO } from '../posts/applications/posts.dto';
 import { InputBlogDTO, QueryBlogsDTO } from './applications/blogs.dto';
 import { InputPostDTO } from '../posts/applications/posts.dto';
-import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
-import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
-import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
-import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
+import { BasicAuthGuard } from '../../security/guards/basic-auth.guard';
+import { OptionalJwtAuthGuard } from '../../security/guards/optional-jwt-auth.guard';
+import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';
+import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { BlogsService } from './blogs.service';
-import { CreateBlogCommand } from './use-cases/create-blog-use-cases';
-import { CreatePostWithBlogIdCommand } from '../posts/use-cases/create-post-whith-blog-id-use-cases';
+import { CreateBlogCommand } from './applications/use-cases/create-blog-use-cases';
+import { CreatePostWithBlogIdCommand } from '../posts/applications/use-cases/create-post-whith-blog-id-use-cases';
 import { Types } from 'mongoose';
-import { UpdateBlogCommand } from './use-cases/update-blog-use-cases';
-import { DeleteBlogCommand } from './use-cases/delete-blog-use-cases';
+import { UpdateBlogCommand } from './applications/use-cases/update-blog-use-cases';
+import { DeleteBlogCommand } from './applications/use-cases/delete-blog-use-cases';
 import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('blogs')

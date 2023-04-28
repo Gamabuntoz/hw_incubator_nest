@@ -20,23 +20,23 @@ import {
   InputRegistrationDTO,
 } from './applications/auth.dto';
 import { AuthService } from './auth.service';
-import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
-import { CurrentUserId } from './applications/current-user.param.decorator';
+import { JwtAccessAuthGuard } from '../../security/guards/jwt-access-auth.guard';
+import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';
 import { Response } from 'express';
-import { RefreshTokenPayload } from './applications/get-refresh-token-payload.param.decorator';
+import { RefreshTokenPayload } from '../../helpers/decorators/get-refresh-token-payload.param.decorator';
 import { RefreshPayloadDTO } from '../devices/applications/devices.dto';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import { LocalAuthGuard } from '../../security/guards/local-auth.guard';
+import { JwtRefreshAuthGuard } from '../../security/guards/jwt-refresh-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
-import { LogoutUserCommand } from './use-cases/logout-user-use-cases';
-import { ResendEmailCommand } from './use-cases/resend-email-for-registration-use-cases';
-import { RegistrationUserCommand } from './use-cases/registration-user-use-cases';
-import { ConfirmEmailCommand } from './use-cases/confirm-email-for-registration-use-cases';
-import { RefreshTokensCommand } from './use-cases/refresh-user-tokens-user-use-cases';
-import { LoginUserCommand } from './use-cases/login-user-use-cases';
-import { NewPasswordCommand } from './use-cases/new-user-password-use-cases';
-import { PasswordRecoveryCommand } from './use-cases/recovery-user-password-use-cases';
+import { LogoutUserCommand } from './applications/use-cases/logout-user-use-cases';
+import { ResendEmailCommand } from './applications/use-cases/resend-email-for-registration-use-cases';
+import { RegistrationUserCommand } from './applications/use-cases/registration-user-use-cases';
+import { ConfirmEmailCommand } from './applications/use-cases/confirm-email-for-registration-use-cases';
+import { RefreshTokensCommand } from './applications/use-cases/refresh-user-tokens-user-use-cases';
+import { LoginUserCommand } from './applications/use-cases/login-user-use-cases';
+import { NewPasswordCommand } from './applications/use-cases/new-user-password-use-cases';
+import { PasswordRecoveryCommand } from './applications/use-cases/recovery-user-password-use-cases';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')

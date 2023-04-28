@@ -7,7 +7,7 @@ import {
   Validate,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { LoginOrEmailExistRule } from './validate-email-and-login.param.decorator';
+import { LoginOrEmailExistRule } from '../../../helpers/decorators/validate-email-and-login.param.decorator';
 
 export class InputEmailDTO {
   @IsEmail()
@@ -31,7 +31,7 @@ export class InputRegistrationDTO {
     }
     return value?.trim();
   })
-  //@Validate(LoginOrEmailExistRule)
+  @Validate(LoginOrEmailExistRule)
   login: string;
   @IsString()
   @Length(6, 20)
@@ -51,7 +51,7 @@ export class InputRegistrationDTO {
     }
     return value?.trim();
   })
-  //@Validate(LoginOrEmailExistRule)
+  @Validate(LoginOrEmailExistRule)
   email: string;
 }
 

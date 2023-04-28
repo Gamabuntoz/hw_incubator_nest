@@ -11,17 +11,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { JwtAccessAuthGuard } from '../auth/guards/jwt-access-auth.guard';
+import { JwtAccessAuthGuard } from '../../security/guards/jwt-access-auth.guard';
 import { InputLikeStatusDTO } from '../posts/applications/posts.dto';
-import { CurrentUserId } from '../auth/applications/current-user.param.decorator';
+import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';
 import { InputCommentDTO } from './applications/comments.dto';
-import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
-import { UpdateCommentLikeStatusCommand } from './use-cases/update-comment-like-status-use-cases';
+import { OptionalJwtAuthGuard } from '../../security/guards/optional-jwt-auth.guard';
+import { UpdateCommentLikeStatusCommand } from './applications/use-cases/update-comment-like-status-use-cases';
 import { CommandBus } from '@nestjs/cqrs';
-import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
+import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
-import { UpdateCommentCommand } from './use-cases/update-comment-use-cases';
-import { DeleteCommentCommand } from './use-cases/delete-comment-use-cases';
+import { UpdateCommentCommand } from './applications/use-cases/update-comment-use-cases';
+import { DeleteCommentCommand } from './applications/use-cases/delete-comment-use-cases';
 
 @Controller('comments')
 export class CommentsController {

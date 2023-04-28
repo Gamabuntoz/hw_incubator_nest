@@ -12,7 +12,7 @@ import {
   CommentLike,
   CommentLikeDocument,
 } from './applications/comments-likes.schema';
-import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
+import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 
 @Injectable()
 export class CommentsRepository {

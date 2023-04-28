@@ -13,13 +13,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { QueryUsersDTO } from './applications/users.dto';
-import { BasicAuthGuard } from '../auth/guards/basic-auth.guard';
+import { BasicAuthGuard } from '../../security/guards/basic-auth.guard';
 import { InputRegistrationDTO } from '../auth/applications/auth.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateConfirmedUserCommand } from './use-cases/create-confirmed-user-use-cases';
-import { TryObjectIdPipe } from '../auth/applications/try-object-id.param.decorator';
+import { CreateConfirmedUserCommand } from './applications/use-cases/create-confirmed-user-use-cases';
+import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
-import { DeleteUserCommand } from './use-cases/delete-user-use-cases';
+import { DeleteUserCommand } from './applications/use-cases/delete-user-use-cases';
 
 @Controller('users')
 export class UsersController {

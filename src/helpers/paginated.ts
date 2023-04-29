@@ -12,10 +12,10 @@ export class Paginated<T> {
     items: T;
   }): Paginated<T> {
     return {
-      pagesCount: Math.ceil(data.totalCount / data.pageSize),
-      page: data.pageNumber,
-      pageSize: data.pageSize,
-      totalCount: data.totalCount,
+      pagesCount: Math.ceil(data.totalCount / +data.pageSize),
+      page: +data.pageNumber,
+      pageSize: +data.pageSize,
+      totalCount: +data.totalCount,
       items: data.items,
     };
   }

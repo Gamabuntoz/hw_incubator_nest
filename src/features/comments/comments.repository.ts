@@ -69,6 +69,7 @@ export class CommentsRepository {
       { _id: new Types.ObjectId(commentId) },
       { $set: { likeCount, dislikeCount } },
     );
+    return;
   }
 
   async updateComment(id: Types.ObjectId, inputData: InputCommentDTO) {

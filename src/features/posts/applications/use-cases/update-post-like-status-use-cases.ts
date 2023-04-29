@@ -45,12 +45,11 @@ export class UpdatePostLikeStatusUseCases
   ): Promise<boolean> {
     const post = await this.postsRepository.findPostById(postId);
     if (!post) return false;
-    await this.postsRepository.updatePostLike(
+    return this.postsRepository.updatePostLike(
       postId.toString(),
       likeStatus,
       userId,
     );
-    return true;
   }
 
   private async setPostLike(

@@ -123,5 +123,6 @@ export class PostsRepository {
       { _id: new Types.ObjectId(postId) },
       { $set: { likeCount, dislikeCount } },
     );
+    return;
   }
 }

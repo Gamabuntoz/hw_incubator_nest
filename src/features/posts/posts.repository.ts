@@ -97,7 +97,7 @@ export class PostsRepository {
 
   async setPostLike(newPostLike: PostLike) {
     await this.postLikeModel.create(newPostLike);
-    await this.changeCountPostLike(newPostLike._id.toString());
+    await this.changeCountPostLike(newPostLike.postId);
     return newPostLike;
   }
 

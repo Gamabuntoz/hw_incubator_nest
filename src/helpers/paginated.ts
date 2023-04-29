@@ -11,11 +11,10 @@ export class Paginated<T> {
     totalCount: number;
     items: T;
   }): Paginated<T> {
-    const pageSize = data.pageSize ? data.pageSize : 10;
     return {
-      pagesCount: Math.ceil(data.totalCount / pageSize),
-      page: data.pageNumber ? data.pageNumber : 1,
-      pageSize: pageSize,
+      pagesCount: Math.ceil(data.totalCount / data.pageSize),
+      page: data.pageNumber,
+      pageSize: data.pageSize,
       totalCount: data.totalCount,
       items: data.items,
     };
@@ -24,4 +23,3 @@ export class Paginated<T> {
 
 // TODO: split query and command repository
 // TODO: create tests for all endpoints
-// TODO: add cascade delete or update to dependency blogs or posts or comments

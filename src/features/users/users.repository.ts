@@ -1,67 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './applications/users.schema';
-import { Model, Types } from 'mongoose';
-import { QueryUsersDTO, UserInfoDTO } from './applications/users.dto';
+import { FilterQuery, Model, Types } from 'mongoose';
+import { QueryUsersDTO } from './applications/users.dto';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
-import { Paginated } from '../../helpers/paginated';
 
 @Injectable()
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findAllUsers(queryData: QueryUsersDTO) {
-    let filter: any = { $or: [] };
-    if (queryData.searchLoginTerm) {
-      filter['$or'].push({
-        'accountData.login': {
-          $regex: queryData.searchLoginTerm,
-          $options: 'i',
-        },
-      });
-    }
-    if (queryData.searchEmailTerm) {
-      filter['$or'].push({
-        'accountData.email': {
-          $regex: queryData.searchEmailTerm,
-          $options: 'i',
-        },
-      });
-    }
-    if (!queryData.searchLoginTerm && !queryData.searchEmailTerm) {
-      filter = {};
-    }
+  async findAllUsers(filter: FilterQuery<User>, queryData: QueryUsersDTO) {
     let sort = 'accountData.createdAt';
     if (queryData.sortBy) {
       sort = `accountData.${queryData.sortBy}`;
     }
-    const totalCount = await this.userModel.countDocuments(filter);
-    const findAllUsers = await this.userModel
+    return this.userModel
       .find(filter)
       .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
       .skip((queryData.pageNumber - 1) * queryData.pageSize)
       .limit(queryData.pageSize)
       .lean();
-    const paginatedUsers = await Paginated.getPaginated<UserInfoDTO[]>({
-      totalCount,
-      pageNumber: queryData.pageNumber,
-      pageSize: queryData.pageSize,
-      items: findAllUsers.map(
-        (u) =>
-          new UserInfoDTO(
-            u._id.toString(),
-            u.accountData.login,
-            u.accountData.email,
-            u.accountData.createdAt,
-          ),
-      ),
-    });
-    return paginatedUsers;
+  }
+  createFilter(searchLoginTerm?, searchEmailTerm?) {
+    let filter: any = { $or: [] };
+
+    if (searchLoginTerm) {
+      filter['$or'].push({
+        'accountData.login': {
+          $regex: searchLoginTerm,
+          $options: 'i',
+        },
+      });
+    }
+
+    if (searchEmailTerm) {
+      filter['$or'].push({
+        'accountData.email': {
+          $regex: searchEmailTerm,
+          $options: 'i',
+        },
+      });
+    }
+    if (!searchLoginTerm && !searchEmailTerm) {
+      filter = {};
+    }
+    return filter;
   }
 
-  async totalCountUsers() {
-    return this.userModel.countDocuments({});
+  async totalCountUsers(filter) {
+    return this.userModel.countDocuments(filter);
   }
 
   async createUser(newUser: User) {

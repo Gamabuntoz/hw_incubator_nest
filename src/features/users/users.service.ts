@@ -12,7 +12,30 @@ export class UsersService {
   async findUsers(
     queryData: QueryUsersDTO,
   ): Promise<Result<Paginated<UserInfoDTO[]>>> {
-    const paginatedUsers = await this.usersRepository.findAllUsers(queryData);
+    const filter = this.usersRepository.createFilter(
+      queryData.searchLoginTerm,
+      queryData.searchEmailTerm,
+    );
+    const totalCount = await this.usersRepository.totalCountUsers(filter);
+    const findAllUsers = await this.usersRepository.findAllUsers(
+      filter,
+      queryData,
+    );
+    const paginatedUsers = await Paginated.getPaginated<UserInfoDTO[]>({
+      totalCount,
+      pageNumber: queryData.pageNumber,
+      pageSize: queryData.pageSize,
+      items: findAllUsers.map(
+        (u) =>
+          new UserInfoDTO(
+            u._id.toString(),
+            u.accountData.login,
+            u.accountData.email,
+            u.accountData.createdAt,
+          ),
+      ),
+    });
+
     return new Result<Paginated<UserInfoDTO[]>>(
       ResultCode.Success,
       paginatedUsers,

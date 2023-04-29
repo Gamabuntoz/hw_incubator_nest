@@ -15,10 +15,10 @@ export class BlogInfoDTO {
 export class QueryBlogsDTO {
   constructor(
     public searchNameTerm: string,
-    public sortBy: string,
-    public sortDirection: string,
-    public pageNumber: number,
-    public pageSize: number,
+    public sortBy: string = 'createdAt',
+    public sortDirection: string = 'desc',
+    public pageNumber: number = 1,
+    public pageSize: number = 10,
   ) {}
 }
 

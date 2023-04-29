@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -20,10 +19,9 @@ export class ValidateRegistrationConfirmationCodeRule
     const user = await this.usersRepository.findUserByConfirmationCode(value);
     if (!user) return false;
     if (user.emailConfirmation.expirationDate < new Date()) return false;
-    if (user.emailConfirmation.isConfirmed) return false;
-    return true;
+    return !user.emailConfirmation.isConfirmed;
   }
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return `Code is incorrect, expired or already been applied`;
   }
 }

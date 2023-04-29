@@ -5,10 +5,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TestingController } from './features/testing/testing.controller';
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
-import { UsersModule } from './features/users/applications/users.module';
-import { PostsModule } from './features/posts/applications/posts.module';
-import { CommentsModule } from './features/comments/applications/comments.module';
-import { BlogsModule } from './features/blogs/applications/blogs.module';
 import { User, UserSchema } from './features/users/applications/users.schema';
 import { Post, PostSchema } from './features/posts/applications/posts.schema';
 import { Blog, BlogSchema } from './features/blogs/applications/blogs.schema';
@@ -49,12 +45,11 @@ import {
   Device,
   DeviceSchema,
 } from './features/devices/applications/devices.schema';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { DevicesRepository } from './features/devices/devices.repository';
 import { DevicesController } from './features/devices/devices.controller';
 import { DevicesService } from './features/devices/devices.service';
 import { BlogExistsRule } from './helpers/decorators/validate-blog-id.param.decorator';
-import { APP_GUARD } from '@nestjs/core';
 import { LoginOrEmailExistRule } from './helpers/decorators/validate-email-and-login.param.decorator';
 import { BlogsService } from './features/blogs/blogs.service';
 import { CreatePostWithBlogIdUseCases } from './features/posts/applications/use-cases/create-post-whith-blog-id-use-cases';

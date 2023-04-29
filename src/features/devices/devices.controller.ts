@@ -6,7 +6,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  NotFoundException,
 } from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';

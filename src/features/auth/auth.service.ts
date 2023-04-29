@@ -69,7 +69,6 @@ export class AuthService {
       password,
       user.accountData.passwordHash.slice(0, 29),
     );
-    if (user.accountData.passwordHash !== passwordHash) return false;
-    return true;
+    return user.accountData.passwordHash === passwordHash;
   }
 }

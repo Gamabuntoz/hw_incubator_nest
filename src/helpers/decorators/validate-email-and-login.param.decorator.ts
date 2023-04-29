@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -14,7 +13,7 @@ export class LoginOrEmailExistRule implements ValidatorConstraintInterface {
     const user = await this.usersRepository.findUserByLoginOrEmail(value);
     return !user;
   }
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return `Already exist`;
   }
 }

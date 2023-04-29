@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ForbiddenException } from '@nestjs/common';
 import { CommentsRepository } from '../../comments.repository';
 import { Types } from 'mongoose';
 import { Result, ResultCode } from '../../../../helpers/contract';

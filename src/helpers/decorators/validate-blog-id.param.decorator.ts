@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -16,9 +15,9 @@ export class BlogExistsRule implements ValidatorConstraintInterface {
     const blog = await this.blogsRepository.findBlogById(
       new Types.ObjectId(value),
     );
-    return blog ? true : false;
+    return !!blog;
   }
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return `Blog doesn't exist`;
   }
 }

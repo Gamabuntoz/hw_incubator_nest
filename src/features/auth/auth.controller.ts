@@ -5,12 +5,10 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  UnauthorizedException,
   UseGuards,
   Ip,
   Headers,
   Res,
-  BadRequestException,
 } from '@nestjs/common';
 import {
   InputConfirmationCodeDTO,

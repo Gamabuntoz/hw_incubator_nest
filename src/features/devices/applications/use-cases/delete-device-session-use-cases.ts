@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DevicesRepository } from '../../devices.repository';
 import { RefreshPayloadDTO } from '../devices.dto';
-import { ForbiddenException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { Result, ResultCode } from '../../../../helpers/contract';
 

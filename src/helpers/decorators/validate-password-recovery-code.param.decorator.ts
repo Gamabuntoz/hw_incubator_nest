@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -16,10 +15,9 @@ export class ValidatePasswordRecoveryCodeRule
   async validate(value: string) {
     const user = await this.usersRepository.findUserByRecoveryCode(value);
     if (!user) return false;
-    if (user.passwordRecovery.expirationDate < new Date()) return false;
-    return true;
+    return user.passwordRecovery.expirationDate >= new Date();
   }
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return `Code is incorrect or expired`;
   }
 }

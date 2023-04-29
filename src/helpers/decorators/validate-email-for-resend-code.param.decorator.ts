@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -15,10 +14,9 @@ export class ValidateEmailForResendCodeRule
   async validate(value: string) {
     const user = await this.usersRepository.findUserByLoginOrEmail(value);
     if (!user) return false;
-    if (user.emailConfirmation.isConfirmed) return false;
-    return true;
+    return !user.emailConfirmation.isConfirmed;
   }
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return `User not found or user already confirmed`;
   }
 }

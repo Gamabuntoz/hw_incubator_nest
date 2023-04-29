@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { DevicesRepository } from './devices.repository';
 import { AuthDeviceDTO } from './applications/devices.dto';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Injectable()
 export class DevicesService {
   constructor(protected devicesRepository: DevicesRepository) {}
 
-  async findAllUserDevices(currentUserId: string) {
+  async findAllUserDevices(
+    currentUserId: string,
+  ): Promise<Result<AuthDeviceDTO[]>> {
     const allUserDevices = await this.devicesRepository.findAllUserDevices(
       currentUserId,
     );
-    return allUserDevices.map(
+    const allDevicesView = allUserDevices.map(
       (d) =>
         new AuthDeviceDTO(
           d.ipAddress,
@@ -18,6 +21,11 @@ export class DevicesService {
           new Date(d.issueAt).toISOString(),
           d.deviceId,
         ),
+    );
+    return new Result<AuthDeviceDTO[]>(
+      ResultCode.Success,
+      allDevicesView,
+      null,
     );
   }
 }

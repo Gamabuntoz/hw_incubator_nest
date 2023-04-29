@@ -7,6 +7,7 @@ import { UserInfoDTO } from '../users.dto';
 import { InputRegistrationDTO } from '../../../auth/applications/auth.dto';
 import { UsersService } from '../../users.service';
 import { UsersRepository } from '../../users.repository';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class CreateConfirmedUserCommand {
   constructor(public inputData: InputRegistrationDTO) {}
@@ -21,7 +22,9 @@ export class CreateConfirmedUseCases
     private usersRepository: UsersRepository,
   ) {}
 
-  async execute(command: CreateConfirmedUserCommand) {
+  async execute(
+    command: CreateConfirmedUserCommand,
+  ): Promise<Result<UserInfoDTO>> {
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this.usersService._generateHash(
       command.inputData.password,
@@ -48,11 +51,12 @@ export class CreateConfirmedUseCases
       },
     };
     await this.usersRepository.createUser(newUser);
-    return new UserInfoDTO(
+    const userView = new UserInfoDTO(
       newUser._id.toString(),
       newUser.accountData.login,
       newUser.accountData.email,
       newUser.accountData.createdAt,
     );
+    return new Result<UserInfoDTO>(ResultCode.Success, userView, null);
   }
 }

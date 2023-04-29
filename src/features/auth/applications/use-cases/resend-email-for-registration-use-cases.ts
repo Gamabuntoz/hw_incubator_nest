@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InputEmailDTO } from '../auth.dto';
+import { InputEmailForResendCodeDTO } from '../auth.dto';
 import { UsersRepository } from '../../../users/users.repository';
 import { EmailAdapter } from '../../../../adapters/email-adapter/email.adapter';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class ResendEmailCommand {
-  constructor(public inputData: InputEmailDTO) {}
+  constructor(public inputData: InputEmailForResendCodeDTO) {}
 }
 
 @CommandHandler(ResendEmailCommand)
@@ -16,17 +17,15 @@ export class ResendEmailUseCases
     private emailAdapter: EmailAdapter,
   ) {}
 
-  async execute(command: ResendEmailCommand) {
+  async execute(command: ResendEmailCommand): Promise<Result<boolean>> {
     const user = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.email,
     );
-    if (!user) return false;
-    if (user.emailConfirmation.isConfirmed) return false;
     await this.usersRepository.setNewConfirmationCode(user);
     const updatedUser = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.email,
     );
     await this.emailAdapter.sendEmail(updatedUser);
-    return true;
+    return new Result<boolean>(ResultCode.Success, true, null);
   }
 }

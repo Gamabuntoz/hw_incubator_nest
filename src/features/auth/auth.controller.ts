@@ -14,7 +14,8 @@ import {
 } from '@nestjs/common';
 import {
   InputConfirmationCodeDTO,
-  InputEmailDTO,
+  InputEmailForPasswordRecoveryDTO,
+  InputEmailForResendCodeDTO,
   InputLoginDTO,
   InputNewPassDTO,
   InputRegistrationDTO,
@@ -37,6 +38,7 @@ import { RefreshTokensCommand } from './applications/use-cases/refresh-user-toke
 import { LoginUserCommand } from './applications/use-cases/login-user-use-cases';
 import { NewPasswordCommand } from './applications/use-cases/new-user-password-use-cases';
 import { PasswordRecoveryCommand } from './applications/use-cases/recovery-user-password-use-cases';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -55,7 +57,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Get('me')
   async getInfoAboutCurrentUser(@CurrentUserId() currentUserId) {
-    return this.authService.getInfoAboutCurrentUser(currentUserId);
+    const result = await this.authService.getInfoAboutCurrentUser(
+      currentUserId,
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
   //
   //
@@ -64,14 +72,26 @@ export class AuthController {
   //
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('password-recovery')
-  async passwordRecovery(@Body() inputData: InputEmailDTO) {
-    return this.commandBus.execute(new PasswordRecoveryCommand(inputData));
+  async passwordRecovery(@Body() inputData: InputEmailForPasswordRecoveryDTO) {
+    const result = await this.commandBus.execute(
+      new PasswordRecoveryCommand(inputData),
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('new-password')
   async newPassword(@Body() inputData: InputNewPassDTO) {
-    return this.commandBus.execute(new NewPasswordCommand(inputData));
+    const result = await this.commandBus.execute(
+      new NewPasswordCommand(inputData),
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @HttpCode(HttpStatus.OK)
@@ -86,12 +106,14 @@ export class AuthController {
     const result = await this.commandBus.execute(
       new LoginUserCommand(inputData, ip, deviceName),
     );
-    if (!result) throw new UnauthorizedException();
-    response.cookie('refreshToken', result.refreshToken, {
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    response.cookie('refreshToken', result.data.refreshToken, {
       secure: true,
       httpOnly: true,
     });
-    return { accessToken: result.accessToken };
+    return { accessToken: result.data.accessToken };
   }
 
   @SkipThrottle()
@@ -105,12 +127,14 @@ export class AuthController {
     const result = await this.commandBus.execute(
       new RefreshTokensCommand(tokenPayload),
     );
-    if (!result) throw new UnauthorizedException();
-    response.cookie('refreshToken', result.refreshToken, {
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    response.cookie('refreshToken', result.data.refreshToken, {
       secure: true,
       httpOnly: true,
     });
-    return { accessToken: result.accessToken };
+    return { accessToken: result.data.accessToken };
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -119,16 +143,10 @@ export class AuthController {
     const result = await this.commandBus.execute(
       new ConfirmEmailCommand(inputData),
     );
-    if (!result)
-      throw new BadRequestException({
-        errorsMessages: [
-          {
-            message: 'Wrong confirmation code',
-            field: 'code',
-          },
-        ],
-      });
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -137,26 +155,22 @@ export class AuthController {
     const result = await this.commandBus.execute(
       new RegistrationUserCommand(inputData),
     );
-    if (!result) throw new BadRequestException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-email-resending')
-  async resendEmail(@Body() inputData: InputEmailDTO) {
+  async resendEmail(@Body() inputData: InputEmailForResendCodeDTO) {
     const result = await this.commandBus.execute(
       new ResendEmailCommand(inputData),
     );
-    if (!result)
-      throw new BadRequestException({
-        errorsMessages: [
-          {
-            message: 'Wrong email for resend code',
-            field: 'email',
-          },
-        ],
-      });
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @SkipThrottle()
@@ -164,6 +178,12 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
   async logout(@RefreshTokenPayload() tokenPayload: RefreshPayloadDTO) {
-    return this.commandBus.execute(new LogoutUserCommand(tokenPayload));
+    const result = await this.commandBus.execute(
+      new LogoutUserCommand(tokenPayload),
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 }

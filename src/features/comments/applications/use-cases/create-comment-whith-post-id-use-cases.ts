@@ -4,6 +4,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentInfoDTO } from '../comments.dto';
 import { UsersRepository } from '../../../users/users.repository';
 import { CommentsRepository } from '../../comments.repository';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class CreateCommentWithPostIdCommand {
   constructor(
@@ -23,10 +24,17 @@ export class CreateCommentWithPostIdUseCases
     protected commentsRepository: CommentsRepository,
   ) {}
 
-  async execute(command: CreateCommentWithPostIdCommand) {
+  async execute(
+    command: CreateCommentWithPostIdCommand,
+  ): Promise<Result<CommentInfoDTO>> {
     const user = await this.usersRepository.findUserById(command.userId);
     const postById = await this.postsRepository.findPostById(command.postId);
-    if (!postById) return false;
+    if (!postById)
+      return new Result<CommentInfoDTO>(
+        ResultCode.NotFound,
+        null,
+        'Post not found',
+      );
     const newComment = {
       _id: new Types.ObjectId(),
       postId: command.postId.toString(),
@@ -38,7 +46,7 @@ export class CreateCommentWithPostIdUseCases
       dislikeCount: 0,
     };
     await this.commentsRepository.createComment(newComment);
-    return new CommentInfoDTO(
+    const commentView = new CommentInfoDTO(
       newComment._id.toString(),
       newComment.content,
       {
@@ -52,5 +60,6 @@ export class CreateCommentWithPostIdUseCases
         myStatus: 'None',
       },
     );
+    return new Result<CommentInfoDTO>(ResultCode.Success, commentView, null);
   }
 }

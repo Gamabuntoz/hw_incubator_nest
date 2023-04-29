@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -26,6 +25,7 @@ import { Types } from 'mongoose';
 import { UpdateBlogCommand } from './applications/use-cases/update-blog-use-cases';
 import { DeleteBlogCommand } from './applications/use-cases/delete-blog-use-cases';
 import { CommandBus } from '@nestjs/cqrs';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Controller('blogs')
 export class BlogsController {
@@ -51,22 +51,30 @@ export class BlogsController {
       query,
       currentUserId,
     );
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAllBlogs(@Query() query: QueryBlogsDTO) {
-    return this.blogsService.findAllBlogs(query);
+    const result = await this.blogsService.findAllBlogs(query);
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findBlogById(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
     const result = await this.blogsService.findBlogById(id);
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
   //
   //
@@ -83,15 +91,23 @@ export class BlogsController {
     const result = await this.commandBus.execute(
       new CreatePostWithBlogIdCommand(id, inputData),
     );
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createBlog(@Body() inputData: InputBlogDTO) {
-    return this.commandBus.execute(new CreateBlogCommand(inputData));
+    const result = await this.commandBus.execute(
+      new CreateBlogCommand(inputData),
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(BasicAuthGuard)
@@ -101,21 +117,23 @@ export class BlogsController {
     @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
     @Body() inputData: InputBlogDTO,
   ) {
-    const result: boolean = await this.commandBus.execute(
+    const result = await this.commandBus.execute(
       new UpdateBlogCommand(id, inputData),
     );
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async deleteBlog(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
-    const result: boolean = await this.commandBus.execute(
-      new DeleteBlogCommand(id),
-    );
-    if (!result) throw new NotFoundException();
-    return;
+    const result = await this.commandBus.execute(new DeleteBlogCommand(id));
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 }

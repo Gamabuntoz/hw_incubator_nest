@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { BlogInfoDTO, InputBlogDTO } from '../blogs.dto';
 import { BlogsRepository } from '../../blogs.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class CreateBlogCommand {
   constructor(public inputData: InputBlogDTO) {}
@@ -11,7 +12,7 @@ export class CreateBlogCommand {
 export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
   constructor(private blogsRepository: BlogsRepository) {}
 
-  async execute(command: CreateBlogCommand) {
+  async execute(command: CreateBlogCommand): Promise<Result<BlogInfoDTO>> {
     const newBlog = {
       _id: new Types.ObjectId(),
       createdAt: new Date().toISOString(),
@@ -21,7 +22,7 @@ export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
       isMembership: false,
     };
     await this.blogsRepository.createBlog(newBlog);
-    return new BlogInfoDTO(
+    const blogView = new BlogInfoDTO(
       newBlog._id.toString(),
       newBlog.name,
       newBlog.description,
@@ -29,5 +30,6 @@ export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
       newBlog.createdAt,
       newBlog.isMembership,
     );
+    return new Result<BlogInfoDTO>(ResultCode.Success, blogView, null);
   }
 }

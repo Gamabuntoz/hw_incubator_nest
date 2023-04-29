@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ForbiddenException } from '@nestjs/common';
 import { CommentsRepository } from '../../comments.repository';
 import { Types } from 'mongoose';
 import { InputCommentDTO } from '../comments.dto';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class UpdateCommentCommand {
   constructor(
@@ -18,12 +18,19 @@ export class UpdateCommentUseCases
 {
   constructor(private commentsRepository: CommentsRepository) {}
 
-  async execute(command: UpdateCommentCommand) {
+  async execute(command: UpdateCommentCommand): Promise<Result<boolean>> {
     const findComment = await this.commentsRepository.findCommentById(
       command.id,
     );
-    if (!findComment) return false;
-    if (findComment.userId !== command.userId) throw new ForbiddenException();
-    return this.commentsRepository.updateComment(command.id, command.inputData);
+    if (!findComment)
+      return new Result<boolean>(
+        ResultCode.NotFound,
+        false,
+        'Comment not found',
+      );
+    if (findComment.userId !== command.userId)
+      return new Result<boolean>(ResultCode.Forbidden, false, 'Access denied');
+    await this.commentsRepository.updateComment(command.id, command.inputData);
+    return new Result<boolean>(ResultCode.Success, true, null);
   }
 }

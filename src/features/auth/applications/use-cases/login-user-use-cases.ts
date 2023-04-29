@@ -7,6 +7,7 @@ import { jwtConstants } from '../../../../helpers/constants';
 import { InputLoginDTO } from '../auth.dto';
 import { UsersRepository } from '../../../users/users.repository';
 import { AuthService } from '../../auth.service';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class LoginUserCommand {
   constructor(
@@ -24,10 +25,12 @@ export class LoginUserUseCases implements ICommandHandler<LoginUserCommand> {
     private authService: AuthService,
   ) {}
 
-  async execute(command: LoginUserCommand) {
+  async execute(command: LoginUserCommand): Promise<Result<object>> {
     const user = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.loginOrEmail,
     );
+    if (!user)
+      return new Result<object>(ResultCode.NotFound, null, 'User not found');
     const device: Device = {
       _id: new Types.ObjectId(),
       ipAddress: command.ip,
@@ -38,10 +41,11 @@ export class LoginUserUseCases implements ICommandHandler<LoginUserCommand> {
       userId: user._id.toString(),
     };
     await this.devicesRepository.insertDeviceInfo(device);
-    return this.authService.createNewPairTokens(
+    const newPairTokens = await this.authService.createNewPairTokens(
       device.userId,
       device.deviceId,
       device.issueAt,
     );
+    return new Result<object>(ResultCode.Success, newPairTokens, null);
   }
 }

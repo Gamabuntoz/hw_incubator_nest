@@ -82,6 +82,9 @@ import { UpdatePostUseCases } from './features/posts/applications/use-cases/upda
 import { UpdatePostLikeStatusUseCases } from './features/posts/applications/use-cases/update-post-like-status-use-cases';
 import { CreateConfirmedUseCases } from './features/users/applications/use-cases/create-confirmed-user-use-cases';
 import { DeleteUserUseCases } from './features/users/applications/use-cases/delete-user-use-cases';
+import { ValidatePasswordRecoveryCodeRule } from './helpers/decorators/validate-password-recovery-code.param.decorator';
+import { ValidateRegistrationConfirmationCodeRule } from './helpers/decorators/validate-registration-confirmation-code.param.decorator';
+import { ValidateEmailForResendCodeRule } from './helpers/decorators/validate-email-for-resend-code.param.decorator';
 
 const useCases = [
   CreatePostWithBlogIdUseCases,
@@ -115,7 +118,13 @@ const strategies = [
   BasicStrategy,
   OptionalJwtAuthGuard,
 ];
-const decorators = [BlogExistsRule, LoginOrEmailExistRule];
+const decorators = [
+  BlogExistsRule,
+  LoginOrEmailExistRule,
+  ValidatePasswordRecoveryCodeRule,
+  ValidateRegistrationConfirmationCodeRule,
+  ValidateEmailForResendCodeRule,
+];
 const repositories = [
   UsersRepository,
   PostsRepository,

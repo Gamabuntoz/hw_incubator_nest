@@ -26,16 +26,6 @@ export class PostInfoDTO {
   ) {}
 }
 
-export class AllPostsInfoDTO {
-  constructor(
-    public pagesCount: number,
-    public page: number,
-    public pageSize: number,
-    public totalCount: number,
-    public items: PostInfoDTO[],
-  ) {}
-}
-
 export class QueryPostsDTO {
   constructor(
     public sortBy: string,

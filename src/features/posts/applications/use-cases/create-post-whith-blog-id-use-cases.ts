@@ -3,6 +3,7 @@ import { BlogsRepository } from '../../../blogs/blogs.repository';
 import { InputPostDTO, PostInfoDTO } from '../posts.dto';
 import { PostsRepository } from '../../posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class CreatePostWithBlogIdCommand {
   constructor(public id: Types.ObjectId, public inputData: InputPostDTO) {}
@@ -17,9 +18,16 @@ export class CreatePostWithBlogIdUseCases
     protected postsRepository: PostsRepository,
   ) {}
 
-  async execute(command: CreatePostWithBlogIdCommand) {
+  async execute(
+    command: CreatePostWithBlogIdCommand,
+  ): Promise<Result<PostInfoDTO>> {
     const blogById = await this.blogsRepository.findBlogById(command.id);
-    if (!blogById) return false;
+    if (!blogById)
+      return new Result<PostInfoDTO>(
+        ResultCode.NotFound,
+        null,
+        'Blog not found',
+      );
     const newPost = {
       _id: new Types.ObjectId(),
       title: command.inputData.title,
@@ -32,7 +40,7 @@ export class CreatePostWithBlogIdUseCases
       dislikeCount: 0,
     };
     await this.postsRepository.createPost(newPost);
-    return new PostInfoDTO(
+    const postView = new PostInfoDTO(
       newPost._id?.toString(),
       newPost.title,
       newPost.shortDescription,
@@ -47,5 +55,6 @@ export class CreatePostWithBlogIdUseCases
         newestLikes: [],
       },
     );
+    return new Result<PostInfoDTO>(ResultCode.Success, postView, null);
   }
 }

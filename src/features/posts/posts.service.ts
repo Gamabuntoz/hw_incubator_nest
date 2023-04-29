@@ -1,22 +1,15 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PostsRepository } from './posts.repository';
-import {
-  AllPostsInfoDTO,
-  PostInfoDTO,
-  QueryPostsDTO,
-} from './applications/posts.dto';
+import { PostInfoDTO, QueryPostsDTO } from './applications/posts.dto';
 import { Types } from 'mongoose';
 import { CommentsRepository } from '../comments/comments.repository';
 import { UsersRepository } from '../users/users.repository';
-import {
-  CommentInfoDTO,
-  Paginated,
-  Result,
-  ResultCode,
-} from '../comments/applications/comments.dto';
+import { CommentInfoDTO } from '../comments/applications/comments.dto';
 import { Post } from './applications/posts.schema';
 import { PostLike } from './applications/posts-likes.schema';
 import { CommentsService } from '../comments/comments.service';
+import { Paginated } from '../../helpers/paginated';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Injectable()
 export class PostsService {
@@ -69,27 +62,23 @@ export class PostsService {
     });
 
     return new Result<Paginated<CommentInfoDTO[]>>(
-      HttpStatus.OK,
+      ResultCode.Success,
       paginatedComments,
       null,
     );
   }
 
-  async findAllPosts(term: QueryPostsDTO, userId?: string) {
-    const queryData = new QueryPostsDTO(
-      term.sortBy,
-      term.sortDirection,
-      +(term.pageNumber ?? 1),
-      +(term.pageSize ?? 10),
-    );
+  async findAllPosts(
+    queryData: QueryPostsDTO,
+    userId?: string,
+  ): Promise<Result<Paginated<PostInfoDTO[]>>> {
     const totalCount = await this.postsRepository.totalCountPosts();
     const allPosts = await this.postsRepository.findAllPosts(queryData);
-    return new AllPostsInfoDTO(
-      Math.ceil(totalCount / queryData.pageSize),
-      queryData.pageNumber,
-      queryData.pageSize,
+    const paginatedPosts = await Paginated.getPaginated<PostInfoDTO[]>({
       totalCount,
-      await Promise.all(
+      pageNumber: queryData.pageNumber,
+      pageSize: queryData.pageSize,
+      items: await Promise.all(
         allPosts.map(async (p) => {
           let likeStatusCurrentUser;
           if (userId) {
@@ -109,12 +98,25 @@ export class PostsService {
           );
         }),
       ),
+    });
+    return new Result<Paginated<PostInfoDTO[]>>(
+      ResultCode.Success,
+      paginatedPosts,
+      null,
     );
   }
 
-  async findPostById(id: Types.ObjectId, userId?: string) {
+  async findPostById(
+    id: Types.ObjectId,
+    userId?: string,
+  ): Promise<Result<PostInfoDTO>> {
     const postById = await this.postsRepository.findPostById(id);
-    if (!postById) return false;
+    if (!postById)
+      return new Result<PostInfoDTO>(
+        ResultCode.NotFound,
+        null,
+        'post not found',
+      );
     let likeStatusCurrentUser;
     if (userId) {
       likeStatusCurrentUser =
@@ -126,18 +128,19 @@ export class PostsService {
     const lastPostLikes = await this.postsRepository.findLastPostLikes(
       id.toString(),
     );
-    return this.createPostViewInfo(
+    const postView = await this.createPostViewInfo(
       postById,
       lastPostLikes,
       likeStatusCurrentUser,
     );
+    return new Result<PostInfoDTO>(ResultCode.Success, postView, null);
   }
 
   async createPostViewInfo(
     post: Post,
     lastPostLikes: PostLike[],
     likeStatusCurrentUser?: PostLike,
-  ) {
+  ): Promise<PostInfoDTO> {
     return new PostInfoDTO(
       post._id.toString(),
       post.title,

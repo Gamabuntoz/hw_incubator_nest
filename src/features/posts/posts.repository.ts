@@ -56,16 +56,20 @@ export class PostsRepository {
   }
 
   async updatePost(id: Types.ObjectId, inputPostData: InputPostWithIdDTO) {
-    const postInstance = await this.postModel.findOne({
-      _id: id,
-    });
-    if (!postInstance) return false;
-    postInstance.title = inputPostData.title;
-    postInstance.shortDescription = inputPostData.shortDescription;
-    postInstance.content = inputPostData.content;
-    postInstance.blogId = inputPostData.blogId;
-    await postInstance.save();
-    return true;
+    const result = await this.postModel.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          title: inputPostData.title,
+          shortDescription: inputPostData.shortDescription,
+          content: inputPostData.content,
+          blogId: inputPostData.blogId,
+        },
+      },
+    );
+    return result.matchedCount === 1;
   }
 
   async deletePost(id: Types.ObjectId) {

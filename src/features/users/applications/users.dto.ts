@@ -7,16 +7,6 @@ export class UserInfoDTO {
   ) {}
 }
 
-export class AllUsersInfoDTO {
-  constructor(
-    public pagesCount: number,
-    public page: number,
-    public pageSize: number,
-    public totalCount: number,
-    public items: UserInfoDTO[],
-  ) {}
-}
-
 export class QueryUsersDTO {
   constructor(
     public sortBy: string,

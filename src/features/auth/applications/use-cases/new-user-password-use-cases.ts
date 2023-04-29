@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
+import { Result, ResultCode } from 'src/helpers/contract';
 import { UsersRepository } from '../../../users/users.repository';
 import { AuthService } from '../../auth.service';
 import { InputNewPassDTO } from '../auth.dto';
@@ -17,12 +18,10 @@ export class NewPasswordUseCases
     private authService: AuthService,
   ) {}
 
-  async execute(command: NewPasswordCommand) {
+  async execute(command: NewPasswordCommand): Promise<Result<boolean>> {
     const user = await this.usersRepository.findUserByRecoveryCode(
       command.inputData.recoveryCode,
     );
-    if (!user) return 'Invalid code';
-    if (user.passwordRecovery.expirationDate < new Date()) return false;
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this.authService._generateHash(
       command.inputData.newPassword,
@@ -32,6 +31,6 @@ export class NewPasswordUseCases
       user._id.toString(),
       passwordHash,
     );
-    return true;
+    return new Result<boolean>(ResultCode.Success, true, null);
   }
 }

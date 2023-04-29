@@ -3,6 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InputLikeStatusDTO } from '../posts.dto';
 import { PostsRepository } from '../../posts.repository';
 import { PostLike } from '../posts-likes.schema';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class UpdatePostLikeStatusCommand {
   constructor(
@@ -18,27 +19,30 @@ export class UpdatePostLikeStatusUseCases
 {
   constructor(private postsRepository: PostsRepository) {}
 
-  async execute(command: UpdatePostLikeStatusCommand) {
+  async execute(
+    command: UpdatePostLikeStatusCommand,
+  ): Promise<Result<boolean>> {
     const updateLike = await this.updatePostLike(
       command.id,
       command.inputData.likeStatus,
       command.currentUserId,
     );
-    if (updateLike) return;
+    if (updateLike) return new Result<boolean>(ResultCode.Success, true, null);
     const setLike = await this.setPostLike(
       command.id,
       command.inputData.likeStatus,
       command.currentUserId,
     );
-    if (!setLike) return false;
-    return;
+    if (!setLike)
+      return new Result<boolean>(ResultCode.NotFound, false, 'Post not found');
+    return new Result<boolean>(ResultCode.Success, true, null);
   }
 
   private async updatePostLike(
     postId: Types.ObjectId,
     likeStatus: string,
     userId: string,
-  ) {
+  ): Promise<boolean> {
     const post = await this.postsRepository.findPostById(postId);
     if (!post) return false;
     const updateLike = await this.postsRepository.updatePostLike(
@@ -54,7 +58,7 @@ export class UpdatePostLikeStatusUseCases
     postId: Types.ObjectId,
     likeStatus: string,
     userId: string,
-  ) {
+  ): Promise<boolean> {
     const post = await this.postsRepository.findPostById(postId);
     if (!post) return false;
     const postLike: PostLike = {

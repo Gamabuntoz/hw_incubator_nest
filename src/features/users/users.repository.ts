@@ -2,60 +2,52 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './applications/users.schema';
 import { Model, Types } from 'mongoose';
-import { AllUsersInfoDTO, UserInfoDTO } from './applications/users.dto';
+import { QueryUsersDTO, UserInfoDTO } from './applications/users.dto';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
+import { Paginated } from '../../helpers/paginated';
 
 @Injectable()
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findUsers(
-    sortBy?: string,
-    sortDirection?: string,
-    pageNumber?: number,
-    pageSize?: number,
-    searchLoginTerm?: string,
-    searchEmailTerm?: string,
-  ) {
+  async findAllUsers(queryData: QueryUsersDTO) {
     let filter: any = { $or: [] };
-    if (searchLoginTerm) {
+    if (queryData.searchLoginTerm) {
       filter['$or'].push({
         'accountData.login': {
-          $regex: searchLoginTerm,
+          $regex: queryData.searchLoginTerm,
           $options: 'i',
         },
       });
     }
-    if (searchEmailTerm) {
+    if (queryData.searchEmailTerm) {
       filter['$or'].push({
         'accountData.email': {
-          $regex: searchEmailTerm,
+          $regex: queryData.searchEmailTerm,
           $options: 'i',
         },
       });
     }
-    if (!searchLoginTerm && !searchEmailTerm) {
+    if (!queryData.searchLoginTerm && !queryData.searchEmailTerm) {
       filter = {};
     }
     let sort = 'accountData.createdAt';
-    if (sortBy) {
-      sort = `accountData.${sortBy}`;
+    if (queryData.sortBy) {
+      sort = `accountData.${queryData.sortBy}`;
     }
     const totalCount = await this.userModel.countDocuments(filter);
     const findAllUsers = await this.userModel
       .find(filter)
-      .sort({ [sort]: sortDirection === 'asc' ? 1 : -1 })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
+      .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
+      .skip((queryData.pageNumber - 1) * queryData.pageSize)
+      .limit(queryData.pageSize)
       .lean();
-
-    return new AllUsersInfoDTO(
-      Math.ceil(totalCount / pageSize),
-      pageNumber,
-      pageSize,
+    const paginatedUsers = await Paginated.getPaginated<UserInfoDTO[]>({
       totalCount,
-      findAllUsers.map(
+      pageNumber: queryData.pageNumber,
+      pageSize: queryData.pageSize,
+      items: findAllUsers.map(
         (u) =>
           new UserInfoDTO(
             u._id.toString(),
@@ -64,8 +56,14 @@ export class UsersRepository {
             u.accountData.createdAt,
           ),
       ),
-    );
+    });
+    return paginatedUsers;
   }
+
+  async totalCountUsers() {
+    return this.userModel.countDocuments({});
+  }
+
   async createUser(newUser: User) {
     const userInstance = new this.userModel(newUser);
     userInstance._id = newUser._id;

@@ -37,11 +37,11 @@ export class DevicesRepository {
   }
 
   async deleteAllDevicesExceptCurrent(issueAt: number, userId: string) {
-    const result = await this.deviceModel.deleteMany({
+    await this.deviceModel.deleteMany({
       issueAt: { $ne: issueAt },
       userId: userId,
     });
-    return result.deletedCount === 1;
+    return true;
   }
 
   async deleteDevice(issueAt: number, userId: string) {

@@ -18,6 +18,7 @@ import { DeleteDeviceSessionCommand } from './applications/use-cases/delete-devi
 import { DeleteAllDeviceSessionsCommand } from './applications/use-cases/delete-all-device-sessions-use-cases';
 import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Controller('security/devices')
 export class DevicesController {
@@ -34,7 +35,11 @@ export class DevicesController {
   @UseGuards(JwtRefreshAuthGuard)
   @Get()
   async findAllUserDevices(@CurrentUserId() currentUserId) {
-    return this.devicesService.findAllUserDevices(currentUserId);
+    const result = await this.devicesService.findAllUserDevices(currentUserId);
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
   //
   //
@@ -47,9 +52,13 @@ export class DevicesController {
   async deleteAllDevicesExceptCurrent(
     @RefreshTokenPayload() tokenPayload: RefreshPayloadDTO,
   ) {
-    return this.commandBus.execute(
+    const result = await this.commandBus.execute(
       new DeleteAllDeviceSessionsCommand(tokenPayload),
     );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -62,7 +71,9 @@ export class DevicesController {
     const result = await this.commandBus.execute(
       new DeleteDeviceSessionCommand(id, tokenPayload),
     );
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 }

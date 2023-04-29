@@ -4,6 +4,7 @@ import { CurrentUserInfo } from './applications/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { jwtConstants } from '../../helpers/constants';
 import { JwtService } from '@nestjs/jwt';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Injectable()
 export class AuthService {
@@ -12,16 +13,25 @@ export class AuthService {
     protected jwtService: JwtService,
   ) {}
 
-  async getInfoAboutCurrentUser(id: string) {
+  async getInfoAboutCurrentUser(id: string): Promise<Result<CurrentUserInfo>> {
     const user = await this.usersRepository.findUserById(id);
-    return new CurrentUserInfo(
+    const currentUserView = new CurrentUserInfo(
       user.accountData.email,
       user.accountData.login,
       id,
     );
+    return new Result<CurrentUserInfo>(
+      ResultCode.Success,
+      currentUserView,
+      null,
+    );
   }
 
-  async createNewPairTokens(userId: string, deviceId: string, issueAt: number) {
+  async createNewPairTokens(
+    userId: string,
+    deviceId: string,
+    issueAt: number,
+  ): Promise<object> {
     const accessToken = this.jwtService.sign(
       { userId: userId },
       {
@@ -46,7 +56,10 @@ export class AuthService {
     return await bcrypt.hash(password, salt);
   }
 
-  async checkCredentials(loginOrEmail: string, password: string) {
+  async checkCredentials(
+    loginOrEmail: string,
+    password: string,
+  ): Promise<boolean> {
     const user = await this.usersRepository.findUserByLoginOrEmail(
       loginOrEmail,
     );

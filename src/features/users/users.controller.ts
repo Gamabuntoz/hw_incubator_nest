@@ -20,6 +20,7 @@ import { CreateConfirmedUserCommand } from './applications/use-cases/create-conf
 import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
 import { DeleteUserCommand } from './applications/use-cases/delete-user-use-cases';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Controller('users')
 export class UsersController {
@@ -28,7 +29,6 @@ export class UsersController {
     private commandBus: CommandBus,
   ) {}
   //
-  //
   // Query controller
   //
   //
@@ -36,7 +36,11 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Get()
   async getUsers(@Query() query: QueryUsersDTO) {
-    return this.userService.findUsers(query);
+    const result = await this.userService.findUsers(query);
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
   //
   //
@@ -47,7 +51,13 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createUser(@Body() inputData: InputRegistrationDTO) {
-    return this.commandBus.execute(new CreateConfirmedUserCommand(inputData));
+    const result = await this.commandBus.execute(
+      new CreateConfirmedUserCommand(inputData),
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(BasicAuthGuard)
@@ -55,7 +65,9 @@ export class UsersController {
   @Delete(':id')
   async deleteUser(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
     const result = await this.commandBus.execute(new DeleteUserCommand(id));
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 }

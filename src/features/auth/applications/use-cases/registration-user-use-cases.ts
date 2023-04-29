@@ -8,6 +8,7 @@ import { Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { UserInfoDTO } from '../../../users/applications/users.dto';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class RegistrationUserCommand {
   constructor(public inputData: InputRegistrationDTO) {}
@@ -23,16 +24,18 @@ export class RegistrationUserUseCases
     private emailAdapter: EmailAdapter,
   ) {}
 
-  async execute(command: RegistrationUserCommand) {
+  async execute(command: RegistrationUserCommand): Promise<Result<boolean>> {
     await this.createUser(command.inputData);
     const user = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.login,
     );
     await this.emailAdapter.sendEmail(user);
-    return true;
+    return new Result<boolean>(ResultCode.Success, true, null);
   }
 
-  private async createUser(inputData: InputRegistrationDTO) {
+  private async createUser(
+    inputData: InputRegistrationDTO,
+  ): Promise<UserInfoDTO> {
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this.usersService._generateHash(
       inputData.password,

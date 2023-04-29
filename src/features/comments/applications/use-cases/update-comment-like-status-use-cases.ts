@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '../../comments.repository';
 import { InputLikeStatusDTO } from '../../../posts/applications/posts.dto';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -17,27 +18,34 @@ export class UpdateCommentLikeStatusUseCases
 {
   constructor(private commentsRepository: CommentsRepository) {}
 
-  async execute(command: UpdateCommentLikeStatusCommand) {
+  async execute(
+    command: UpdateCommentLikeStatusCommand,
+  ): Promise<Result<boolean>> {
     const updateLike = await this.updateCommentLike(
       command.id,
       command.inputData.likeStatus,
       command.currentUserId,
     );
-    if (updateLike) return;
+    if (updateLike) return new Result<boolean>(ResultCode.Success, true, null);
     const setLike = await this.setCommentLike(
       command.id,
       command.inputData.likeStatus,
       command.currentUserId,
     );
-    if (!setLike) return false;
-    return;
+    if (!setLike)
+      return new Result<boolean>(
+        ResultCode.NotFound,
+        null,
+        'Comment not found',
+      );
+    return new Result<boolean>(ResultCode.Success, true, null);
   }
 
   private async updateCommentLike(
     commentId: Types.ObjectId,
     likeStatus: string,
     userId: string,
-  ) {
+  ): Promise<boolean> {
     const comment = await this.commentsRepository.findCommentById(commentId);
     if (!comment) return false;
     return await this.commentsRepository.updateCommentLike(
@@ -51,7 +59,7 @@ export class UpdateCommentLikeStatusUseCases
     commentId: Types.ObjectId,
     likeStatus: string,
     userId: string,
-  ) {
+  ): Promise<boolean> {
     const comment = await this.commentsRepository.findCommentById(commentId);
     if (!comment) return false;
     const commentLike = {

@@ -22,6 +22,7 @@ import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.de
 import { Types } from 'mongoose';
 import { UpdateCommentCommand } from './applications/use-cases/update-comment-use-cases';
 import { DeleteCommentCommand } from './applications/use-cases/delete-comment-use-cases';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Controller('comments')
 export class CommentsController {
@@ -45,8 +46,10 @@ export class CommentsController {
       id,
       currentUserId,
     );
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
   //
   //
@@ -61,11 +64,13 @@ export class CommentsController {
     @Body() inputData: InputLikeStatusDTO,
     @CurrentUserId() currentUserId: string,
   ) {
-    const result: boolean = await this.commandBus.execute(
+    const result = await this.commandBus.execute(
       new UpdateCommentLikeStatusCommand(id, inputData, currentUserId),
     );
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(JwtAccessAuthGuard)
@@ -79,8 +84,10 @@ export class CommentsController {
     const result = await this.commandBus.execute(
       new UpdateCommentCommand(id, inputData, currentUserId),
     );
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(JwtAccessAuthGuard)
@@ -93,7 +100,9 @@ export class CommentsController {
     const result = await this.commandBus.execute(
       new DeleteCommentCommand(id, currentUserId),
     );
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 }

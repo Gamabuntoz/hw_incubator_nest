@@ -1,13 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -20,19 +17,12 @@ import {
   InputPostWithIdDTO,
   QueryPostsDTO,
 } from './applications/posts.dto';
-import {
-  InputCommentDTO,
-  Result,
-  ResultCode,
-} from '../comments/applications/comments.dto';
+import { InputCommentDTO } from '../comments/applications/comments.dto';
 import { BasicAuthGuard } from '../../security/guards/basic-auth.guard';
 import { JwtAccessAuthGuard } from '../../security/guards/jwt-access-auth.guard';
 import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';
 import { OptionalJwtAuthGuard } from '../../security/guards/optional-jwt-auth.guard';
-import {
-  CreatePostWithBlogIdCommand,
-  CreatePostWithBlogIdUseCases,
-} from './applications/use-cases/create-post-whith-blog-id-use-cases';
+import { CreatePostWithBlogIdCommand } from './applications/use-cases/create-post-whith-blog-id-use-cases';
 import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
 import { CommandBus } from '@nestjs/cqrs';
@@ -40,6 +30,7 @@ import { DeletePostCommand } from './applications/use-cases/delete-post-use-case
 import { UpdatePostCommand } from './applications/use-cases/update-post-use-cases';
 import { UpdatePostLikeStatusCommand } from './applications/use-cases/update-post-like-status-use-cases';
 import { CreateCommentWithPostIdCommand } from '../comments/applications/use-cases/create-comment-whith-post-id-use-cases';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Controller('posts')
 export class PostsController {
@@ -78,7 +69,11 @@ export class PostsController {
     @Query() query: QueryPostsDTO,
     @CurrentUserId() currentUserId,
   ) {
-    return this.postsService.findAllPosts(query, currentUserId);
+    const result = await this.postsService.findAllPosts(query, currentUserId);
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(OptionalJwtAuthGuard)
@@ -89,8 +84,10 @@ export class PostsController {
     @CurrentUserId() currentUserId,
   ) {
     const result = await this.postsService.findPostById(id, currentUserId);
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
   //
   //
@@ -108,8 +105,10 @@ export class PostsController {
     const result = await this.commandBus.execute(
       new CreateCommentWithPostIdCommand(id, inputData.content, currentUserId),
     );
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(BasicAuthGuard)
@@ -122,8 +121,10 @@ export class PostsController {
     const result = await this.commandBus.execute(
       new CreatePostWithBlogIdCommand(id, inputData),
     );
-    if (!result) throw new NotFoundException();
-    return result;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(JwtAccessAuthGuard)
@@ -134,11 +135,13 @@ export class PostsController {
     @Body() inputData: InputLikeStatusDTO,
     @CurrentUserId() currentUserId,
   ) {
-    const result: boolean = await this.commandBus.execute(
+    const result = await this.commandBus.execute(
       new UpdatePostLikeStatusCommand(id, inputData, currentUserId),
     );
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(BasicAuthGuard)
@@ -151,8 +154,10 @@ export class PostsController {
     const result = await this.commandBus.execute(
       new UpdatePostCommand(id, inputData),
     );
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 
   @UseGuards(BasicAuthGuard)
@@ -160,7 +165,9 @@ export class PostsController {
   @Delete(':id')
   async deletePost(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
     const result = await this.commandBus.execute(new DeletePostCommand(id));
-    if (!result) throw new NotFoundException();
-    return;
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
   }
 }

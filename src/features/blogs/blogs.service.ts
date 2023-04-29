@@ -2,16 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { BlogsRepository } from './blogs.repository';
 import { PostsRepository } from '../posts/posts.repository';
 import { PostsService } from '../posts/posts.service';
-import {
-  AllPostsInfoDTO,
-  QueryPostsDTO,
-} from '../posts/applications/posts.dto';
+import { PostInfoDTO, QueryPostsDTO } from '../posts/applications/posts.dto';
 import { Types } from 'mongoose';
-import {
-  AllBlogsInfoDTO,
-  BlogInfoDTO,
-  QueryBlogsDTO,
-} from './applications/blogs.dto';
+import { BlogInfoDTO, QueryBlogsDTO } from './applications/blogs.dto';
+import { Result, ResultCode } from '../../helpers/contract';
+import { Paginated } from '../../helpers/paginated';
 
 @Injectable()
 export class BlogsService {
@@ -23,17 +18,16 @@ export class BlogsService {
 
   async findAllPostsByBlogId(
     id: Types.ObjectId,
-    term: QueryPostsDTO,
+    queryData: QueryPostsDTO,
     userId?: string,
-  ) {
+  ): Promise<Result<Paginated<PostInfoDTO[]>>> {
     const blogById = await this.findBlogById(id);
-    if (!blogById) return false;
-    const queryData = new QueryPostsDTO(
-      term.sortBy,
-      term.sortDirection,
-      +(term.pageNumber ?? 1),
-      +(term.pageSize ?? 10),
-    );
+    if (!blogById)
+      return new Result<Paginated<PostInfoDTO[]>>(
+        ResultCode.NotFound,
+        null,
+        'Blog not found',
+      );
     const totalCount = await this.postsRepository.totalCountPostsByBlogId(
       id.toString(),
     );
@@ -41,12 +35,11 @@ export class BlogsService {
       id.toString(),
       queryData,
     );
-    return new AllPostsInfoDTO(
-      Math.ceil(totalCount / queryData.pageSize),
-      queryData.pageNumber,
-      queryData.pageSize,
+    const paginatedPosts = await Paginated.getPaginated<PostInfoDTO[]>({
       totalCount,
-      await Promise.all(
+      pageNumber: queryData.pageNumber,
+      pageSize: queryData.pageSize,
+      items: await Promise.all(
         allPosts.map(async (p) => {
           let likeStatusCurrentUser;
           if (userId) {
@@ -66,17 +59,17 @@ export class BlogsService {
           );
         }),
       ),
+    });
+    return new Result<Paginated<PostInfoDTO[]>>(
+      ResultCode.Success,
+      paginatedPosts,
+      null,
     );
   }
 
-  async findAllBlogs(term: QueryBlogsDTO) {
-    const queryData = new QueryBlogsDTO(
-      term.searchNameTerm,
-      term.sortBy,
-      term.sortDirection,
-      +(term.pageNumber ?? 1),
-      +(term.pageSize ?? 10),
-    );
+  async findAllBlogs(
+    queryData: QueryBlogsDTO,
+  ): Promise<Result<Paginated<BlogInfoDTO[]>>> {
     let filter = {};
     if (queryData.searchNameTerm) {
       filter = { name: { $regex: queryData.searchNameTerm, $options: 'i' } };
@@ -91,13 +84,11 @@ export class BlogsService {
       sort,
       queryData,
     );
-
-    return new AllBlogsInfoDTO(
-      Math.ceil(totalCount / queryData.pageSize),
-      queryData.pageNumber,
-      queryData.pageSize,
+    const paginatedBlogs = await Paginated.getPaginated<BlogInfoDTO[]>({
       totalCount,
-      allBlogs.map(
+      pageNumber: queryData.pageNumber,
+      pageSize: queryData.pageSize,
+      items: allBlogs.map(
         (b) =>
           new BlogInfoDTO(
             b._id.toString(),
@@ -108,13 +99,23 @@ export class BlogsService {
             b.isMembership,
           ),
       ),
+    });
+    return new Result<Paginated<BlogInfoDTO[]>>(
+      ResultCode.Success,
+      paginatedBlogs,
+      null,
     );
   }
 
-  async findBlogById(id: Types.ObjectId) {
+  async findBlogById(id: Types.ObjectId): Promise<Result<BlogInfoDTO>> {
     const blogById = await this.blogsRepository.findBlogById(id);
-    if (!blogById) return false;
-    return new BlogInfoDTO(
+    if (!blogById)
+      return new Result<BlogInfoDTO>(
+        ResultCode.NotFound,
+        null,
+        'Blog not found',
+      );
+    const blogView = new BlogInfoDTO(
       blogById._id.toString(),
       blogById.name,
       blogById.description,
@@ -122,5 +123,6 @@ export class BlogsService {
       blogById.createdAt,
       blogById.isMembership,
     );
+    return new Result<BlogInfoDTO>(ResultCode.Success, blogView, null);
   }
 }

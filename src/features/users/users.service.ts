@@ -1,24 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
-import { QueryUsersDTO } from './applications/users.dto';
+import { QueryUsersDTO, UserInfoDTO } from './applications/users.dto';
 import * as bcrypt from 'bcrypt';
+import { Result, ResultCode } from '../../helpers/contract';
+import { Paginated } from '../../helpers/paginated';
 
 @Injectable()
 export class UsersService {
   constructor(protected usersRepository: UsersRepository) {}
 
-  async findUsers(term: QueryUsersDTO) {
-    const sortBy = term.sortBy;
-    const sortDirection = term.sortDirection;
-    const pageNumber = +(term.pageNumber ?? 1);
-    const pageSize = +(term.pageSize ?? 10);
-    return this.usersRepository.findUsers(
-      sortBy,
-      sortDirection,
-      pageNumber,
-      pageSize,
-      term.searchLoginTerm,
-      term.searchEmailTerm,
+  async findUsers(
+    queryData: QueryUsersDTO,
+  ): Promise<Result<Paginated<UserInfoDTO[]>>> {
+    const paginatedUsers = await this.usersRepository.findAllUsers(queryData);
+    return new Result<Paginated<UserInfoDTO[]>>(
+      ResultCode.Success,
+      paginatedUsers,
+      null,
     );
   }
 

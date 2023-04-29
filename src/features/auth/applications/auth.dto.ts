@@ -8,8 +8,24 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { LoginOrEmailExistRule } from '../../../helpers/decorators/validate-email-and-login.param.decorator';
+import { ValidatePasswordRecoveryCodeRule } from '../../../helpers/decorators/validate-password-recovery-code.param.decorator';
+import { ValidateRegistrationConfirmationCodeRule } from '../../../helpers/decorators/validate-registration-confirmation-code.param.decorator';
+import { ValidateEmailForResendCodeRule } from '../../../helpers/decorators/validate-email-for-resend-code.param.decorator';
 
-export class InputEmailDTO {
+export class InputEmailForResendCodeDTO {
+  @IsEmail()
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    if (typeof value === 'number') {
+      return value;
+    }
+    return value?.trim();
+  })
+  @Validate(ValidateEmailForResendCodeRule)
+  email: string;
+}
+
+export class InputEmailForPasswordRecoveryDTO {
   @IsEmail()
   @IsNotEmpty()
   @Transform(({ value }) => {
@@ -64,6 +80,7 @@ export class InputConfirmationCodeDTO {
     }
     return value?.trim();
   })
+  @Validate(ValidateRegistrationConfirmationCodeRule)
   code: string;
 }
 
@@ -107,6 +124,7 @@ export class InputNewPassDTO {
     }
     return value?.trim();
   })
+  @Validate(ValidatePasswordRecoveryCodeRule)
   recoveryCode: string;
 }
 

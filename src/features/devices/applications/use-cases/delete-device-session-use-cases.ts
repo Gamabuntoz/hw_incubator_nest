@@ -3,6 +3,7 @@ import { DevicesRepository } from '../../devices.repository';
 import { RefreshPayloadDTO } from '../devices.dto';
 import { ForbiddenException } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class DeleteDeviceSessionCommand {
   constructor(
@@ -17,13 +18,23 @@ export class DeleteDeviceSessionUseCases
 {
   constructor(private devicesRepository: DevicesRepository) {}
 
-  async execute(command: DeleteDeviceSessionCommand) {
+  async execute(command: DeleteDeviceSessionCommand): Promise<Result<boolean>> {
     const device = await this.devicesRepository.findDeviceByDeviceId(
       command.id.toString(),
     );
-    if (!device) return false;
+    if (!device)
+      return new Result<boolean>(
+        ResultCode.NotFound,
+        null,
+        'Device info not found',
+      );
     if (device.userId !== command.tokenPayload.userId)
-      throw new ForbiddenException();
-    return this.devicesRepository.deleteDeviceById(command.id.toString());
+      return new Result<boolean>(
+        ResultCode.Forbidden,
+        null,
+        'Access is denied',
+      );
+    await this.devicesRepository.deleteDeviceById(command.id.toString());
+    return new Result<boolean>(ResultCode.Success, true, null);
   }
 }

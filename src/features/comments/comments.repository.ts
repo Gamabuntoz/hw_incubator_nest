@@ -3,16 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Comment, CommentDocument } from './applications/comments.schema';
 import { QueryPostsDTO } from '../posts/applications/posts.dto';
-import {
-  AllCommentsInfoDTO,
-  CommentInfoDTO,
-  InputCommentDTO,
-} from './applications/comments.dto';
+import { InputCommentDTO } from './applications/comments.dto';
 import {
   CommentLike,
   CommentLikeDocument,
 } from './applications/comments-likes.schema';
-import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 
 @Injectable()
 export class CommentsRepository {
@@ -77,13 +72,13 @@ export class CommentsRepository {
   }
 
   async updateComment(id: Types.ObjectId, inputData: InputCommentDTO) {
-    const commentInstance = await this.commentModel.findOne({
-      _id: new Types.ObjectId(id),
-    });
-    if (!commentInstance) return false;
-    commentInstance.content = inputData.content;
-    await commentInstance.save();
-    return true;
+    const result = await this.commentModel.updateOne(
+      {
+        _id: new Types.ObjectId(id),
+      },
+      { $set: { content: inputData.content } },
+    );
+    return result.matchedCount === 1;
   }
 
   async deleteComment(id: Types.ObjectId) {

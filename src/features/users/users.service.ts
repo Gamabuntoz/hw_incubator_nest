@@ -22,9 +22,9 @@ export class UsersService {
       queryData,
     );
     const paginatedUsers = await Paginated.getPaginated<UserInfoDTO[]>({
-      totalCount,
       pageNumber: queryData.pageNumber,
       pageSize: queryData.pageSize,
+      totalCount,
       items: findAllUsers.map(
         (u) =>
           new UserInfoDTO(

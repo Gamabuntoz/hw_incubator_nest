@@ -40,9 +40,9 @@ export class PostsService {
       queryData,
     );
     const paginatedComments = await Paginated.getPaginated<CommentInfoDTO[]>({
-      totalCount,
       pageNumber: queryData.pageNumber,
       pageSize: queryData.pageSize,
+      totalCount,
       items: await Promise.all(
         allComments.map(async (c) => {
           let likeStatusCurrentUser;
@@ -75,9 +75,9 @@ export class PostsService {
     const totalCount = await this.postsRepository.totalCountPosts();
     const allPosts = await this.postsRepository.findAllPosts(queryData);
     const paginatedPosts = await Paginated.getPaginated<PostInfoDTO[]>({
-      totalCount,
       pageNumber: queryData.pageNumber,
       pageSize: queryData.pageSize,
+      totalCount,
       items: await Promise.all(
         allPosts.map(async (p) => {
           let likeStatusCurrentUser;

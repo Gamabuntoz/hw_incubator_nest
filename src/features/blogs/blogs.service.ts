@@ -36,9 +36,9 @@ export class BlogsService {
       queryData,
     );
     const paginatedPosts = await Paginated.getPaginated<PostInfoDTO[]>({
-      totalCount,
       pageNumber: queryData.pageNumber,
       pageSize: queryData.pageSize,
+      totalCount,
       items: await Promise.all(
         allPosts.map(async (p) => {
           let likeStatusCurrentUser;
@@ -85,9 +85,9 @@ export class BlogsService {
       queryData,
     );
     const paginatedBlogs = await Paginated.getPaginated<BlogInfoDTO[]>({
-      totalCount,
       pageNumber: queryData.pageNumber,
       pageSize: queryData.pageSize,
+      totalCount,
       items: allBlogs.map(
         (b) =>
           new BlogInfoDTO(

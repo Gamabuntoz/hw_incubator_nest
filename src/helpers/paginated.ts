@@ -1,7 +1,7 @@
 export class Paginated<T> {
-  public pagesCount = 10;
+  public pagesCount: number;
   public page: number;
-  public pageSize = 1;
+  public pageSize: number;
   public totalCount: number;
   public items: T;
 

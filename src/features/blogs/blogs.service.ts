@@ -21,7 +21,7 @@ export class BlogsService {
     queryData: QueryPostsDTO,
     userId?: string,
   ): Promise<Result<Paginated<PostInfoDTO[]>>> {
-    const blogById = await this.findBlogById(id);
+    const blogById = await this.blogsRepository.findBlogById(id);
     if (!blogById)
       return new Result<Paginated<PostInfoDTO[]>>(
         ResultCode.NotFound,

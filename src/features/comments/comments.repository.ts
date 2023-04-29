@@ -48,7 +48,7 @@ export class CommentsRepository {
 
   async setCommentLike(newCommentLike: CommentLike) {
     await this.commentLikeModel.create(newCommentLike);
-    await this.changeCountCommentLike(newCommentLike._id.toString());
+    await this.changeCountCommentLike(newCommentLike.commentId);
     return newCommentLike;
   }
 

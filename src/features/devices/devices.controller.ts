@@ -15,8 +15,6 @@ import { JwtRefreshAuthGuard } from '../../security/guards/jwt-refresh-auth.guar
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteDeviceSessionCommand } from './applications/use-cases/delete-device-session-use-cases';
 import { DeleteAllDeviceSessionsCommand } from './applications/use-cases/delete-all-device-sessions-use-cases';
-import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
-import { Types } from 'mongoose';
 import { Result, ResultCode } from '../../helpers/contract';
 
 @Controller('security/devices')
@@ -34,7 +32,6 @@ export class DevicesController {
   @UseGuards(JwtRefreshAuthGuard)
   @Get()
   async findAllUserDevices(@CurrentUserId() currentUserId) {
-    console.log(currentUserId);
     const result = await this.devicesService.findAllUserDevices(currentUserId);
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
@@ -65,7 +62,7 @@ export class DevicesController {
   @UseGuards(JwtRefreshAuthGuard)
   @Delete(':id')
   async deleteDevicesById(
-    @Param('id', new TryObjectIdPipe()) id: Types.ObjectId,
+    @Param('id') id: string,
     @RefreshTokenPayload() tokenPayload: RefreshPayloadDTO,
   ) {
     const result = await this.commandBus.execute(

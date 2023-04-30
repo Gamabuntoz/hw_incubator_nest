@@ -1,14 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DevicesRepository } from '../../devices.repository';
 import { RefreshPayloadDTO } from '../devices.dto';
-import { Types } from 'mongoose';
 import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class DeleteDeviceSessionCommand {
-  constructor(
-    public id: Types.ObjectId,
-    public tokenPayload: RefreshPayloadDTO,
-  ) {}
+  constructor(public id: string, public tokenPayload: RefreshPayloadDTO) {}
 }
 
 @CommandHandler(DeleteDeviceSessionCommand)
@@ -19,7 +15,7 @@ export class DeleteDeviceSessionUseCases
 
   async execute(command: DeleteDeviceSessionCommand): Promise<Result<boolean>> {
     const device = await this.devicesRepository.findDeviceByDeviceId(
-      command.id.toString(),
+      command.id,
     );
     if (!device)
       return new Result<boolean>(

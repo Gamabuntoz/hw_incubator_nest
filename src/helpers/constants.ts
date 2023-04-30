@@ -1,7 +1,7 @@
 export const jwtConstants = {
   secretKey: 'verySecretKey',
-  expirationAccessToken: 10,
-  expirationRefreshToken: 20,
+  expirationAccessToken: 100,
+  expirationRefreshToken: 200,
 };
 
 export const basicConstants = {

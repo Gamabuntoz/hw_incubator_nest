@@ -34,6 +34,7 @@ export class DevicesController {
   @UseGuards(JwtRefreshAuthGuard)
   @Get()
   async findAllUserDevices(@CurrentUserId() currentUserId) {
+    console.log(currentUserId);
     const result = await this.devicesService.findAllUserDevices(currentUserId);
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);

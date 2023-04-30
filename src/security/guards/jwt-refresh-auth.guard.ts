@@ -34,7 +34,7 @@ export class JwtRefreshAuthGuard implements CanActivate {
     );
     if (!device) throw new UnauthorizedException();
     req.user = {
-      userId: payload.userId,
+      id: payload.userId,
       deviceId: payload.deviceId,
       issueAt: payload.issueAt,
     };

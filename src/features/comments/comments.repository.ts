@@ -22,14 +22,7 @@ export class CommentsRepository {
   }
 
   async createComment(newComment: Comment) {
-    const commentInstance = new this.commentModel(newComment);
-    commentInstance._id = newComment._id;
-    commentInstance.postId = newComment.postId;
-    commentInstance.content = newComment.content;
-    commentInstance.userId = newComment.userId;
-    commentInstance.userLogin = newComment.userLogin;
-    commentInstance.createdAt = newComment.createdAt;
-    await commentInstance.save();
+    await this.commentModel.create(newComment);
     return newComment;
   }
 

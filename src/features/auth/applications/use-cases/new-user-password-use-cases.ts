@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
-import { Result, ResultCode } from 'src/helpers/contract';
 import { UsersRepository } from '../../../users/users.repository';
 import { AuthService } from '../../auth.service';
 import { InputNewPassDTO } from '../auth.dto';
+import { Result, ResultCode } from '../../../../helpers/contract';
 
 export class NewPasswordCommand {
   constructor(public inputData: InputNewPassDTO) {}

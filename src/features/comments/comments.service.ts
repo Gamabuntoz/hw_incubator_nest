@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 import { CommentInfoDTO } from './applications/comments.dto';
 import { CommentLike } from './applications/comments-likes.schema';
 import { Comment } from './applications/comments.schema';
-import { Result, ResultCode } from 'src/helpers/contract';
+import { Result, ResultCode } from '../../helpers/contract';
 
 @Injectable()
 export class CommentsService {

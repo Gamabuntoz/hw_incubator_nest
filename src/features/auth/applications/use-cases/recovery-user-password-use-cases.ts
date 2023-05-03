@@ -22,7 +22,7 @@ export class PasswordRecoveryUseCases
       command.inputData.email,
     );
     if (!user)
-      return new Result<boolean>(ResultCode.NotFound, false, 'User not found');
+      return new Result<boolean>(ResultCode.Success, true, 'User not found');
     await this.usersRepository.createPasswordRecoveryCode(user._id.toString());
     user = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.email,

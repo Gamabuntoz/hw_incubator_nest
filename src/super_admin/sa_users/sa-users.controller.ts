@@ -7,24 +7,26 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { QueryUsersDTO } from './applications/users.dto';
+import { SAUsersService } from './sa-users.service';
+import { InputBanUserDTO, QueryUsersDTO } from './applications/sa-users.dto';
 import { BasicAuthGuard } from '../../security/guards/basic-auth.guard';
-import { InputRegistrationDTO } from '../auth/applications/auth.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateConfirmedUserCommand } from './applications/use-cases/create-confirmed-user-use-cases';
 import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { Types } from 'mongoose';
 import { DeleteUserCommand } from './applications/use-cases/delete-user-use-cases';
 import { Result, ResultCode } from '../../helpers/contract';
+import { InputRegistrationDTO } from '../../features/auth/applications/auth.dto';
+import { CreateUserByAdminCommand } from './applications/use-cases/create-user-by-admin-use-case';
+import { BanUserCommand } from './applications/use-cases/ban-user-use-cases';
 
-@Controller('users')
-export class UsersController {
+@Controller('sa/users')
+export class SAUsersController {
   constructor(
-    protected userService: UsersService,
+    protected saUserService: SAUsersService,
     private commandBus: CommandBus,
   ) {}
   //
@@ -35,7 +37,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @Get()
   async getUsers(@Query() query: QueryUsersDTO) {
-    const result = await this.userService.findUsers(query);
+    const result = await this.saUserService.findUsers(query);
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
     }
@@ -51,7 +53,7 @@ export class UsersController {
   @Post()
   async createUser(@Body() inputData: InputRegistrationDTO) {
     const result = await this.commandBus.execute(
-      new CreateConfirmedUserCommand(inputData),
+      new CreateUserByAdminCommand(inputData),
     );
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
@@ -61,9 +63,27 @@ export class UsersController {
 
   @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete(':id')
-  async deleteUser(@Param('id', new TryObjectIdPipe()) id: Types.ObjectId) {
-    const result = await this.commandBus.execute(new DeleteUserCommand(id));
+  @Put(':userId/ban')
+  async banUser(
+    @Param('userId', new TryObjectIdPipe()) userId: Types.ObjectId,
+    @Body() inputData: InputBanUserDTO,
+  ) {
+    const result = await this.commandBus.execute(
+      new BanUserCommand(userId, inputData),
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
+  }
+
+  @UseGuards(BasicAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':userId')
+  async deleteUser(
+    @Param('userId', new TryObjectIdPipe()) userId: Types.ObjectId,
+  ) {
+    const result = await this.commandBus.execute(new DeleteUserCommand(userId));
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
     }

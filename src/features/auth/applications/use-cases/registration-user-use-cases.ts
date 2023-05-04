@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InputRegistrationDTO } from '../auth.dto';
-import { UsersService } from '../../../users/users.service';
 import { EmailAdapter } from '../../../../adapters/email-adapter/email.adapter';
 import { UsersRepository } from '../../../users/users.repository';
 import * as bcrypt from 'bcrypt';
@@ -19,7 +18,6 @@ export class RegistrationUserUseCases
   implements ICommandHandler<RegistrationUserCommand>
 {
   constructor(
-    private usersService: UsersService,
     private usersRepository: UsersRepository,
     private emailAdapter: EmailAdapter,
   ) {}
@@ -33,11 +31,15 @@ export class RegistrationUserUseCases
     return new Result<boolean>(ResultCode.Success, true, null);
   }
 
+  private async _generateHash(password: string, salt: string) {
+    return await bcrypt.hash(password, salt);
+  }
+
   private async createUser(
     inputData: InputRegistrationDTO,
   ): Promise<UserInfoDTO> {
     const passwordSalt = await bcrypt.genSalt(10);
-    const passwordHash = await this.usersService._generateHash(
+    const passwordHash = await this._generateHash(
       inputData.password,
       passwordSalt,
     );
@@ -59,6 +61,11 @@ export class RegistrationUserUseCases
       passwordRecovery: {
         code: 'string',
         expirationDate: new Date(),
+      },
+      banInformation: {
+        isBanned: false,
+        banReason: 'not banned',
+        banDate: new Date(),
       },
     };
     await this.usersRepository.createUser(newUser);

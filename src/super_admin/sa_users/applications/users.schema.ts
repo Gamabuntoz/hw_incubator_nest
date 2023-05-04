@@ -30,6 +30,15 @@ class PasswordRecovery {
   expirationDate: Date;
 }
 
+class BanInformation {
+  @Prop()
+  isBanned: boolean;
+  @Prop()
+  banReason: string;
+  @Prop()
+  banDate: Date;
+}
+
 @Schema()
 export class User {
   @Prop({ required: true })
@@ -40,6 +49,8 @@ export class User {
   emailConfirmation: EmailConfirmation;
   @Prop({ type: PasswordRecovery })
   passwordRecovery: PasswordRecovery;
+  @Prop({ type: BanInformation })
+  banInformation: BanInformation;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

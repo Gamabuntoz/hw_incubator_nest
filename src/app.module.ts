@@ -5,18 +5,18 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TestingController } from './features/testing/testing.controller';
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'process';
-import { User, UserSchema } from './features/users/applications/users.schema';
+import {
+  User,
+  UserSchema,
+} from './super_admin/sa_users/applications/users.schema';
 import { Post, PostSchema } from './features/posts/applications/posts.schema';
-import { Blog, BlogSchema } from './features/blogs/applications/blogs.schema';
 import {
   Comment,
   CommentSchema,
 } from './features/comments/applications/comments.schema';
-import { UsersController } from './features/users/users.controller';
 import { PostsController } from './features/posts/posts.controller';
 import { BlogsController } from './features/blogs/blogs.controller';
 import { CommentsController } from './features/comments/comments.controller';
-import { UsersService } from './features/users/users.service';
 import { UsersRepository } from './features/users/users.repository';
 import { PostsService } from './features/posts/posts.service';
 import { PostsRepository } from './features/posts/posts.repository';
@@ -52,10 +52,10 @@ import { DevicesService } from './features/devices/devices.service';
 import { BlogExistsRule } from './helpers/decorators/validate-blog-id.param.decorator';
 import { LoginOrEmailExistRule } from './helpers/decorators/validate-email-and-login.param.decorator';
 import { BlogsService } from './features/blogs/blogs.service';
-import { CreatePostWithBlogIdUseCases } from './features/posts/applications/use-cases/create-post-whith-blog-id-use-cases';
-import { CreateBlogUseCases } from './features/blogs/applications/use-cases/create-blog-use-cases';
-import { DeleteBlogUseCases } from './features/blogs/applications/use-cases/delete-blog-use-cases';
-import { UpdateBlogUseCases } from './features/blogs/applications/use-cases/update-blog-use-cases';
+import { CreatePostWithBlogIdUseCases } from './blogger/blogger_blogs/applications/use-cases/create-post-by-blog-id-use-cases';
+import { CreateBlogUseCases } from './blogger/blogger_blogs/applications/use-cases/create-blog-use-cases';
+import { DeleteBlogUseCases } from './blogger/blogger_blogs/applications/use-cases/delete-blog-use-cases';
+import { UpdateBlogUseCases } from './blogger/blogger_blogs/applications/use-cases/update-blog-use-cases';
 import { CqrsModule } from '@nestjs/cqrs';
 import { UpdateCommentUseCases } from './features/comments/applications/use-cases/update-comment-use-cases';
 import { UpdateCommentLikeStatusUseCases } from './features/comments/applications/use-cases/update-comment-like-status-use-cases';
@@ -72,16 +72,35 @@ import { CreateCommentWithPostIdUseCases } from './features/comments/application
 import { LogoutUserUseCases } from './features/auth/applications/use-cases/logout-user-use-cases';
 import { DeleteAllDeviceSessionsUseCases } from './features/devices/applications/use-cases/delete-all-device-sessions-use-cases';
 import { DeleteDeviceSessionUseCases } from './features/devices/applications/use-cases/delete-device-session-use-cases';
-import { DeletePostUseCases } from './features/posts/applications/use-cases/delete-post-use-cases';
-import { UpdatePostUseCases } from './features/posts/applications/use-cases/update-post-use-cases';
+import { DeletePostUseCases } from './blogger/blogger_blogs/applications/use-cases/delete-post-by-blog-id-use-cases';
+import { UpdatePostUseCases } from './blogger/blogger_blogs/applications/use-cases/update-post-by-blog-id-use-cases';
 import { UpdatePostLikeStatusUseCases } from './features/posts/applications/use-cases/update-post-like-status-use-cases';
-import { CreateConfirmedUseCases } from './features/users/applications/use-cases/create-confirmed-user-use-cases';
-import { DeleteUserUseCases } from './features/users/applications/use-cases/delete-user-use-cases';
 import { ValidatePasswordRecoveryCodeRule } from './helpers/decorators/validate-password-recovery-code.param.decorator';
 import { ValidateRegistrationConfirmationCodeRule } from './helpers/decorators/validate-registration-confirmation-code.param.decorator';
 import { ValidateEmailForResendCodeRule } from './helpers/decorators/validate-email-for-resend-code.param.decorator';
+import {
+  Blog,
+  BlogSchema,
+} from './blogger/blogger_blogs/applications/blogger-blogs.schema';
+import { BloggerBlogsRepository } from './blogger/blogger_blogs/blogger-blogs.repository';
+import { BloggerBlogsService } from './blogger/blogger_blogs/blogger-blogs.service';
+import { BloggerBlogsController } from './blogger/blogger_blogs/blogger-blogs.controller';
+import { SAUsersController } from './super_admin/sa_users/sa-users.controller';
+import { SAUsersService } from './super_admin/sa_users/sa-users.service';
+import { BanUserUseCases } from './super_admin/sa_users/applications/use-cases/ban-user-use-cases';
+import { CreateUserByAdminUseCases } from './super_admin/sa_users/applications/use-cases/create-user-by-admin-use-case';
+import { DeleteUserUseCases } from './super_admin/sa_users/applications/use-cases/delete-user-use-cases';
+import { BindBlogWithUserUseCases } from './super_admin/sa_blogs/applications/use-cases/bind-blog-with-user-use-cases';
+import { SAUsersRepository } from './super_admin/sa_users/sa-users.repository';
+import { SaBlogsController } from './super_admin/sa_blogs/sa-blogs.controller';
+import { SABlogsService } from './super_admin/sa_blogs/sa-blogs.service';
+import { SABlogsRepository } from './super_admin/sa_blogs/sa-blogs.repository';
 
 const useCases = [
+  BanUserUseCases,
+  CreateUserByAdminUseCases,
+  DeleteUserUseCases,
+  BindBlogWithUserUseCases,
   CreatePostWithBlogIdUseCases,
   CreateBlogUseCases,
   DeleteBlogUseCases,
@@ -104,8 +123,6 @@ const useCases = [
   DeletePostUseCases,
   UpdatePostLikeStatusUseCases,
   UpdatePostUseCases,
-  CreateConfirmedUseCases,
-  DeleteUserUseCases,
 ];
 const strategies = [
   LocalStrategy,
@@ -121,16 +138,21 @@ const decorators = [
   ValidateEmailForResendCodeRule,
 ];
 const repositories = [
+  SAUsersRepository,
+  SABlogsRepository,
   UsersRepository,
   PostsRepository,
   DevicesRepository,
   BlogsRepository,
   CommentsRepository,
+  BloggerBlogsRepository,
+  BloggerBlogsService,
 ];
 const services = [
   AuthService,
   AppService,
-  UsersService,
+  SAUsersService,
+  SABlogsService,
   PostsService,
   DevicesService,
   BlogsService,
@@ -140,12 +162,14 @@ const adapters = [EmailAdapter];
 const controllers = [
   AppController,
   TestingController,
-  UsersController,
+  SaBlogsController,
+  SAUsersController,
   PostsController,
   BlogsController,
   CommentsController,
   AuthController,
   DevicesController,
+  BloggerBlogsController,
 ];
 
 @Module({

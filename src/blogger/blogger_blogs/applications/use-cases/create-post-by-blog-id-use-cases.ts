@@ -1,12 +1,20 @@
 import { Types } from 'mongoose';
-import { BlogsRepository } from '../../../blogs/blogs.repository';
-import { InputPostDTO, PostInfoDTO } from '../posts.dto';
-import { PostsRepository } from '../../posts.repository';
+import {
+  InputPostDTO,
+  PostInfoDTO,
+} from '../../../../features/posts/applications/posts.dto';
+import { PostsRepository } from '../../../../features/posts/posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result, ResultCode } from '../../../../helpers/contract';
+import { Blog } from '../blogger-blogs.schema';
+import { BloggerBlogsRepository } from '../../blogger-blogs.repository';
 
 export class CreatePostWithBlogIdCommand {
-  constructor(public id: Types.ObjectId, public inputData: InputPostDTO) {}
+  constructor(
+    public blogId: Types.ObjectId,
+    public inputData: InputPostDTO,
+    public currentUserId: string,
+  ) {}
 }
 
 @CommandHandler(CreatePostWithBlogIdCommand)
@@ -14,19 +22,27 @@ export class CreatePostWithBlogIdUseCases
   implements ICommandHandler<CreatePostWithBlogIdCommand>
 {
   constructor(
-    protected blogsRepository: BlogsRepository,
+    protected bloggerBlogsRepository: BloggerBlogsRepository,
     protected postsRepository: PostsRepository,
   ) {}
 
   async execute(
     command: CreatePostWithBlogIdCommand,
   ): Promise<Result<PostInfoDTO>> {
-    const blogById = await this.blogsRepository.findBlogById(command.id);
+    const blogById: Blog = await this.bloggerBlogsRepository.findBlogById(
+      command.blogId,
+    );
     if (!blogById)
       return new Result<PostInfoDTO>(
         ResultCode.NotFound,
         null,
         'Blog not found',
+      );
+    if (blogById.ownerId !== command.currentUserId)
+      return new Result<PostInfoDTO>(
+        ResultCode.Forbidden,
+        null,
+        'Access denied',
       );
     const newPost = {
       _id: new Types.ObjectId(),

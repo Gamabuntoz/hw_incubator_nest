@@ -3,30 +3,30 @@ import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
-import { UserInfoDTO } from '../users.dto';
-import { InputRegistrationDTO } from '../../../auth/applications/auth.dto';
-import { UsersService } from '../../users.service';
-import { UsersRepository } from '../../users.repository';
+import { SAUserInfoDTO } from '../sa-users.dto';
 import { Result, ResultCode } from '../../../../helpers/contract';
+import { SAUsersService } from '../../sa-users.service';
+import { SAUsersRepository } from '../../sa-users.repository';
+import { InputRegistrationDTO } from '../../../../features/auth/applications/auth.dto';
 
-export class CreateConfirmedUserCommand {
+export class CreateUserByAdminCommand {
   constructor(public inputData: InputRegistrationDTO) {}
 }
 
-@CommandHandler(CreateConfirmedUserCommand)
-export class CreateConfirmedUseCases
-  implements ICommandHandler<CreateConfirmedUserCommand>
+@CommandHandler(CreateUserByAdminCommand)
+export class CreateUserByAdminUseCases
+  implements ICommandHandler<CreateUserByAdminCommand>
 {
   constructor(
-    private usersService: UsersService,
-    private usersRepository: UsersRepository,
+    private saUsersService: SAUsersService,
+    private saUsersRepository: SAUsersRepository,
   ) {}
 
   async execute(
-    command: CreateConfirmedUserCommand,
-  ): Promise<Result<UserInfoDTO>> {
+    command: CreateUserByAdminCommand,
+  ): Promise<Result<SAUserInfoDTO>> {
     const passwordSalt = await bcrypt.genSalt(10);
-    const passwordHash = await this.usersService._generateHash(
+    const passwordHash = await this.saUsersService._generateHash(
       command.inputData.password,
       passwordSalt,
     );
@@ -49,14 +49,20 @@ export class CreateConfirmedUseCases
         code: 'string',
         expirationDate: new Date(),
       },
+      banInformation: {
+        isBanned: false,
+        banReason: 'not banned',
+        banDate: new Date(),
+      },
     };
-    await this.usersRepository.createUser(newUser);
-    const userView = new UserInfoDTO(
+    await this.saUsersRepository.createUser(newUser);
+    const userView = new SAUserInfoDTO(
       newUser._id.toString(),
       newUser.accountData.login,
       newUser.accountData.email,
       newUser.accountData.createdAt,
+      newUser.banInformation,
     );
-    return new Result<UserInfoDTO>(ResultCode.Success, userView, null);
+    return new Result<SAUserInfoDTO>(ResultCode.Success, userView, null);
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/features/users/applications/users.schema';
+import { User } from 'src/super_admin/sa_users/applications/users.schema';
 import nodemailer from 'nodemailer';
 import { senderData } from '../../helpers/constants';
 

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Post, PostDocument } from './applications/posts.schema';
-import { InputPostWithIdDTO, QueryPostsDTO } from './applications/posts.dto';
+import { InputPostDTO, QueryPostsDTO } from './applications/posts.dto';
 import { PostLike, PostLikeDocument } from './applications/posts-likes.schema';
 
 @Injectable()
@@ -55,7 +55,7 @@ export class PostsRepository {
     return this.postModel.findOne({ _id: id });
   }
 
-  async updatePost(id: Types.ObjectId, inputPostData: InputPostWithIdDTO) {
+  async updatePost(id: Types.ObjectId, inputPostData: InputPostDTO) {
     const result = await this.postModel.updateOne(
       {
         _id: id,
@@ -65,7 +65,6 @@ export class PostsRepository {
           title: inputPostData.title,
           shortDescription: inputPostData.shortDescription,
           content: inputPostData.content,
-          blogId: inputPostData.blogId,
         },
       },
     );

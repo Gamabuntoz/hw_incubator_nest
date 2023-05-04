@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { QueryBlogsDTO } from './applications/blogs.dto';
 import {
   Blog,
   BlogDocument,
 } from '../../blogger/blogger_blogs/applications/blogger-blogs.schema';
+import { QueryBlogsDTO } from '../../features/blogs/applications/blogs.dto';
 
 @Injectable()
-export class BlogsRepository {
+export class SABlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+
+  async findBlogById(id: Types.ObjectId) {
+    return this.blogModel.findOne({
+      _id: id,
+    });
+  }
 
   async findAllBlogs(filter: any, sort: string, queryData: QueryBlogsDTO) {
     return this.blogModel
@@ -24,9 +30,13 @@ export class BlogsRepository {
     return this.blogModel.countDocuments(filter);
   }
 
-  async findBlogById(id: Types.ObjectId) {
-    return this.blogModel.findOne({
-      _id: id,
-    });
+  async bindBlogWithUser(blogId: Types.ObjectId, userId: Types.ObjectId) {
+    const result = await this.blogModel.updateOne(
+      {
+        _id: blogId,
+      },
+      { $set: { ownerId: userId.toString() } },
+    );
+    return result.matchedCount === 1;
   }
 }

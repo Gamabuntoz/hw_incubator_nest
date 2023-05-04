@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './applications/users.schema';
-import { FilterQuery, Model, Types } from 'mongoose';
-import { QueryUsersDTO } from './applications/users.dto';
+import {
+  User,
+  UserDocument,
+} from '../../super_admin/sa_users/applications/users.schema';
+import { Model, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 
@@ -10,55 +12,8 @@ import add from 'date-fns/add';
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findAllUsers(filter: FilterQuery<User>, queryData: QueryUsersDTO) {
-    let sort = 'accountData.createdAt';
-    if (queryData.sortBy) {
-      sort = `accountData.${queryData.sortBy}`;
-    }
-    return this.userModel
-      .find(filter)
-      .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
-      .skip((queryData.pageNumber - 1) * queryData.pageSize)
-      .limit(queryData.pageSize)
-      .lean();
-  }
-  createFilter(searchLoginTerm?, searchEmailTerm?) {
-    let filter: any = { $or: [] };
-
-    if (searchLoginTerm) {
-      filter['$or'].push({
-        'accountData.login': {
-          $regex: searchLoginTerm,
-          $options: 'i',
-        },
-      });
-    }
-
-    if (searchEmailTerm) {
-      filter['$or'].push({
-        'accountData.email': {
-          $regex: searchEmailTerm,
-          $options: 'i',
-        },
-      });
-    }
-    if (!searchLoginTerm && !searchEmailTerm) {
-      filter = {};
-    }
-    return filter;
-  }
-
-  async totalCountUsers(filter) {
-    return this.userModel.countDocuments(filter);
-  }
-
   async createUser(newUser: User) {
-    const userInstance = new this.userModel(newUser);
-    userInstance._id = newUser._id;
-    userInstance.accountData = newUser.accountData;
-    userInstance.emailConfirmation = newUser.emailConfirmation;
-    userInstance.passwordRecovery = newUser.passwordRecovery;
-    await userInstance.save();
+    await this.userModel.create(newUser);
     return newUser;
   }
 
@@ -135,12 +90,5 @@ export class UsersRepository {
     userInstance.accountData.passwordHash = passwordHash;
     await userInstance.save();
     return true;
-  }
-
-  async deleteUser(id: Types.ObjectId) {
-    const result = await this.userModel.deleteOne({
-      _id: id,
-    });
-    return result.deletedCount === 1;
   }
 }

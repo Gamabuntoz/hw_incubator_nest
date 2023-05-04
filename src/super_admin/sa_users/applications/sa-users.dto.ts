@@ -7,7 +7,7 @@ export class SAUserInfoDTO {
     public login: string,
     public email: string,
     public createdAt: string,
-    banInfo: {
+    public banInfo: {
       isBanned: boolean;
       banDate: Date;
       banReason: string;

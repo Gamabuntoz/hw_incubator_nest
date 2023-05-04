@@ -34,9 +34,9 @@ class BanInformation {
   @Prop()
   isBanned: boolean;
   @Prop()
-  banReason: string;
+  banReason: string | null;
   @Prop()
-  banDate: Date;
+  banDate: Date | null;
 }
 
 @Schema()

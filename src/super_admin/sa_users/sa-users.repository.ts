@@ -24,12 +24,7 @@ export class SAUsersRepository {
     let filter: any = { $or: [] };
     const banStatusForSearch = banStatus === 'banned';
     if (banStatus && banStatus !== 'all') {
-      filter['$or'].push({
-        'banInformation.isBanned': {
-          $regex: banStatusForSearch,
-          $options: 'i',
-        },
-      });
+      filter['banInformation.isBanned'] = banStatusForSearch;
     }
     if (searchLoginTerm) {
       filter['$or'].push({
@@ -48,8 +43,11 @@ export class SAUsersRepository {
         },
       });
     }
-    if (!searchLoginTerm && !searchEmailTerm) {
+    if (!searchLoginTerm && !searchEmailTerm && !banStatus) {
       filter = {};
+    }
+    if (!searchLoginTerm && !searchEmailTerm && banStatus) {
+      filter = { 'banInformation.isBanned': banStatusForSearch };
     }
     return filter;
   }

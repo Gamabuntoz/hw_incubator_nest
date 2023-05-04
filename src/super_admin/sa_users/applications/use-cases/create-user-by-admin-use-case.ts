@@ -8,6 +8,7 @@ import { Result, ResultCode } from '../../../../helpers/contract';
 import { SAUsersService } from '../../sa-users.service';
 import { SAUsersRepository } from '../../sa-users.repository';
 import { InputRegistrationDTO } from '../../../../features/auth/applications/auth.dto';
+import { User } from '../users.schema';
 
 export class CreateUserByAdminCommand {
   constructor(public inputData: InputRegistrationDTO) {}
@@ -30,7 +31,7 @@ export class CreateUserByAdminUseCases
       command.inputData.password,
       passwordSalt,
     );
-    const newUser = {
+    const newUser: User = {
       _id: new Types.ObjectId(),
       accountData: {
         login: command.inputData.login,
@@ -51,8 +52,8 @@ export class CreateUserByAdminUseCases
       },
       banInformation: {
         isBanned: false,
-        banReason: 'not banned',
-        banDate: new Date(),
+        banReason: null,
+        banDate: null,
       },
     };
     await this.saUsersRepository.createUser(newUser);

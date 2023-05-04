@@ -33,7 +33,7 @@ export class InputBanUserDTO {
 
 export class QueryUsersDTO {
   constructor(
-    public banStatus: string = 'all',
+    public banStatus: string,
     public sortBy: string = 'createdAt',
     public sortDirection: string = 'desc',
     public pageNumber: number = 1,

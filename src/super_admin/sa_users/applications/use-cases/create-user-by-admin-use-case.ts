@@ -64,8 +64,8 @@ export class CreateUserByAdminUseCases
       newUser.accountData.createdAt,
       {
         isBanned: newUser.banInformation.isBanned,
-        banDate: newUser.banInformation.banDate.toISOString(),
-        banReason: newUser.banInformation.banReason,
+        banDate: null,
+        banReason: null,
       },
     );
     return new Result<SAUserInfoDTO>(ResultCode.Success, userView, null);

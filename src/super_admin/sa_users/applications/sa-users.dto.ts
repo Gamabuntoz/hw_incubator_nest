@@ -9,8 +9,8 @@ export class SAUserInfoDTO {
     public createdAt: string,
     public banInfo: {
       isBanned: boolean;
-      banDate: string;
-      banReason: string;
+      banDate: string | null;
+      banReason: string | null;
     },
   ) {}
 }

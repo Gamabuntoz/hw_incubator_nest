@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 export enum ResultCode {
@@ -27,6 +28,8 @@ export class Result<T> {
         throw new ForbiddenException();
       case ResultCode.BadRequest:
         throw new BadRequestException();
+      case ResultCode.Unauthorized:
+        throw new UnauthorizedException();
     }
   }
 }

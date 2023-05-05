@@ -71,9 +71,9 @@ export class SAUsersController {
     const result = await this.commandBus.execute(
       new BanUserCommand(userId, inputData),
     );
-    if (result.code !== ResultCode.Success) {
+    /*if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
-    }
+    }*/
     return result.data;
   }
 

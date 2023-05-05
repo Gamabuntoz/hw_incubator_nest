@@ -36,7 +36,9 @@ export class SAUsersService {
             u.accountData.createdAt,
             {
               isBanned: u.banInformation.isBanned,
-              banDate: u.banInformation.banDate.toISOString(),
+              banDate: u.banInformation.banDate
+                ? u.banInformation.banDate.toISOString()
+                : null,
               banReason: u.banInformation.banReason,
             },
           ),

@@ -10,6 +10,7 @@ import { PostLike } from './applications/posts-likes.schema';
 import { CommentsService } from '../comments/comments.service';
 import { Paginated } from '../../helpers/paginated';
 import { Result, ResultCode } from '../../helpers/contract';
+import { CommentLike } from '../comments/applications/comments-likes.schema';
 
 @Injectable()
 export class PostsService {
@@ -45,6 +46,10 @@ export class PostsService {
       totalCount,
       items: await Promise.all(
         allComments.map(async (c) => {
+          const countBannedLikesOwner =
+            await this.commentsService.countBannedStatusOwner(c._id, 'Like');
+          const countBannedDislikesOwner =
+            await this.commentsService.countBannedStatusOwner(c._id, 'Dislike');
           let likeStatusCurrentUser;
           if (userId) {
             likeStatusCurrentUser =
@@ -56,6 +61,8 @@ export class PostsService {
           return this.commentsService.createCommentViewInfo(
             c,
             likeStatusCurrentUser,
+            countBannedLikesOwner,
+            countBannedDislikesOwner,
           );
         }),
       ),
@@ -117,6 +124,13 @@ export class PostsService {
         null,
         'post not found',
       );
+
+    const countBannedLikesOwner = await this.countBannedStatusOwner(id, 'Like');
+    const countBannedDislikesOwner = await this.countBannedStatusOwner(
+      id,
+      'Dislike',
+    );
+
     let likeStatusCurrentUser;
     if (userId) {
       likeStatusCurrentUser =
@@ -132,14 +146,27 @@ export class PostsService {
       postById,
       lastPostLikes,
       likeStatusCurrentUser,
+      countBannedLikesOwner,
+      countBannedDislikesOwner,
     );
     return new Result<PostInfoDTO>(ResultCode.Success, postView, null);
+  }
+
+  async countBannedStatusOwner(id: Types.ObjectId, status: string) {
+    const allLikes: PostLike[] = await this.postsRepository.findAllPostLikes(
+      id,
+      status,
+    );
+    const allUsersLikeOwner = allLikes.map((p) => p.userId);
+    return this.usersRepository.countBannedUsersById(allUsersLikeOwner);
   }
 
   async createPostViewInfo(
     post: Post,
     lastPostLikes: PostLike[],
     likeStatusCurrentUser?: PostLike,
+    countBannedLikesOwner?,
+    countBannedDislikesOwner?,
   ): Promise<PostInfoDTO> {
     return new PostInfoDTO(
       post._id.toString(),
@@ -150,8 +177,12 @@ export class PostsService {
       post.blogName,
       post.createdAt,
       {
-        likesCount: post.likeCount,
-        dislikesCount: post.dislikeCount,
+        likesCount: countBannedLikesOwner
+          ? post.likeCount - countBannedLikesOwner
+          : post.likeCount,
+        dislikesCount: countBannedDislikesOwner
+          ? post.dislikeCount - countBannedDislikesOwner
+          : post.dislikeCount,
         myStatus: likeStatusCurrentUser ? likeStatusCurrentUser.status : 'None',
         newestLikes: await Promise.all(
           lastPostLikes.map(async (l) => {

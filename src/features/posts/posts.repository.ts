@@ -38,6 +38,13 @@ export class PostsRepository {
       .lean();
   }
 
+  async findAllPostLikes(id: Types.ObjectId, status: string) {
+    return this.postLikeModel.find({
+      postId: id.toString(),
+      status: status,
+    });
+  }
+
   async totalCountPosts() {
     return this.postModel.countDocuments({});
   }

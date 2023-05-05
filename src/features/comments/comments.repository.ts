@@ -21,6 +21,13 @@ export class CommentsRepository {
     return this.commentModel.findOne({ _id: id });
   }
 
+  async findAllCommentLikes(id: Types.ObjectId, status: string) {
+    return this.commentLikeModel.find({
+      commentId: id.toString(),
+      status: status,
+    });
+  }
+
   async createComment(newComment: Comment) {
     await this.commentModel.create(newComment);
     return newComment;

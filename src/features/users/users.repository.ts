@@ -21,6 +21,20 @@ export class UsersRepository {
     return this.userModel.findOne({ _id: new Types.ObjectId(id) });
   }
 
+  async countBannedUsersById(ids: string[]) {
+    let countBannedUsers = 0;
+    await Promise.all(
+      ids.map(async (i) => {
+        const bannedUser = await this.userModel.findOne({
+          _id: new Types.ObjectId(i),
+          'banInformation.isBanned': true,
+        });
+        if (bannedUser) return (countBannedUsers += 1);
+      }),
+    );
+    return countBannedUsers;
+  }
+
   async findUserByLoginOrEmail(loginOrEmail: string) {
     return this.userModel.findOne({
       $or: [

@@ -25,16 +25,9 @@ export class InputBanUserDTO {
   @IsBoolean()
   @IsNotEmpty()
   isBanned: boolean;
+  @ValidateIf((object, value) => value !== null)
   @IsString()
   @Length(1, 20)
-  @IsNotEmpty()
-  @Transform(({ value }) => {
-    if (typeof value === 'number') {
-      return value;
-    }
-    return value?.trim();
-  })
-  @ValidateIf((object, value) => value !== null)
   banReason: string;
 }
 

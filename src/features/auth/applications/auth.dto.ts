@@ -38,7 +38,7 @@ export class InputEmailForPasswordRecoveryDTO {
 }
 
 export class InputRegistrationDTO {
-  @Length(3, 10)
+  /*@Length(3, 10)
   @Matches(/^[a-zA-Z0-9_-]*$/)
   @IsNotEmpty()
   @Transform(({ value }) => {
@@ -47,9 +47,9 @@ export class InputRegistrationDTO {
     }
     return value?.trim();
   })
-  @Validate(LoginOrEmailExistRule)
+  @Validate(LoginOrEmailExistRule)*/
   login: string;
-  @IsString()
+  /*@IsString()
   @Length(6, 20)
   @IsNotEmpty()
   @Transform(({ value }) => {
@@ -57,9 +57,9 @@ export class InputRegistrationDTO {
       return value;
     }
     return value?.trim();
-  })
+  })*/
   password: string;
-  @IsEmail()
+  /*@IsEmail()
   @IsNotEmpty()
   @Transform(({ value }) => {
     if (typeof value === 'number') {
@@ -67,7 +67,7 @@ export class InputRegistrationDTO {
     }
     return value?.trim();
   })
-  @Validate(LoginOrEmailExistRule)
+  @Validate(LoginOrEmailExistRule)*/
   email: string;
 }
 

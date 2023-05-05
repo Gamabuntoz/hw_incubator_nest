@@ -5,7 +5,6 @@ import {
   Length,
   ValidateIf,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
 
 export class SAUserInfoDTO {
   constructor(
@@ -22,8 +21,8 @@ export class SAUserInfoDTO {
 }
 
 export class InputBanUserDTO {
-  @IsBoolean()
-  @IsNotEmpty()
+  /*@IsBoolean()
+  @IsNotEmpty()*/
   isBanned: boolean;
   @ValidateIf((object, value) => value !== null)
   @IsString()

@@ -1,4 +1,10 @@
-import { IsBoolean, IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsString,
+  Length,
+  ValidateIf,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class SAUserInfoDTO {
@@ -28,6 +34,7 @@ export class InputBanUserDTO {
     }
     return value?.trim();
   })
+  @ValidateIf((object, value) => value !== null)
   banReason: string;
 }
 

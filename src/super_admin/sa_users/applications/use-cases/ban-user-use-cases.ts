@@ -16,12 +16,13 @@ export class BanUserUseCases implements ICommandHandler<BanUserCommand> {
   constructor(protected saUsersRepository: SAUsersRepository) {}
 
   async execute(command: BanUserCommand): Promise<Result<boolean>> {
-    const user = await this.saUsersRepository.updateUserBanStatus(
+    const user = await this.saUsersRepository.findUserById(command.userId);
+    if (!user)
+      return new Result<boolean>(ResultCode.NotFound, false, 'User not found');
+    await this.saUsersRepository.updateUserBanStatus(
       command.userId,
       command.inputData,
     );
-    if (!user)
-      return new Result<boolean>(ResultCode.NotFound, false, 'User not found');
     return new Result<boolean>(ResultCode.Success, true, null);
   }
 }

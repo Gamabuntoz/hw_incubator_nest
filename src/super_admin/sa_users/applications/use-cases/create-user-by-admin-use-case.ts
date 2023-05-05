@@ -27,7 +27,7 @@ export class CreateUserByAdminUseCases
     command: CreateUserByAdminCommand,
   ): Promise<Result<SAUserInfoDTO>> {
     const passwordSalt = await bcrypt.genSalt(10);
-    const passwordHash = await this.saUsersService._generateHash(
+    const passwordHash = await this._generateHash(
       command.inputData.password,
       passwordSalt,
     );
@@ -69,5 +69,9 @@ export class CreateUserByAdminUseCases
       },
     );
     return new Result<SAUserInfoDTO>(ResultCode.Success, userView, null);
+  }
+
+  private async _generateHash(password: string, salt: string) {
+    return await bcrypt.hash(password, salt);
   }
 }

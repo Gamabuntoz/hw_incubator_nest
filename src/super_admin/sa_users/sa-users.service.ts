@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SAUsersRepository } from './sa-users.repository';
 import { QueryUsersDTO, SAUserInfoDTO } from './applications/sa-users.dto';
-import * as bcrypt from 'bcrypt';
 import { Result, ResultCode } from '../../helpers/contract';
 import { Paginated } from '../../helpers/paginated';
 import { User } from './applications/users.schema';
@@ -50,9 +49,5 @@ export class SAUsersService {
       paginatedUsers,
       null,
     );
-  }
-
-  async _generateHash(password: string, salt: string) {
-    return await bcrypt.hash(password, salt);
   }
 }

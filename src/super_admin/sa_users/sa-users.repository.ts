@@ -74,7 +74,7 @@ export class SAUsersRepository {
       {
         $set: {
           'banInformation.isBanned': inputData.isBanned,
-          'banInformation.banReason': inputData.banReason
+          'banInformation.banReason': inputData.isBanned
             ? inputData.banReason
             : null,
           'banInformation.banDate': inputData.isBanned ? new Date() : null,

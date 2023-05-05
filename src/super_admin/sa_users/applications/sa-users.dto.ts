@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   ValidateIf,
@@ -21,12 +22,13 @@ export class SAUserInfoDTO {
 }
 
 export class InputBanUserDTO {
-  /*@IsBoolean()
-  @IsNotEmpty()*/
+  @IsBoolean()
+  @IsNotEmpty()
   isBanned: boolean;
   @ValidateIf((object, value) => value !== null)
   @IsString()
   @Length(1, 20)
+  @IsOptional()
   banReason: string;
 }
 

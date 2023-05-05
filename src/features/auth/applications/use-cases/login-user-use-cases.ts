@@ -8,6 +8,7 @@ import { InputLoginDTO } from '../auth.dto';
 import { UsersRepository } from '../../../users/users.repository';
 import { AuthService } from '../../auth.service';
 import { Result, ResultCode } from '../../../../helpers/contract';
+import { User } from '../../../../super_admin/sa_users/applications/users.schema';
 
 export class LoginUserCommand {
   constructor(
@@ -26,11 +27,17 @@ export class LoginUserUseCases implements ICommandHandler<LoginUserCommand> {
   ) {}
 
   async execute(command: LoginUserCommand): Promise<Result<object>> {
-    const user = await this.usersRepository.findUserByLoginOrEmail(
+    const user: User = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.loginOrEmail,
     );
     if (!user)
       return new Result<object>(ResultCode.NotFound, null, 'User not found');
+    if (user.banInformation.isBanned)
+      return new Result<object>(
+        ResultCode.Unauthorized,
+        null,
+        'User is banned',
+      );
     const device: Device = {
       _id: new Types.ObjectId(),
       ipAddress: command.ip,

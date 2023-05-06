@@ -19,7 +19,7 @@ import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.de
 import { Types } from 'mongoose';
 import { DeleteUserCommand } from './applications/use-cases/delete-user-use-cases';
 import { Result, ResultCode } from '../../helpers/contract';
-import { InputRegistrationDTO } from '../../features/auth/applications/auth.dto';
+import { InputRegistrationDTO } from '../../public/auth/applications/auth.dto';
 import { CreateUserByAdminCommand } from './applications/use-cases/create-user-by-admin-use-case';
 import { BanUserCommand } from './applications/use-cases/ban-user-use-cases';
 

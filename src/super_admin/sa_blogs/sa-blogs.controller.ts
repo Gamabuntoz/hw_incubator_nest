@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -8,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { QueryBlogsDTO } from './applications/sa-blogs.dto';
+import { BlogBanDTO, QueryBlogsDTO } from './applications/sa-blogs.dto';
 import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
 import { SABlogsService } from './sa-blogs.service';
 import { Types } from 'mongoose';
@@ -16,6 +17,7 @@ import { Result, ResultCode } from '../../helpers/contract';
 import { BasicAuthGuard } from '../../security/guards/basic-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { BindBlogWithUserCommand } from './applications/use-cases/bind-blog-with-user-use-cases';
+import { BanBlogByIdCommand } from './applications/use-cases/ban-blog-by-id-use-cases';
 
 @Controller('sa/blogs')
 export class SaBlogsController {
@@ -43,6 +45,21 @@ export class SaBlogsController {
   ) {
     const result = await this.commandBus.execute(
       new BindBlogWithUserCommand(blogId, userId),
+    );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':blogId/ban')
+  async banBlogById(
+    @Param('blogId', new TryObjectIdPipe()) blogId: Types.ObjectId,
+    @Body() blogBanState: BlogBanDTO,
+  ) {
+    const result = await this.commandBus.execute(
+      new BanBlogByIdCommand(blogId, blogBanState),
     );
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);

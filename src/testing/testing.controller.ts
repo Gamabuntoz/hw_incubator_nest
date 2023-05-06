@@ -3,26 +3,29 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   User,
   UserDocument,
-} from '../../super_admin/sa_users/applications/users.schema';
+} from '../super_admin/sa_users/applications/users.schema';
 import { Model } from 'mongoose';
-import { Post, PostDocument } from '../posts/applications/posts.schema';
+import { Post, PostDocument } from '../public/posts/applications/posts.schema';
 import {
   Comment,
   CommentDocument,
-} from '../comments/applications/comments.schema';
-import { Device, DeviceDocument } from '../devices/applications/devices.schema';
+} from '../public/comments/applications/comments.schema';
+import {
+  Device,
+  DeviceDocument,
+} from '../public/devices/applications/devices.schema';
 import {
   PostLike,
   PostLikeDocument,
-} from '../posts/applications/posts-likes.schema';
+} from '../public/posts/applications/posts-likes.schema';
 import {
   CommentLike,
   CommentLikeDocument,
-} from '../comments/applications/comments-likes.schema';
+} from '../public/comments/applications/comments-likes.schema';
 import {
   Blog,
   BlogDocument,
-} from '../../blogger/blogger_blogs/applications/blogger-blogs.schema';
+} from '../blogger/blogger_blogs/applications/blogger-blogs.schema';
 @Controller('testing')
 export class TestingController {
   constructor(

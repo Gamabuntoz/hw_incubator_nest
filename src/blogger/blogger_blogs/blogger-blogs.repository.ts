@@ -17,6 +17,10 @@ export class BloggerBlogsRepository {
       .lean();
   }
 
+  async findAllBannedBlogs() {
+    return this.blogModel.find({ 'banInformation.isBanned': true });
+  }
+
   async totalCountBlogs(filter: any) {
     return this.blogModel.countDocuments(filter);
   }

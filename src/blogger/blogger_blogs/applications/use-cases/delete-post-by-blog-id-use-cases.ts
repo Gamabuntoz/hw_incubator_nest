@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Types } from 'mongoose';
-import { PostsRepository } from '../../../../features/posts/posts.repository';
+import { PostsRepository } from '../../../../public/posts/posts.repository';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { BloggerBlogsRepository } from '../../blogger-blogs.repository';
 import { Blog } from '../blogger-blogs.schema';

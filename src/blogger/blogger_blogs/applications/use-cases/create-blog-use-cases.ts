@@ -4,7 +4,7 @@ import { BloggerBlogsRepository } from '../../blogger-blogs.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { Blog } from '../blogger-blogs.schema';
-import { UsersRepository } from '../../../../features/users/users.repository';
+import { UsersRepository } from '../../../../public/users/users.repository';
 import { User } from '../../../../super_admin/sa_users/applications/users.schema';
 
 export class CreateBlogCommand {
@@ -31,6 +31,10 @@ export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
       isMembership: false,
       ownerId: command.currentUserId,
       ownerLogin: user.accountData.login,
+      banInformation: {
+        isBanned: false,
+        banDate: null,
+      },
     };
     await this.bloggerBlogsRepository.createBlog(newBlog);
     const blogView = new BlogInfoDTO(

@@ -3,7 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { UsersRepository } from '../../features/users/users.repository';
+import { UsersRepository } from '../../public/users/users.repository';
 
 @ValidatorConstraint({ name: 'ValidatePasswordRecoveryCode', async: true })
 @Injectable()

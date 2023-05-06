@@ -10,6 +10,8 @@ import { PostLike } from './applications/posts-likes.schema';
 import { CommentsService } from '../comments/comments.service';
 import { Paginated } from '../../helpers/paginated';
 import { Result, ResultCode } from '../../helpers/contract';
+import { BloggerBlogsRepository } from '../../blogger/blogger_blogs/blogger-blogs.repository';
+import { Blog } from '../../blogger/blogger_blogs/applications/blogger-blogs.schema';
 
 @Injectable()
 export class PostsService {
@@ -18,6 +20,7 @@ export class PostsService {
     protected commentsRepository: CommentsRepository,
     protected usersRepository: UsersRepository,
     protected commentsService: CommentsService,
+    protected bloggerBlogsRepository: BloggerBlogsRepository,
   ) {}
 
   async findCommentsByPostId(
@@ -78,8 +81,14 @@ export class PostsService {
     queryData: QueryPostsDTO,
     userId?: string,
   ): Promise<Result<Paginated<PostInfoDTO[]>>> {
+    const allBannedBlogs =
+      await this.bloggerBlogsRepository.findAllBannedBlogs();
+    const allBannedBlogsId = allBannedBlogs.map((b) => b._id.toString());
     const totalCount = await this.postsRepository.totalCountPosts();
-    const allPosts = await this.postsRepository.findAllPosts(queryData);
+    const allPosts = await this.postsRepository.findAllPosts(
+      queryData,
+      allBannedBlogsId,
+    );
     const paginatedPosts = await Paginated.getPaginated<PostInfoDTO[]>({
       pageNumber: queryData.pageNumber,
       pageSize: queryData.pageSize,
@@ -135,7 +144,15 @@ export class PostsService {
         null,
         'post not found',
       );
-
+    const checkBlog: Blog = await this.bloggerBlogsRepository.findBlogById(
+      new Types.ObjectId(postById.blogId),
+    );
+    if (checkBlog.banInformation.isBanned)
+      return new Result<PostInfoDTO>(
+        ResultCode.NotFound,
+        null,
+        'blog is banned',
+      );
     const countBannedLikesOwner = await this.countBannedStatusOwner(id, 'Like');
     const countBannedDislikesOwner = await this.countBannedStatusOwner(
       id,

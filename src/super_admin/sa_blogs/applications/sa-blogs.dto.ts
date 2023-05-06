@@ -1,3 +1,5 @@
+import { IsBoolean } from 'class-validator';
+
 export class BlogInfoDTO {
   constructor(
     public id: string,
@@ -7,6 +9,7 @@ export class BlogInfoDTO {
     public createdAt: string,
     public isMembership: boolean,
     public blogOwnerInfo: { userLogin: string; userId: string },
+    public banInfo: { isBanned: boolean; banDate: string | null },
   ) {}
 }
 
@@ -18,4 +21,9 @@ export class QueryBlogsDTO {
     public pageNumber: number = 1,
     public pageSize: number = 10,
   ) {}
+}
+
+export class BlogBanDTO {
+  @IsBoolean()
+  isBanned: boolean;
 }

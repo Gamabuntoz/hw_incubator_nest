@@ -1,30 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { SABlogsRepository } from './sa-blogs.repository';
-import { BlogInfoDTO, QueryBlogsDTO } from './applications/sa-blogs.dto';
+import { BloggerBlogsRepository } from './blogger-users.repository';
 import { Result, ResultCode } from '../../helpers/contract';
 import { Paginated } from '../../helpers/paginated';
-import { UsersRepository } from '../../public/users/users.repository';
+import { BlogInfoDTO, QueryBlogsDTO } from './applications/blogger-users.dto';
 
 @Injectable()
-export class SABlogsService {
-  constructor(
-    protected saBlogsRepository: SABlogsRepository,
-    protected usersRepository: UsersRepository,
-  ) {}
+export class BloggerBlogsService {
+  constructor(protected bloggerBlogsRepository: BloggerBlogsRepository) {}
 
   async findAllBlogs(
     queryData: QueryBlogsDTO,
+    currentUserId: string,
   ): Promise<Result<Paginated<BlogInfoDTO[]>>> {
-    let filter = {};
+    let filter: any = { ownerId: currentUserId };
     if (queryData.searchNameTerm) {
-      filter = { name: { $regex: queryData.searchNameTerm, $options: 'i' } };
+      filter = {
+        ownerId: currentUserId,
+        name: { $regex: queryData.searchNameTerm, $options: 'i' },
+      };
     }
     let sort = 'createdAt';
     if (queryData.sortBy) {
       sort = queryData.sortBy;
     }
-    const totalCount = await this.saBlogsRepository.totalCountBlogs(filter);
-    const allBlogs = await this.saBlogsRepository.findAllBlogs(
+    const totalCount = await this.bloggerBlogsRepository.totalCountBlogs(
+      filter,
+    );
+    const allBlogs = await this.bloggerBlogsRepository.findAllBlogs(
       filter,
       sort,
       queryData,
@@ -42,16 +44,6 @@ export class SABlogsService {
             b.websiteUrl,
             b.createdAt,
             b.isMembership,
-            {
-              userId: b.ownerId,
-              userLogin: b.ownerLogin,
-            },
-            {
-              isBanned: b.banInformation.isBanned,
-              banDate: b.banInformation.banDate
-                ? b.banInformation.banDate.toISOString()
-                : null,
-            },
           ),
       ),
     });

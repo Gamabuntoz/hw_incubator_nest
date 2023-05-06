@@ -5,7 +5,7 @@ import {
   Blog,
   BlogDocument,
 } from '../../blogger/blogger_blogs/applications/blogger-blogs.schema';
-import { QueryBlogsDTO } from '../../features/blogs/applications/blogs.dto';
+import { QueryBlogsDTO } from '../../public/blogs/applications/blogs.dto';
 
 @Injectable()
 export class SABlogsRepository {
@@ -15,6 +15,19 @@ export class SABlogsRepository {
     return this.blogModel.findOne({
       _id: id,
     });
+  }
+
+  async banBlogById(id: Types.ObjectId, status: boolean) {
+    const result = await this.blogModel.updateOne(
+      { _id: id },
+      {
+        $set: {
+          'banInformation.isBanned': status,
+          'banInformation.banDate': status ? new Date() : null,
+        },
+      },
+    );
+    return result.matchedCount === 1;
   }
 
   async findAllBlogs(filter: any, sort: string, queryData: QueryBlogsDTO) {

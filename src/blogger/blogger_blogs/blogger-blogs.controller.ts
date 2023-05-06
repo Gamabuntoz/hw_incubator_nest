@@ -22,7 +22,7 @@ import { JwtAccessAuthGuard } from 'src/security/guards/jwt-access-auth.guard';
 import { Result, ResultCode } from 'src/helpers/contract';
 import { CurrentUserId } from '../../helpers/decorators/current-user.param.decorator';
 import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.decorator';
-import { InputPostDTO } from '../../features/posts/applications/posts.dto';
+import { InputPostDTO } from '../../public/posts/applications/posts.dto';
 import { CreatePostWithBlogIdCommand } from './applications/use-cases/create-post-by-blog-id-use-cases';
 import { UpdatePostCommand } from './applications/use-cases/update-post-by-blog-id-use-cases';
 import { DeletePostCommand } from './applications/use-cases/delete-post-by-blog-id-use-cases';
@@ -31,7 +31,7 @@ import { DeletePostCommand } from './applications/use-cases/delete-post-by-blog-
 export class BloggerBlogsController {
   constructor(
     private commandBus: CommandBus,
-    protected blogsService: BloggerBlogsService,
+    protected bloggerBlogsService: BloggerBlogsService,
   ) {}
   //
   //
@@ -45,7 +45,10 @@ export class BloggerBlogsController {
     @Query() query: QueryBlogsDTO,
     @CurrentUserId() currentUserId,
   ) {
-    const result = await this.blogsService.findAllBlogs(query, currentUserId);
+    const result = await this.bloggerBlogsService.findAllBlogs(
+      query,
+      currentUserId,
+    );
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
     }

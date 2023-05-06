@@ -7,7 +7,7 @@ import { SAUserInfoDTO } from '../sa-users.dto';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { SAUsersService } from '../../sa-users.service';
 import { SAUsersRepository } from '../../sa-users.repository';
-import { InputRegistrationDTO } from '../../../../features/auth/applications/auth.dto';
+import { InputRegistrationDTO } from '../../../../public/auth/applications/auth.dto';
 import { User } from '../users.schema';
 
 export class CreateUserByAdminCommand {

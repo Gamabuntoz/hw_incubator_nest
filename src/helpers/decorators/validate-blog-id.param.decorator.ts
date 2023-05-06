@@ -4,7 +4,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { BlogsRepository } from '../../features/blogs/blogs.repository';
+import { BlogsRepository } from '../../public/blogs/blogs.repository';
 
 @ValidatorConstraint({ name: 'BlogExists', async: true })
 @Injectable()

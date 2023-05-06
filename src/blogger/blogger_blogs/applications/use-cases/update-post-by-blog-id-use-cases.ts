@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Types } from 'mongoose';
-import { PostsRepository } from '../../../../features/posts/posts.repository';
-import { InputPostDTO } from '../../../../features/posts/applications/posts.dto';
+import { PostsRepository } from '../../../../public/posts/posts.repository';
+import { InputPostDTO } from '../../../../public/posts/applications/posts.dto';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { Blog } from '../blogger-blogs.schema';
 import { BloggerBlogsRepository } from '../../blogger-blogs.repository';

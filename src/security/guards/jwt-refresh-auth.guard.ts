@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../../helpers/constants';
-import { DevicesRepository } from '../../features/devices/devices.repository';
+import { DevicesRepository } from '../../public/devices/devices.repository';
 
 @Injectable()
 export class JwtRefreshAuthGuard implements CanActivate {

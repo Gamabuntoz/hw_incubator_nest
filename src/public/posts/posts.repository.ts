@@ -12,13 +12,17 @@ export class PostsRepository {
     @InjectModel(PostLike.name) private postLikeModel: Model<PostLikeDocument>,
   ) {}
 
-  async findAllPosts(queryData: QueryPostsDTO) {
+  async findAllPosts(queryData: QueryPostsDTO, bannedBlogsId?: string[]) {
+    let filter = {};
+    if (bannedBlogsId) {
+      filter = { blogId: { $nin: bannedBlogsId } };
+    }
     let sort = 'createdAt';
     if (queryData.sortBy) {
       sort = queryData.sortBy;
     }
     return this.postModel
-      .find({})
+      .find(filter)
       .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
       .skip((queryData.pageNumber - 1) * queryData.pageSize)
       .limit(queryData.pageSize)

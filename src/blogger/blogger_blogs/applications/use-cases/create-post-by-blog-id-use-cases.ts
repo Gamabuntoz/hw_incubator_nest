@@ -2,8 +2,8 @@ import { Types } from 'mongoose';
 import {
   InputPostDTO,
   PostInfoDTO,
-} from '../../../../features/posts/applications/posts.dto';
-import { PostsRepository } from '../../../../features/posts/posts.repository';
+} from '../../../../public/posts/applications/posts.dto';
+import { PostsRepository } from '../../../../public/posts/posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { Blog } from '../blogger-blogs.schema';

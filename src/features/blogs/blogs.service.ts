@@ -42,6 +42,14 @@ export class BlogsService {
       items: await Promise.all(
         allPosts.map(async (p) => {
           let likeStatusCurrentUser;
+          const countBannedLikesOwner =
+            await this.postsService.countBannedStatusOwner(p._id, 'Like');
+          const countBannedDislikesOwner =
+            await this.postsService.countBannedStatusOwner(p._id, 'Dislike');
+          const idBannedUsers = await this.postsService.idBannedStatusOwner(
+            p._id,
+            'Like',
+          );
           if (userId) {
             likeStatusCurrentUser =
               await this.postsRepository.findPostLikeByPostAndUserId(
@@ -51,11 +59,14 @@ export class BlogsService {
           }
           const lastPostLikes = await this.postsRepository.findLastPostLikes(
             p._id.toString(),
+            idBannedUsers,
           );
           return this.postsService.createPostViewInfo(
             p,
             lastPostLikes,
             likeStatusCurrentUser,
+            countBannedLikesOwner,
+            countBannedDislikesOwner,
           );
         }),
       ),

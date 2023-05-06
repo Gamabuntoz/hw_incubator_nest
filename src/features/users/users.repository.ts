@@ -21,18 +21,18 @@ export class UsersRepository {
     return this.userModel.findOne({ _id: new Types.ObjectId(id) });
   }
 
-  async countBannedUsersById(ids: string[]) {
-    let countBannedUsers = 0;
-    await Promise.all(
-      ids.map(async (i) => {
-        const bannedUser = await this.userModel.findOne({
-          _id: new Types.ObjectId(i),
-          'banInformation.isBanned': true,
-        });
-        if (bannedUser) return (countBannedUsers += 1);
-      }),
-    );
-    return countBannedUsers;
+  async countBannedUsersInIdArray(ids: Types.ObjectId[]) {
+    return this.userModel.countDocuments({
+      _id: { $in: ids },
+      'banInformation.isBanned': true,
+    });
+  }
+
+  async allIdBannedUsers(ids: Types.ObjectId[]) {
+    return this.userModel.find({
+      _id: { $in: ids },
+      'banInformation.isBanned': true,
+    });
   }
 
   async findUserByLoginOrEmail(loginOrEmail: string) {

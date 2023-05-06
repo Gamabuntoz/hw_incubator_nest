@@ -107,9 +107,9 @@ export class PostsRepository {
     return newPostLike;
   }
 
-  async findLastPostLikes(postId: string) {
+  async findLastPostLikes(postId: string, bannedUsers?: string[]) {
     return this.postLikeModel
-      .find({ postId: postId, status: 'Like' })
+      .find({ postId: postId, status: 'Like', userId: { $nin: bannedUsers } })
       .sort({ addedAt: -1 })
       .limit(3)
       .lean();

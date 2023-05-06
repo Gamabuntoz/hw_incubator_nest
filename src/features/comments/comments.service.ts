@@ -58,8 +58,8 @@ export class CommentsService {
   async countBannedStatusOwner(id: Types.ObjectId, status: string) {
     const allLikes: CommentLike[] =
       await this.commentsRepository.findAllCommentLikes(id, status);
-    const allUsersLikeOwner = allLikes.map((c) => c.userId);
-    return this.usersRepository.countBannedUsersById(allUsersLikeOwner);
+    const allUsersLikeOwner = allLikes.map((c) => new Types.ObjectId(c.userId));
+    return this.usersRepository.countBannedUsersInIdArray(allUsersLikeOwner);
   }
 
   async createCommentViewInfo(

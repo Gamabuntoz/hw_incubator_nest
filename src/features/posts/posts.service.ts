@@ -88,6 +88,15 @@ export class PostsService {
       items: await Promise.all(
         allPosts.map(async (p) => {
           let likeStatusCurrentUser;
+          const countBannedLikesOwner = await this.countBannedStatusOwner(
+            p._id,
+            'Like',
+          );
+          const countBannedDislikesOwner = await this.countBannedStatusOwner(
+            p._id,
+            'Dislike',
+          );
+          const idBannedUsers = await this.idBannedStatusOwner(p._id, 'Like');
           if (userId) {
             likeStatusCurrentUser =
               await this.postsRepository.findPostLikeByPostAndUserId(
@@ -97,11 +106,14 @@ export class PostsService {
           }
           const lastPostLikes = await this.postsRepository.findLastPostLikes(
             p._id.toString(),
+            idBannedUsers,
           );
           return this.createPostViewInfo(
             p,
             lastPostLikes,
             likeStatusCurrentUser,
+            countBannedLikesOwner,
+            countBannedDislikesOwner,
           );
         }),
       ),
@@ -130,7 +142,7 @@ export class PostsService {
       id,
       'Dislike',
     );
-
+    const idBannedUsers = await this.idBannedStatusOwner(id, 'Like');
     let likeStatusCurrentUser;
     if (userId) {
       likeStatusCurrentUser =
@@ -141,6 +153,7 @@ export class PostsService {
     }
     const lastPostLikes = await this.postsRepository.findLastPostLikes(
       id.toString(),
+      idBannedUsers,
     );
     const postView = await this.createPostViewInfo(
       postById,
@@ -157,8 +170,20 @@ export class PostsService {
       id,
       status,
     );
-    const allUsersLikeOwner = allLikes.map((p) => p.userId);
-    return this.usersRepository.countBannedUsersById(allUsersLikeOwner);
+    const allUsersLikeOwner = allLikes.map((p) => new Types.ObjectId(p.userId));
+    return this.usersRepository.countBannedUsersInIdArray(allUsersLikeOwner);
+  }
+
+  async idBannedStatusOwner(id: Types.ObjectId, status: string) {
+    const allLikes: PostLike[] = await this.postsRepository.findAllPostLikes(
+      id,
+      status,
+    );
+    const allUsersLikeOwner = allLikes.map((p) => new Types.ObjectId(p.userId));
+    const allBannedUsers = await this.usersRepository.allIdBannedUsers(
+      allUsersLikeOwner,
+    );
+    return allBannedUsers.map((u) => u._id.toString());
   }
 
   async createPostViewInfo(

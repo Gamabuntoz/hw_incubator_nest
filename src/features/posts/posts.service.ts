@@ -10,7 +10,6 @@ import { PostLike } from './applications/posts-likes.schema';
 import { CommentsService } from '../comments/comments.service';
 import { Paginated } from '../../helpers/paginated';
 import { Result, ResultCode } from '../../helpers/contract';
-import { CommentLike } from '../comments/applications/comments-likes.schema';
 
 @Injectable()
 export class PostsService {

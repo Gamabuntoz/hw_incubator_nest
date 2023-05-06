@@ -30,12 +30,16 @@ export class SABlogsRepository {
     return this.blogModel.countDocuments(filter);
   }
 
-  async bindBlogWithUser(blogId: Types.ObjectId, userId: Types.ObjectId) {
+  async bindBlogWithUser(
+    blogId: Types.ObjectId,
+    userId: Types.ObjectId,
+    userLogin: string,
+  ) {
     const result = await this.blogModel.updateOne(
       {
         _id: blogId,
       },
-      { $set: { ownerId: userId.toString() } },
+      { $set: { ownerId: userId.toString(), ownerLogin: userLogin } },
     );
     return result.matchedCount === 1;
   }

@@ -3,10 +3,14 @@ import { SABlogsRepository } from './sa-blogs.repository';
 import { BlogInfoDTO, QueryBlogsDTO } from './applications/sa-blogs.dto';
 import { Result, ResultCode } from '../../helpers/contract';
 import { Paginated } from '../../helpers/paginated';
+import { UsersRepository } from '../../features/users/users.repository';
 
 @Injectable()
 export class SABlogsService {
-  constructor(protected saBlogsRepository: SABlogsRepository) {}
+  constructor(
+    protected saBlogsRepository: SABlogsRepository,
+    protected usersRepository: UsersRepository,
+  ) {}
 
   async findAllBlogs(
     queryData: QueryBlogsDTO,
@@ -38,6 +42,10 @@ export class SABlogsService {
             b.websiteUrl,
             b.createdAt,
             b.isMembership,
+            {
+              userId: b.ownerId,
+              userLogin: b.ownerLogin,
+            },
           ),
       ),
     });

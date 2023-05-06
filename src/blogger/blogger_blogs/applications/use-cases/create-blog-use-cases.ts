@@ -4,6 +4,8 @@ import { BloggerBlogsRepository } from '../../blogger-blogs.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { Blog } from '../blogger-blogs.schema';
+import { UsersRepository } from '../../../../features/users/users.repository';
+import { User } from '../../../../super_admin/sa_users/applications/users.schema';
 
 export class CreateBlogCommand {
   constructor(public inputData: InputBlogDTO, public currentUserId: string) {}
@@ -11,9 +13,15 @@ export class CreateBlogCommand {
 
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
-  constructor(private bloggerBlogsRepository: BloggerBlogsRepository) {}
+  constructor(
+    private bloggerBlogsRepository: BloggerBlogsRepository,
+    private usersRepository: UsersRepository,
+  ) {}
 
   async execute(command: CreateBlogCommand): Promise<Result<BlogInfoDTO>> {
+    const user: User = await this.usersRepository.findUserById(
+      command.currentUserId,
+    );
     const newBlog: Blog = {
       _id: new Types.ObjectId(),
       createdAt: new Date().toISOString(),
@@ -22,6 +30,7 @@ export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
       websiteUrl: command.inputData.websiteUrl,
       isMembership: false,
       ownerId: command.currentUserId,
+      ownerLogin: user.accountData.login,
     };
     await this.bloggerBlogsRepository.createBlog(newBlog);
     const blogView = new BlogInfoDTO(

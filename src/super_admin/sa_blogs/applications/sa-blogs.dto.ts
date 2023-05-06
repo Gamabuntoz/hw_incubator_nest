@@ -6,6 +6,7 @@ export class BlogInfoDTO {
     public websiteUrl: string,
     public createdAt: string,
     public isMembership: boolean,
+    public blogOwnerInfo: { userLogin: string; userId: string },
   ) {}
 }
 

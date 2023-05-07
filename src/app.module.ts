@@ -97,6 +97,13 @@ import { SABlogsService } from './super_admin/sa_blogs/sa-blogs.service';
 import { SABlogsRepository } from './super_admin/sa_blogs/sa-blogs.repository';
 import { BanBlogByIdUseCases } from './super_admin/sa_blogs/applications/use-cases/ban-blog-by-id-use-cases';
 import { BanUserForBlogUseCases } from './blogger/blogger_users/applications/use-cases/ban-user-for-blog-use-cases';
+import {
+  BannedUserForBlog,
+  BannedUserForBlogSchema,
+} from './blogger/blogger_users/applications/banned-users-for-blogs.schema';
+import { BloggerUsersController } from './blogger/blogger_users/blogger-users.controller';
+import { BloggerUsersService } from './blogger/blogger_users/blogger-users.service';
+import { BloggerUsersRepository } from './blogger/blogger_users/blogger-users.repository';
 
 const useCases = [
   BanUserForBlogUseCases,
@@ -150,9 +157,11 @@ const repositories = [
   BlogsRepository,
   CommentsRepository,
   BloggerBlogsRepository,
-  BloggerBlogsService,
+  BloggerUsersRepository,
 ];
 const services = [
+  BloggerBlogsService,
+  BloggerUsersService,
   AuthService,
   AppService,
   SAUsersService,
@@ -164,6 +173,7 @@ const services = [
 ];
 const adapters = [EmailAdapter];
 const controllers = [
+  BloggerUsersController,
   AppController,
   TestingController,
   SaBlogsController,
@@ -198,6 +208,7 @@ const controllers = [
       { name: CommentLike.name, schema: CommentLikeSchema },
       { name: PostLike.name, schema: PostLikeSchema },
       { name: Device.name, schema: DeviceSchema },
+      { name: BannedUserForBlog.name, schema: BannedUserForBlogSchema },
     ]),
   ],
   controllers: [...controllers],

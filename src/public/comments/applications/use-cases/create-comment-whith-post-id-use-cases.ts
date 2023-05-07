@@ -5,6 +5,7 @@ import { CommentInfoDTO } from '../comments.dto';
 import { UsersRepository } from '../../../users/users.repository';
 import { CommentsRepository } from '../../comments.repository';
 import { Result, ResultCode } from '../../../../helpers/contract';
+import { BloggerUsersRepository } from '../../../../blogger/blogger_users/blogger-users.repository';
 
 export class CreateCommentWithPostIdCommand {
   constructor(
@@ -22,6 +23,7 @@ export class CreateCommentWithPostIdUseCases
     protected usersRepository: UsersRepository,
     protected postsRepository: PostsRepository,
     protected commentsRepository: CommentsRepository,
+    protected bloggerUsersRepository: BloggerUsersRepository,
   ) {}
 
   async execute(
@@ -34,6 +36,17 @@ export class CreateCommentWithPostIdUseCases
         ResultCode.NotFound,
         null,
         'Post not found',
+      );
+    const checkUserForBanForBlog =
+      await this.bloggerUsersRepository.checkUserForBan(
+        command.userId,
+        postById.blogId,
+      );
+    if (checkUserForBanForBlog)
+      return new Result<CommentInfoDTO>(
+        ResultCode.BadRequest,
+        null,
+        'User banned for blog',
       );
     const newComment = {
       _id: new Types.ObjectId(),

@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString, IsUrl, Length } from 'class-validator';
 
-export class BlogInfoDTO {
+export class BloggerBlogInfoDTO {
   constructor(
     public id: string,
     public name: string,
@@ -12,9 +12,36 @@ export class BlogInfoDTO {
   ) {}
 }
 
+export class BloggerCommentInfoDTO {
+  constructor(
+    public id: string,
+    public content: string,
+    public commentatorInfo: {
+      userId: string;
+      userLogin: string;
+    },
+    public createdAt: string,
+    public postInfo: {
+      id: string;
+      title: string;
+      blogId: string;
+      blogName: string;
+    },
+  ) {}
+}
+
 export class QueryBlogsDTO {
   constructor(
     public searchNameTerm: string,
+    public sortBy: string = 'createdAt',
+    public sortDirection: string = 'desc',
+    public pageNumber: number = 1,
+    public pageSize: number = 10,
+  ) {}
+}
+
+export class QueryCommentsDTO {
+  constructor(
     public sortBy: string = 'createdAt',
     public sortDirection: string = 'desc',
     public pageNumber: number = 1,

@@ -28,6 +28,9 @@ export class PostsRepository {
       .limit(queryData.pageSize)
       .lean();
   }
+  async findAllPostsByBlogIds(blogIds: string[]) {
+    return this.postModel.find({ blogId: { $in: blogIds } });
+  }
 
   async findAllPostsByBlogId(id: string, queryData: QueryPostsDTO) {
     let sort = 'createdAt';

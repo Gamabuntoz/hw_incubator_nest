@@ -31,14 +31,14 @@ export class BloggerUsersController {
 
   @UseGuards(JwtAccessAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Get()
+  @Get('blog/:blogId')
   async findAllBlogs(
     @Query() query: QueryBannedUsersForBlogDTO,
-    @CurrentUserId() currentUserId,
+    @Param('blogId', new TryObjectIdPipe()) blogId: Types.ObjectId,
   ) {
-    const result = await this.bloggerUsersService.findAllBlogs(
+    const result = await this.bloggerUsersService.findAllBannedUsers(
       query,
-      currentUserId,
+      blogId,
     );
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);

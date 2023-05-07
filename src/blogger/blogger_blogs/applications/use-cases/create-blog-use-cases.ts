@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { BlogInfoDTO, InputBlogDTO } from '../blogger-blogs.dto';
+import { BloggerBlogInfoDTO, InputBlogDTO } from '../blogger-blogs.dto';
 import { BloggerBlogsRepository } from '../../blogger-blogs.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result, ResultCode } from '../../../../helpers/contract';
@@ -18,7 +18,9 @@ export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
     private usersRepository: UsersRepository,
   ) {}
 
-  async execute(command: CreateBlogCommand): Promise<Result<BlogInfoDTO>> {
+  async execute(
+    command: CreateBlogCommand,
+  ): Promise<Result<BloggerBlogInfoDTO>> {
     const user: User = await this.usersRepository.findUserById(
       command.currentUserId,
     );
@@ -37,7 +39,7 @@ export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
       },
     };
     await this.bloggerBlogsRepository.createBlog(newBlog);
-    const blogView = new BlogInfoDTO(
+    const blogView = new BloggerBlogInfoDTO(
       newBlog._id.toString(),
       newBlog.name,
       newBlog.description,
@@ -45,6 +47,6 @@ export class CreateBlogUseCases implements ICommandHandler<CreateBlogCommand> {
       newBlog.createdAt,
       newBlog.isMembership,
     );
-    return new Result<BlogInfoDTO>(ResultCode.Success, blogView, null);
+    return new Result<BloggerBlogInfoDTO>(ResultCode.Success, blogView, null);
   }
 }

@@ -18,6 +18,18 @@ export class QueryBannedUsersForBlogDTO {
   ) {}
 }
 
+export class BannedUsersForBlogInfoDTO {
+  constructor(
+    public id: string,
+    public login: string,
+    public banInfo: {
+      isBanned: boolean;
+      banDate: string;
+      banReason: string;
+    },
+  ) {}
+}
+
 export class InputBanUserForBlogDTO {
   @IsBoolean()
   isBanned: boolean;

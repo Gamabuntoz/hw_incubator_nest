@@ -6,7 +6,10 @@ import {
   BannedUserForBlog,
   BannedUserForBlogDocument,
 } from './applications/banned-users-for-blogs.schema';
-import { InputBanUserForBlogDTO } from './applications/blogger-users.dto';
+import {
+  InputBanUserForBlogDTO,
+  QueryBannedUsersForBlogDTO,
+} from './applications/blogger-users.dto';
 
 @Injectable()
 export class BloggerUsersRepository {
@@ -37,5 +40,26 @@ export class BloggerUsersRepository {
 
   async createBannedUserStatusForBlog(newBannedUserStatus: BannedUserForBlog) {
     return this.bannedUserForBlogModel.create(newBannedUserStatus);
+  }
+
+  async totalCountBannedUsersForBlog(filter: any) {
+    return this.bannedUserForBlogModel.countDocuments(filter);
+  }
+
+  async checkUserForBan(userId: string, blogId: string) {
+    return this.bannedUserForBlogModel.findOne({ userId, blogId });
+  }
+
+  async findAllBannedUsersForBlog(
+    filter: any,
+    sort: string,
+    queryData: QueryBannedUsersForBlogDTO,
+  ) {
+    return this.bannedUserForBlogModel
+      .find(filter)
+      .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
+      .skip((queryData.pageNumber - 1) * queryData.pageSize)
+      .limit(queryData.pageSize)
+      .lean();
   }
 }

@@ -8,6 +8,7 @@ import {
   CommentLike,
   CommentLikeDocument,
 } from './applications/comments-likes.schema';
+import { QueryCommentsDTO } from '../../blogger/blogger_blogs/applications/blogger-blogs.dto';
 
 @Injectable()
 export class CommentsRepository {
@@ -102,6 +103,22 @@ export class CommentsRepository {
       .lean();
   }
 
+  async findAllCommentsByPostIds(
+    postsIds: string[],
+    queryData: QueryCommentsDTO,
+  ) {
+    let sort = 'createdAt';
+    if (queryData.sortBy) {
+      sort = queryData.sortBy;
+    }
+    return this.commentModel
+      .find({ postId: { $in: postsIds } })
+      .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })
+      .skip((queryData.pageNumber - 1) * queryData.pageSize)
+      .limit(queryData.pageSize)
+      .lean();
+  }
+
   async findCommentLikeByCommentAndUserId(commentId: string, userId: string) {
     return this.commentLikeModel.findOne({
       commentId: commentId,
@@ -111,5 +128,9 @@ export class CommentsRepository {
 
   async totalCountComments(id: string) {
     return this.commentModel.countDocuments({ postId: id });
+  }
+
+  async totalCountCommentsByPostsIds(postsIds: string[]) {
+    return this.commentModel.countDocuments({ postId: { $in: postsIds } });
   }
 }

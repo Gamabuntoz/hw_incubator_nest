@@ -84,7 +84,9 @@ export class PostsService {
     const allBannedBlogs =
       await this.bloggerBlogsRepository.findAllBannedBlogs();
     const allBannedBlogsId = allBannedBlogs.map((b) => b._id.toString());
-    const totalCount = await this.postsRepository.totalCountPosts();
+    const totalCount = await this.postsRepository.totalCountPostsExpectBanned(
+      allBannedBlogsId,
+    );
     const allPosts = await this.postsRepository.findAllPosts(
       queryData,
       allBannedBlogsId,

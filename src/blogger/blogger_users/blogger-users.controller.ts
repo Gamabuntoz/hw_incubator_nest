@@ -13,7 +13,7 @@ import {
   InputBanUserForBlogDTO,
   QueryBannedUsersForBlogDTO,
 } from './applications/blogger-users.dto';
-import { BloggerBlogsService } from './blogger-users.service';
+import { BloggerUsersService } from './blogger-users.service';
 import { Types } from 'mongoose';
 import { CommandBus } from '@nestjs/cqrs';
 import { JwtAccessAuthGuard } from 'src/security/guards/jwt-access-auth.guard';
@@ -23,10 +23,10 @@ import { TryObjectIdPipe } from '../../helpers/decorators/try-object-id.param.de
 import { BanUserForBlogCommand } from './applications/use-cases/ban-user-for-blog-use-cases';
 
 @Controller('blogger/users')
-export class BloggerBlogsController {
+export class BloggerUsersController {
   constructor(
     private commandBus: CommandBus,
-    protected bloggerBlogsService: BloggerBlogsService,
+    protected bloggerUsersService: BloggerUsersService,
   ) {}
 
   @UseGuards(JwtAccessAuthGuard)
@@ -36,7 +36,7 @@ export class BloggerBlogsController {
     @Query() query: QueryBannedUsersForBlogDTO,
     @CurrentUserId() currentUserId,
   ) {
-    const result = await this.bloggerBlogsService.findAllBlogs(
+    const result = await this.bloggerUsersService.findAllBlogs(
       query,
       currentUserId,
     );

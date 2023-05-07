@@ -49,8 +49,12 @@ export class PostsRepository {
     });
   }
 
-  async totalCountPosts() {
-    return this.postModel.countDocuments({});
+  async totalCountPostsExpectBanned(bannedBlogsId?: string[]) {
+    let filter = {};
+    if (bannedBlogsId) {
+      filter = { blogId: { $nin: bannedBlogsId } };
+    }
+    return this.postModel.countDocuments(filter);
   }
 
   async totalCountPostsByBlogId(blogId: string) {

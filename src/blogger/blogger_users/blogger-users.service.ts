@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { BloggerBlogsRepository } from './blogger-users.repository';
+import { BloggerUsersRepository } from './blogger-users.repository';
 import { Result, ResultCode } from '../../helpers/contract';
 import { Paginated } from '../../helpers/paginated';
-import { BlogInfoDTO, QueryBlogsDTO } from './applications/blogger-users.dto';
 
 @Injectable()
-export class BloggerBlogsService {
-  constructor(protected bloggerBlogsRepository: BloggerBlogsRepository) {}
+export class BloggerUsersService {
+  constructor(protected bloggerUsersRepository: BloggerUsersRepository) {}
 
   async findAllBlogs(
     queryData: QueryBlogsDTO,

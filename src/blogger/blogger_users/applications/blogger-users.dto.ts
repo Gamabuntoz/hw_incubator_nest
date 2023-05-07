@@ -20,7 +20,7 @@ export class QueryBannedUsersForBlogDTO {
 
 export class InputBanUserForBlogDTO {
   @IsBoolean()
-  name: string;
+  isBanned: boolean;
   @IsString()
   @Length(20)
   @IsNotEmpty()

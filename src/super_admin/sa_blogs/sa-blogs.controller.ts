@@ -37,6 +37,7 @@ export class SaBlogsController {
     return result.data;
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Put(':blogId/bind-with-user/:userId')
   async findBlogById(
@@ -52,6 +53,7 @@ export class SaBlogsController {
     return result.data;
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Put(':blogId/ban')
   async banBlogById(

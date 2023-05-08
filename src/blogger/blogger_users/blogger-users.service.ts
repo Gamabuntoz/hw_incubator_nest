@@ -7,15 +7,33 @@ import {
   QueryBannedUsersForBlogDTO,
 } from './applications/blogger-users.dto';
 import { Types } from 'mongoose';
+import { BloggerBlogsRepository } from '../blogger_blogs/blogger-blogs.repository';
 
 @Injectable()
 export class BloggerUsersService {
-  constructor(protected bloggerUsersRepository: BloggerUsersRepository) {}
+  constructor(
+    protected bloggerUsersRepository: BloggerUsersRepository,
+    protected bloggerBlogsRepository: BloggerBlogsRepository,
+  ) {}
 
   async findAllBannedUsers(
     queryData: QueryBannedUsersForBlogDTO,
     blogId: Types.ObjectId,
+    currentUserId: string,
   ): Promise<Result<Paginated<BannedUsersForBlogInfoDTO[]>>> {
+    const blog = await this.bloggerBlogsRepository.findBlogById(blogId);
+    if (!blog)
+      return new Result<Paginated<BannedUsersForBlogInfoDTO[]>>(
+        ResultCode.NotFound,
+        null,
+        'blog not found',
+      );
+    if (blog.ownerId !== currentUserId)
+      return new Result<Paginated<BannedUsersForBlogInfoDTO[]>>(
+        ResultCode.Forbidden,
+        null,
+        'access denied',
+      );
     let filter: any = { blogId: blogId.toString(), isBanned: true };
     if (queryData.searchLoginTerm) {
       filter = {
@@ -46,7 +64,7 @@ export class BloggerUsersService {
         (b) =>
           new BannedUsersForBlogInfoDTO(b.userId, b.userLogin, {
             isBanned: b.isBanned,
-            banDate: b.banDate.toString(),
+            banDate: b.banDate.toISOString(),
             banReason: b.banReason,
           }),
       ),

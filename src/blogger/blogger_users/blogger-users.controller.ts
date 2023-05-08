@@ -35,10 +35,12 @@ export class BloggerUsersController {
   async findAllBlogs(
     @Query() query: QueryBannedUsersForBlogDTO,
     @Param('blogId', new TryObjectIdPipe()) blogId: Types.ObjectId,
+    @CurrentUserId() currentUserId: string,
   ) {
     const result = await this.bloggerUsersService.findAllBannedUsers(
       query,
       blogId,
+      currentUserId,
     );
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);

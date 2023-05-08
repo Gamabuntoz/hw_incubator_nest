@@ -81,9 +81,12 @@ export class BlogsService {
   async findAllBlogs(
     queryData: QueryBlogsDTO,
   ): Promise<Result<Paginated<BlogInfoDTO[]>>> {
-    let filter = {};
+    let filter: any = { 'banInformation.isBanned': false };
     if (queryData.searchNameTerm) {
-      filter = { name: { $regex: queryData.searchNameTerm, $options: 'i' } };
+      filter = {
+        'banInformation.isBanned': false,
+        name: { $regex: queryData.searchNameTerm, $options: 'i' },
+      };
     }
     let sort = 'createdAt';
     if (queryData.sortBy) {
@@ -120,7 +123,7 @@ export class BlogsService {
 
   async findBlogById(id: Types.ObjectId): Promise<Result<BlogInfoDTO>> {
     const blogById = await this.blogsRepository.findBlogById(id);
-    if (!blogById)
+    if (!blogById || blogById.banInformation.isBanned)
       return new Result<BlogInfoDTO>(
         ResultCode.NotFound,
         null,

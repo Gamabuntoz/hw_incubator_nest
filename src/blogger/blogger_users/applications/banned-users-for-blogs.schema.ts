@@ -11,9 +11,9 @@ export class BannedUserForBlog {
   blogId: string;
   @Prop({ required: true })
   isBanned: boolean;
-  @Prop({ required: true })
+  @Prop()
   banDate: Date | null;
-  @Prop({ required: true })
+  @Prop()
   banReason: string | null;
   @Prop({ required: true })
   userId: string;

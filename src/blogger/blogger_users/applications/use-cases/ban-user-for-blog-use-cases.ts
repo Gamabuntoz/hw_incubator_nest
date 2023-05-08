@@ -50,7 +50,7 @@ export class BanUserForBlogUseCases
       blogId: command.inputData.blogId,
       isBanned: command.inputData.isBanned,
       banDate: command.inputData.isBanned ? new Date() : null,
-      banReason: command.inputData.isBanned
+      banReason: command.inputData.banReason
         ? command.inputData.banReason
         : null,
       userId: command.userId.toString(),

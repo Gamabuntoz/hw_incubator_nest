@@ -44,7 +44,7 @@ export class CreateCommentWithPostIdUseCases
       );
     if (checkUserForBanForBlog)
       return new Result<CommentInfoDTO>(
-        ResultCode.BadRequest,
+        ResultCode.Forbidden,
         null,
         'User banned for blog',
       );

@@ -44,17 +44,29 @@ export class BloggerBlogsService {
       totalCount,
       items: await Promise.all(
         allComments.map(async (c) => {
+          const likeStatusCurrentUser =
+            await this.commentsRepository.findCommentLikeByCommentAndUserId(
+              c._id.toString(),
+              currentUserId,
+            );
           const post = await this.postsRepository.findPostById(
             new Types.ObjectId(c.postId),
           );
           return new BloggerCommentInfoDTO(
             c._id.toString(),
             c.content,
+            c.createdAt,
             {
               userId: c.userId,
               userLogin: c.userLogin,
             },
-            c.createdAt,
+            {
+              dislikesCount: c.dislikeCount,
+              likesCount: c.likeCount,
+              myStatus: likeStatusCurrentUser
+                ? likeStatusCurrentUser.status
+                : 'None',
+            },
             {
               id: post._id.toString(),
               title: post.title,

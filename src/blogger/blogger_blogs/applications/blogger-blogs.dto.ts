@@ -16,11 +16,16 @@ export class BloggerCommentInfoDTO {
   constructor(
     public id: string,
     public content: string,
+    public createdAt: string,
     public commentatorInfo: {
       userId: string;
       userLogin: string;
     },
-    public createdAt: string,
+    public likesInfo: {
+      dislikesCount: number;
+      likesCount: number;
+      myStatus: string;
+    },
     public postInfo: {
       id: string;
       title: string;

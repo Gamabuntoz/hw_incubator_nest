@@ -58,6 +58,9 @@ export class BloggerUsersRepository {
     if (queryData.sortBy) {
       sort = queryData.sortBy;
     }
+    if (queryData.sortBy === 'login') {
+      sort = 'userLogin';
+    }
     return this.bannedUserForBlogModel
       .find(filter)
       .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })

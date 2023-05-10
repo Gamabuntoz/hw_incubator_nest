@@ -52,9 +52,12 @@ export class BloggerUsersRepository {
 
   async findAllBannedUsersForBlog(
     filter: any,
-    sort: string,
     queryData: QueryBannedUsersForBlogDTO,
   ) {
+    let sort = 'createdAt';
+    if (queryData.sortBy) {
+      sort = queryData.sortBy;
+    }
     return this.bannedUserForBlogModel
       .find(filter)
       .sort({ [sort]: queryData.sortDirection === 'asc' ? 1 : -1 })

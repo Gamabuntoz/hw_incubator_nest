@@ -42,16 +42,11 @@ export class BloggerUsersService {
         userLogin: { $regex: queryData.searchLoginTerm, $options: 'i' },
       };
     }
-    let sort = 'createdAt';
-    if (queryData.sortBy) {
-      sort = queryData.sortBy;
-    }
     const totalCount =
       await this.bloggerUsersRepository.totalCountBannedUsersForBlog(filter);
     const allBannedUsersForBlog =
       await this.bloggerUsersRepository.findAllBannedUsersForBlog(
         filter,
-        sort,
         queryData,
       );
     const paginatedBlogs = await Paginated.getPaginated<

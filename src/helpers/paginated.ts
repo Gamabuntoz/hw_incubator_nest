@@ -20,6 +20,3 @@ export class Paginated<T> {
     };
   }
 }
-
-// TODO: split query and command repository
-// TODO: create tests for all endpoints

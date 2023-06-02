@@ -27,7 +27,10 @@ export class PasswordRecoveryUseCases
     user = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.email,
     );
-    await this.emailAdapter.sendEmailForPasswordRecovery(user);
+    await this.emailAdapter.sendEmailForPasswordRecovery(
+      user.accountData.email,
+      user.passwordRecovery?.code,
+    );
     return new Result<boolean>(ResultCode.Success, true, null);
   }
 }

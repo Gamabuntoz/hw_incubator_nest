@@ -2,7 +2,7 @@
   "name": "hw_incubator_nest",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Tsimofei <zhalianhouski@gmail.com>",
   "private": true,
   "license": "UNLICENSED",
   "engines": {
@@ -34,6 +34,7 @@
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/throttler": "^4.0.0",
+    "@nestjs/typeorm": "^9.0.1",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -46,8 +47,10 @@
     "passport-http": "^0.3.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "typeorm": "^0.3.16",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
@@ -96,5 +99,7 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "main": "index.js",
+  "repository": "git@github.com:Gamabuntoz/hw_incubator_nest.git"
 }

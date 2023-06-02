@@ -60,13 +60,13 @@ export class BloggerBlogsService {
               userId: c.userId,
               userLogin: c.userLogin,
             },
-            /*{
+            {
               dislikesCount: c.dislikeCount,
               likesCount: c.likeCount,
               myStatus: likeStatusCurrentUser
                 ? likeStatusCurrentUser.status
                 : 'None',
-            },*/
+            },
             {
               id: post._id.toString(),
               title: post.title,

@@ -27,7 +27,10 @@ export class RegistrationUserUseCases
     const user = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.login,
     );
-    await this.emailAdapter.sendEmail(user);
+    await this.emailAdapter.sendEmail(
+      user.accountData.email,
+      user.emailConfirmation.confirmationCode,
+    );
     return new Result<boolean>(ResultCode.Success, true, null);
   }
 

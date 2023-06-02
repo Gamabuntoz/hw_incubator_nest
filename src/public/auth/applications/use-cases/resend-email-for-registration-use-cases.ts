@@ -25,7 +25,10 @@ export class ResendEmailUseCases
     const updatedUser = await this.usersRepository.findUserByLoginOrEmail(
       command.inputData.email,
     );
-    await this.emailAdapter.sendEmail(updatedUser);
+    await this.emailAdapter.sendEmail(
+      updatedUser.accountData.email,
+      updatedUser.emailConfirmation.confirmationCode,
+    );
     return new Result<boolean>(ResultCode.Success, true, null);
   }
 }

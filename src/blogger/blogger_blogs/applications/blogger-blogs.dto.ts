@@ -21,11 +21,11 @@ export class BloggerCommentInfoDTO {
       userId: string;
       userLogin: string;
     },
-    /*public likesInfo: {
+    public likesInfo: {
       dislikesCount: number;
       likesCount: number;
       myStatus: string;
-    },*/
+    },
     public postInfo: {
       id: string;
       title: string;
